@@ -1,0 +1,55 @@
+#ifndef AE_FONT_LOADER_H
+#define AE_FONT_LOADER_H
+
+#include "../graphics/core/font.h"
+#include "asset_loader.h"
+#include "assets.h"
+
+namespace ae {
+
+template<>
+class AssetLoader<Font>
+{
+public:
+    static std::shared_ptr<Font> loadFromFile(Assets *assets,
+                                              const std::string &asset_name,
+                                              const std::filesystem::path &path,
+                                              float pixel_height)
+    {
+        if (path.empty())
+            return nullptr;
+
+        std::string name = asset_name.empty() ? path.stem().string() : asset_name;
+        if (name.empty())
+            return nullptr;
+
+        auto font = std::make_shared<Font>();
+        if (!font->loadFromFile(path, pixel_height))
+            return nullptr;
+
+        assets->add(name, font);
+
+        return font;
+    }
+
+    static std::shared_ptr<Font> loadFromMemory(Assets *assets,
+                                                const std::string &asset_name,
+                                                const uint8_t *data,
+                                                float pixel_height)
+    {
+        if (!data)
+            return nullptr;
+
+        auto font = std::make_shared<Font>();
+        if (!font->loadFromMemory(data, pixel_height))
+            return nullptr;
+
+        assets->add(asset_name, font);
+
+        return font;
+    }
+};
+
+} // namespace ae
+
+#endif // AE_FONT_LOADER_H
