@@ -11,10 +11,10 @@ template<>
 class AssetLoader<Texture>
 {
 public:
-    static std::shared_ptr<Texture> loadFromFile(Assets *assets,
-                                                 const std::string &asset_name,
-                                                 const std::filesystem::path &path,
-                                                 TextureType type = TextureType::DEFAULT)
+    static SharedPtr<Texture> loadFromFile(Assets *assets,
+                                           const std::string &asset_name,
+                                           const std::filesystem::path &path,
+                                           TextureType type = TextureType::DEFAULT)
     {
         if (path.empty())
             return nullptr;
@@ -23,7 +23,7 @@ public:
         if (name.empty())
             return nullptr;
 
-        auto texture = std::make_shared<Texture>();
+        auto texture = SharedPtr<Texture>::create();
         if (!texture->loadFromFile(path, type))
             return nullptr;
 
@@ -32,16 +32,16 @@ public:
         return texture;
     }
 
-    static std::shared_ptr<Texture> loadFromMemory(Assets *assets,
-                                                   const std::string &asset_name,
-                                                   const uint8_t *data,
-                                                   int32_t size,
-                                                   TextureType type = TextureType::DEFAULT)
+    static SharedPtr<Texture> loadFromMemory(Assets *assets,
+                                             const std::string &asset_name,
+                                             const uint8_t *data,
+                                             int32_t size,
+                                             TextureType type = TextureType::DEFAULT)
     {
         if (size == 0)
             return nullptr;
 
-        auto texture = std::make_shared<Texture>();
+        auto texture = SharedPtr<Texture>::create();
         if (!texture->loadFromMemory(data, size, type))
             return nullptr;
 

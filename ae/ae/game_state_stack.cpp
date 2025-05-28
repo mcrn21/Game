@@ -4,7 +4,7 @@ namespace ae {
 
 GameStateStack::GameStateStack() {}
 
-void GameStateStack::push(const std::shared_ptr<GameState> &state)
+void GameStateStack::push(const SharedPtr<GameState> &state)
 {
     if (!state)
         return;
@@ -16,7 +16,7 @@ void GameStateStack::push(const std::shared_ptr<GameState> &state)
     state->onEnter();
 }
 
-void GameStateStack::replace(const std::shared_ptr<GameState> &state)
+void GameStateStack::replace(const SharedPtr<GameState> &state)
 {
     if (!state)
         return;

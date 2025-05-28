@@ -91,8 +91,8 @@ public:
     float getFontPixelSize() const;
     void setFontPixelSize(float pixel_size);
 
-    const std::shared_ptr<Font> &getFont() const;
-    void setFont(const std::shared_ptr<Font> &font);
+    const SharedPtr<Font> &getFont() const;
+    void setFont(const SharedPtr<Font> &font);
 
     void repaint();
     virtual void draw(Shader *shader, const mat4 &transform = mat4{1.0f}) const;
@@ -138,7 +138,7 @@ private:
     mutable bool m_transform_dirty;
 
     float m_font_pixel_size;
-    std::shared_ptr<Font> m_font;
+    SharedPtr<Font> m_font;
 
     mutable Batch2D m_batch_2d;
     mutable bool m_draw_dirty;

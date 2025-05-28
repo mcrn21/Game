@@ -60,8 +60,8 @@ SharedPtr<gui::Control> MainMenuState::createGui()
     auto root = gui::Control::create<MainMenu>();
 
     root->new_game.connect([&]() {
-        std::make_shared<CallbackTask>([&]() {
-            auto gameplay_state = std::make_shared<GameplayState>();
+        SharedPtr<CallbackTask>::create([&]() {
+            auto gameplay_state = SharedPtr<GameplayState>::create();
             app.getGameStateStack()->replace(gameplay_state);
         })->run();
     });
@@ -69,11 +69,11 @@ SharedPtr<gui::Control> MainMenuState::createGui()
     root->resume.connect([&]() { app.getGameStateStack()->pop(); });
 
     root->exit_to_main_menu.connect([&]() {
-        std::make_shared<CallbackTask>([&]() {
+        SharedPtr<CallbackTask>::create([&]() {
             app.getGameStateStack()->pop();
             app.getGameStateStack()->pop();
 
-            auto main_menu_state = std::make_shared<MainMenuState>();
+            auto main_menu_state = SharedPtr<MainMenuState>::create();
             app.getGameStateStack()->push(main_menu_state);
         })->run();
     });

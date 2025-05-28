@@ -16,7 +16,7 @@ Animation::Animation(const Time &duration, const std::function<float(float)> &ea
 
 void Animation::start()
 {
-    App::getInstance().getAnimationManager()->add(shared_from_this());
+    App::getInstance().getAnimationManager()->add(sharedFromThis());
 }
 
 void Animation::pause()

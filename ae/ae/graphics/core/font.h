@@ -26,7 +26,7 @@ public:
     float getDescent() const;
     float getLineGap() const;
 
-    const std::shared_ptr<Texture> &getTexture() const;
+    const SharedPtr<Texture> &getTexture() const;
     const Glyph *getGlyph(uint32_t codepoint) const;
 
     vec2 getTextSize(const String &string, float line_spaceing = 0.0f) const;
@@ -37,7 +37,7 @@ private:
     float m_descent;
     float m_line_gap;
 
-    std::shared_ptr<Texture> m_texture;
+    SharedPtr<Texture> m_texture;
     std::unordered_map<uint32_t, Glyph> m_glyphs;
 };
 

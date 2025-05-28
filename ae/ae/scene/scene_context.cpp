@@ -56,7 +56,7 @@ entt::entity SceneContext::createBoundedEntity(const mat4 &transform, const AABB
     return entity;
 }
 
-entt::entity SceneContext::createDrawableEntity(const std::shared_ptr<Drawable> &drawable,
+entt::entity SceneContext::createDrawableEntity(const SharedPtr<Drawable> &drawable,
                                                 const mat4 &transform,
                                                 entt::entity parent)
 {
@@ -73,7 +73,7 @@ entt::entity SceneContext::createDrawableEntity(const std::shared_ptr<Drawable> 
     return entity;
 }
 
-entt::entity SceneContext::createMeshNodeEntity(const std::shared_ptr<MeshNode> &mesh_node,
+entt::entity SceneContext::createMeshNodeEntity(const SharedPtr<MeshNode> &mesh_node,
                                                 const mat4 &transform,
                                                 entt::entity parent)
 {
@@ -95,17 +95,17 @@ entt::entity SceneContext::createMeshNodeEntity(const std::shared_ptr<MeshNode> 
     return entity;
 }
 
-entt::entity SceneContext::createModelEntity(const std::shared_ptr<Model> &model,
+entt::entity SceneContext::createModelEntity(const SharedPtr<Model> &model,
                                              const mat4 &transform,
                                              entt::entity parent)
 {
     if (!model)
         return entt::null;
 
-    return createDrawableEntity(std::make_shared<ModelInstance>(model), transform, parent);
+    return createDrawableEntity(SharedPtr<ModelInstance>::create(model), transform, parent);
 }
 
-void SceneContext::createMeshNodeEntities(const std::shared_ptr<MeshNode> &mesh_node,
+void SceneContext::createMeshNodeEntities(const SharedPtr<MeshNode> &mesh_node,
                                           const mat4 &transform)
 {
     if (!mesh_node)
@@ -117,7 +117,7 @@ void SceneContext::createMeshNodeEntities(const std::shared_ptr<MeshNode> &mesh_
         auto entity = createDrawableEntity(mesh, new_transform);
 
         auto &collider_c = m_data->registry.emplace<Collider_C>(entity);
-        collider_c = std::make_shared<MeshCollider>(mesh->getTriangles(), new_transform);
+        collider_c = SharedPtr<MeshCollider>::create(mesh->getTriangles(), new_transform);
     }
 
     for (const auto &child_mesh_node : mesh_node->getChildren())
@@ -513,7 +513,7 @@ void SceneContext::setActiveDirectLight(entt::entity entity)
         m_data->active_direct_light = entity;
 }
 
-entt::entity SceneContext::createSkybox(const std::shared_ptr<Skybox> &skybox)
+entt::entity SceneContext::createSkybox(const SharedPtr<Skybox> &skybox)
 {
     if (!skybox)
         return entt::null;

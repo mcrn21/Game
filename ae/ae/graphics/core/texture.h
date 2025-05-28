@@ -1,6 +1,7 @@
 #ifndef AE_TEXTURE_H
 #define AE_TEXTURE_H
 
+#include "../../system/memory.h"
 #include "../common/enums.h"
 
 #include <glm/glm.hpp>
@@ -47,8 +48,8 @@ public:
     static void unbindAll();
     static int32_t getNextTextureNumber();
 
-    static std::shared_ptr<Texture> getDefaultDiffuseTexture();
-    static std::shared_ptr<Texture> getDefaultSpecularTexture();
+    static SharedPtr<Texture> getDefaultDiffuseTexture();
+    static SharedPtr<Texture> getDefaultSpecularTexture();
 
 private:
     static std::stack<std::pair<TextureType, uint32_t>> m_binded_textures;

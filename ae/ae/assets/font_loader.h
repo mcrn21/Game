@@ -11,9 +11,9 @@ template<>
 class AssetLoader<Font>
 {
 public:
-    static std::shared_ptr<Font> loadFromFile(Assets *assets,
-                                              const std::string &asset_name,
-                                              const std::filesystem::path &path)
+    static SharedPtr<Font> loadFromFile(Assets *assets,
+                                        const std::string &asset_name,
+                                        const std::filesystem::path &path)
     {
         if (path.empty())
             return nullptr;
@@ -22,7 +22,7 @@ public:
         if (name.empty())
             return nullptr;
 
-        auto font = std::make_shared<Font>();
+        auto font = SharedPtr<Font>::create();
         if (!font->loadFromFile(path))
             return nullptr;
 
@@ -31,15 +31,15 @@ public:
         return font;
     }
 
-    static std::shared_ptr<Font> loadFromMemory(Assets *assets,
-                                                const std::string &asset_name,
-                                                const uint8_t *data,
-                                                int32_t size)
+    static SharedPtr<Font> loadFromMemory(Assets *assets,
+                                          const std::string &asset_name,
+                                          const uint8_t *data,
+                                          int32_t size)
     {
         if (!data)
             return nullptr;
 
-        auto font = std::make_shared<Font>();
+        auto font = SharedPtr<Font>::create();
         if (!font->loadFromMemory(data, size))
             return nullptr;
 

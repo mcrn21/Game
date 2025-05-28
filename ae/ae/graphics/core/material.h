@@ -1,6 +1,7 @@
 #ifndef AE_MATERIAL_H
 #define AE_MATERIAL_H
 
+#include "../../system/memory.h"
 #include "color.h"
 #include "texture.h"
 
@@ -15,8 +16,8 @@ struct Material
         , shininess{32.0f}
     {}
 
-    Material(const std::shared_ptr<Texture> &diffuse_texture,
-             const std::shared_ptr<Texture> &specular_texture = {},
+    Material(const SharedPtr<Texture> &diffuse_texture,
+             const SharedPtr<Texture> &specular_texture = {},
              const Color &color = Color::white,
              float shininess = 32.0f)
         : diffuse_texture{diffuse_texture}
@@ -32,8 +33,8 @@ struct Material
                || (color.getAlpha() < 1.0f);
     }
 
-    std::shared_ptr<Texture> diffuse_texture;
-    std::shared_ptr<Texture> specular_texture;
+    SharedPtr<Texture> diffuse_texture;
+    SharedPtr<Texture> specular_texture;
     Color color;
     float shininess;
 };

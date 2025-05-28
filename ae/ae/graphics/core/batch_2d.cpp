@@ -179,7 +179,7 @@ void Batch2D::drawRectWithBorder(const vec2 &pos,
 
 void Batch2D::drawTextureRect(const vec2 &pos,
                               const vec2 &size,
-                              const std::shared_ptr<Texture> &texture)
+                              const SharedPtr<Texture> &texture)
 {
     int32_t start = m_vertices.size();
     drawQuad(pos, pos + size, vec2{0.0f}, vec2{1.0f}, Color::white);
@@ -189,7 +189,7 @@ void Batch2D::drawTextureRect(const vec2 &pos,
 void Batch2D::drawTextureFrameRect(const vec2 &pos,
                                    const vec2 &size,
                                    const vec4 &borders,
-                                   const std::shared_ptr<Texture> &texture)
+                                   const SharedPtr<Texture> &texture)
 {
     int32_t start = m_vertices.size();
 
@@ -241,7 +241,7 @@ void Batch2D::drawTextureFrameRect(const vec2 &pos,
 void Batch2D::drawText(const String &text,
                        const vec2 &pos,
                        const Color &fill_color,
-                       const std::shared_ptr<Font> &font,
+                       const SharedPtr<Font> &font,
                        float pixel_height,
                        float line_spaceing)
 {
@@ -316,7 +316,7 @@ void Batch2D::draw() const
     VertexArray::unbind();
 }
 
-void Batch2D::addDrawCommand(const std::shared_ptr<Texture> &texture, int32_t offset, int32_t count)
+void Batch2D::addDrawCommand(const SharedPtr<Texture> &texture, int32_t offset, int32_t count)
 {
     if (!m_draw_commands.empty() && m_draw_commands.back().texture == texture) {
         m_draw_commands.back().count += count;

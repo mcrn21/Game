@@ -1,11 +1,11 @@
 #ifndef AE_ANIMATION_H
 #define AE_ANIMATION_H
 
+#include "system/memory.h"
 #include "system/time.h"
 
 #include <functional>
 #include <math.h>
-#include <memory>
 
 namespace ae {
 
@@ -85,7 +85,7 @@ inline float easeInOutExpo(float t)
 
 class AnimationManager;
 
-class Animation : public std::enable_shared_from_this<Animation>
+class Animation : public EnableSharedFromThis<Animation>
 {
     friend class AnimationManager;
 

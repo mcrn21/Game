@@ -4,7 +4,6 @@
 #include "system/time.h"
 #include "task.h"
 
-#include <memory>
 #include <vector>
 
 namespace ae {
@@ -15,14 +14,14 @@ public:
     TaskManager();
     ~TaskManager() = default;
 
-    void run(const std::shared_ptr<Task> &task);
+    void run(const SharedPtr<Task> &task);
     void update(const Time &dt);
 
 private:
     // Используется двойной буффер задач, который
     // переключается на кажлм апдейте
     int32_t m_current_buffer;
-    std::vector<std::shared_ptr<Task>> m_tasks[2];
+    std::vector<SharedPtr<Task>> m_tasks[2];
 };
 
 } // namespace ae

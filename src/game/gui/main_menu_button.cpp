@@ -9,7 +9,7 @@ MainMenuButton::MainMenuButton()
 {
     setFontPixelSize(GuiTheme::metrics.main_menu_button_font_pixel_size);
 
-    m_a1 = std::make_shared<FloatAnimation>(
+    m_a1 = SharedPtr<FloatAnimation>::create(
         0.0f,
         1.0f,
         seconds(0.1f),
@@ -19,7 +19,7 @@ MainMenuButton::MainMenuButton()
         },
         Easing::easeInOutExpo);
 
-    m_a2 = std::make_shared<FloatAnimation>(
+    m_a2 = SharedPtr<FloatAnimation>::create(
         1.0f,
         0.0f,
         seconds(0.1f),

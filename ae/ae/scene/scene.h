@@ -8,8 +8,6 @@
 
 #include <entt/entt.hpp>
 
-#include <memory>
-
 namespace ae {
 
 class Scene : public SceneContext
@@ -27,7 +25,7 @@ public:
 
     sigslot::signal<> tickUpdated;
 
-    void createPlayer(const std::shared_ptr<Model> &model,
+    void createPlayer(const SharedPtr<Model> &model,
                       const mat4 &player_transform = mat4{1.0f},
                       const mat4 &model_transform = mat4{1.0f});
 

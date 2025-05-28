@@ -159,12 +159,12 @@ void Control::setFontPixelSize(float pixel_size)
     m_font_pixel_size = pixel_size;
 }
 
-const std::shared_ptr<Font> &Control::getFont() const
+const SharedPtr<Font> &Control::getFont() const
 {
     return m_font;
 }
 
-void Control::setFont(const std::shared_ptr<Font> &font)
+void Control::setFont(const SharedPtr<Font> &font)
 {
     m_font = font;
 }

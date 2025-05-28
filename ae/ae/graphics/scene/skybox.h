@@ -25,17 +25,17 @@ public:
     Skybox();
     ~Skybox() = default;
 
-    const std::shared_ptr<Texture> &getTexture() const;
-    void setTexture(const std::shared_ptr<Texture> &texture);
+    const SharedPtr<Texture> &getTexture() const;
+    void setTexture(const SharedPtr<Texture> &texture);
 
-    void create(const std::shared_ptr<Texture> &texture);
+    void create(const SharedPtr<Texture> &texture);
     bool isValid() const;
     void destroy();
 
     void draw() const;
 
 private:
-    std::shared_ptr<Texture> m_texture;
+    SharedPtr<Texture> m_texture;
     VertexArray m_vertex_array;
 };
 

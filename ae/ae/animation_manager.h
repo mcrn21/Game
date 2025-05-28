@@ -2,9 +2,8 @@
 #define AE_ANIMATION_MANAGER_H
 
 #include "animation.h"
+#include "system/memory.h"
 #include "system/time.h"
-
-#include <memory>
 
 namespace ae {
 
@@ -14,11 +13,11 @@ public:
     AnimationManager();
     ~AnimationManager() = default;
 
-    void add(const std::shared_ptr<Animation> &animation);
+    void add(const SharedPtr<Animation> &animation);
     void update(const Time &dt);
 
 private:
-    std::vector<std::shared_ptr<Animation>> m_animations;
+    std::vector<SharedPtr<Animation>> m_animations;
 };
 
 } // namespace ae

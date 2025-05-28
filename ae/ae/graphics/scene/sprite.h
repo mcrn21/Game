@@ -12,12 +12,12 @@ class Sprite : public Drawable
 public:
     Sprite();
     Sprite(const vec2 &size,
-           const std::shared_ptr<Material> &material = nullptr,
+           const SharedPtr<Material> &material = nullptr,
            const ivec4 &texture_rect = ivec4{0});
     ~Sprite() = default;
 
-    std::shared_ptr<Material> getMaterial() const;
-    void setMaterial(const std::shared_ptr<Material> &material,
+    SharedPtr<Material> getMaterial() const;
+    void setMaterial(const SharedPtr<Material> &material,
                      const ivec4 &texture_rect = ivec4{0});
 
     const ivec4 &getTextureRect() const;
@@ -34,7 +34,7 @@ private:
     void update();
 
 private:
-    std::shared_ptr<Material> m_material;
+    SharedPtr<Material> m_material;
     ivec4 m_texture_rect;
     vec2 m_size;
     VertexArray m_vertex_array;

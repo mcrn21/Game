@@ -15,7 +15,7 @@ MainMenu::MainMenu()
                      {String{"RESUME"}, [&]() { resume(); }},
                      {String{"SETTINGS"},
                       [&]() {
-                          std::make_shared<CallbackTask>([&]() {
+                          SharedPtr<CallbackTask>::create([&]() {
                               setActiveFrame(createSettingsFrame());
                           })->run();
                       }},
@@ -112,7 +112,7 @@ void MainMenu::createExitGameDialog()
     dialog->accepted.connect([this]() { exit(); });
 
     dialog->canceled.connect([this]() {
-        std::make_shared<CallbackTask>([&]() {
+        SharedPtr<CallbackTask>::create([&]() {
             m_exit_game_dialog->setParent(nullptr);
             m_exit_game_dialog.reset();
             setEnbaleMainMenuButtons(true);
@@ -141,7 +141,7 @@ void MainMenu::createExitToMainMenuDialog()
     dialog->accepted.connect([this]() { exit_to_main_menu(); });
 
     dialog->canceled.connect([this]() {
-        std::make_shared<CallbackTask>([&]() {
+        SharedPtr<CallbackTask>::create([&]() {
             m_exit_main_menu_dialog->setParent(nullptr);
             m_exit_main_menu_dialog.reset();
             setEnbaleMainMenuButtons(true);
@@ -165,12 +165,12 @@ void MainMenu::setActiveFrame(const SharedPtr<Control> &active_frame)
     m_active_frame->setPosition(vec2{100.0f, 100.0f});
     m_active_frame->setSize(vec2{400.0f});
 
-    auto delay = std::make_shared<DelayTask>(seconds(3.0f));
-    auto destroy_task = std::make_shared<CallbackTask>([this]() {
+    auto delay = SharedPtr<DelayTask>::create(seconds(3.0f));
+    auto destroy_task = SharedPtr<CallbackTask>::create([this]() {
         m_active_frame->setParent(nullptr);
         m_active_frame.reset();
     });
-    auto chain = std::make_shared<TaskChain>();
+    auto chain = SharedPtr<TaskChain>::create();
     chain->addTask(delay);
     chain->addTask(destroy_task);
     chain->run();

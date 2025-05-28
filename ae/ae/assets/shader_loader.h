@@ -11,92 +11,92 @@ template<>
 class AssetLoader<Shader>
 {
 public:
-    static std::shared_ptr<Shader> loadFromFile(Assets *assets,
-                                                const std::string &asset_name,
-                                                const std::filesystem::path &path,
-                                                ShaderType type)
+    static SharedPtr<Shader> loadFromFile(Assets *assets,
+                                          const std::string &asset_name,
+                                          const std::filesystem::path &path,
+                                          ShaderType type)
     {
         if (asset_name.empty())
             return nullptr;
 
-        auto shader = std::make_shared<Shader>();
+        auto shader = SharedPtr<Shader>::create();
         if (shader->loadFromFile(path, type))
             assets->add<Shader>(asset_name, shader);
 
         return shader;
     }
 
-    static std::shared_ptr<Shader> loadFromFile(Assets *assets,
-                                                const std::string &asset_name,
-                                                const std::filesystem::path &vertex_path,
-                                                const std::filesystem::path &fragment_path)
+    static SharedPtr<Shader> loadFromFile(Assets *assets,
+                                          const std::string &asset_name,
+                                          const std::filesystem::path &vertex_path,
+                                          const std::filesystem::path &fragment_path)
     {
         if (asset_name.empty())
             return nullptr;
 
-        auto shader = std::make_shared<Shader>();
+        auto shader = SharedPtr<Shader>::create();
         if (shader->loadFromFile(vertex_path, fragment_path))
             assets->add<Shader>(asset_name, shader);
 
         return shader;
     }
 
-    static std::shared_ptr<Shader> loadFromFile(Assets *assets,
-                                                const std::string &asset_name,
-                                                const std::filesystem::path &vertex_path,
-                                                const std::filesystem::path &geometry_path,
-                                                const std::filesystem::path &fragment_path)
+    static SharedPtr<Shader> loadFromFile(Assets *assets,
+                                          const std::string &asset_name,
+                                          const std::filesystem::path &vertex_path,
+                                          const std::filesystem::path &geometry_path,
+                                          const std::filesystem::path &fragment_path)
     {
         if (asset_name.empty())
             return nullptr;
 
-        auto shader = std::make_shared<Shader>();
+        auto shader = SharedPtr<Shader>::create();
         if (shader->loadFromFile(vertex_path, geometry_path, fragment_path))
             assets->add<Shader>(asset_name, shader);
 
         return shader;
     }
 
-    static std::shared_ptr<Shader> loadFromMemory(Assets *assets,
-                                                  const std::string &asset_name,
-                                                  const std::string &shader_code,
-                                                  ShaderType type)
+    static SharedPtr<Shader> loadFromMemory(Assets *assets,
+                                            const std::string &asset_name,
+                                            const std::string &shader_code,
+                                            ShaderType type)
     {
         if (asset_name.empty())
             return nullptr;
 
-        auto shader = std::make_shared<Shader>();
+        auto shader = SharedPtr<Shader>::create();
         if (shader->loadFromMemory(shader_code, type))
             assets->add<Shader>(asset_name, shader);
 
         return shader;
     }
 
-    static std::shared_ptr<Shader> loadFromMemory(Assets *assets,
-                                                  const std::string &asset_name,
-                                                  const std::string &vertex_shader,
-                                                  const std::string &fragment_shader)
+    static SharedPtr<Shader> loadFromMemory(Assets *assets,
+                                            const std::string &asset_name,
+                                            const std::string &vertex_shader,
+                                            const std::string &fragment_shader)
     {
         if (asset_name.empty())
             return nullptr;
 
-        auto shader = std::make_shared<Shader>();
+        auto shader = SharedPtr<Shader>::create();
         if (shader->loadFromMemory(vertex_shader, fragment_shader))
             assets->add<Shader>(asset_name, shader);
 
         return shader;
     }
 
-    static std::shared_ptr<Shader> loadFromMemory(Assets *assets,
-                                                  const std::string &asset_name,
-                                                  const std::string &vertex_shader,
-                                                  const std::string &geometry_shader,
-                                                  const std::string &fragment_shader)
+    static SharedPtr<Shader> loadFromMemory(Assets *assets,
+                                            const std::string &asset_name,
+                                            const std::string &vertex_shader,
+                                            const std::string &geometry_shader,
+                                            const std::string &fragment_shader)
     {
         if (asset_name.empty())
             return nullptr;
 
-        auto shader = std::make_shared<Shader>();
+        auto shader = SharedPtr<Shader>::create();
         if (shader->loadFromMemory(vertex_shader, geometry_shader, fragment_shader))
             assets->add<Shader>(asset_name, shader);
 

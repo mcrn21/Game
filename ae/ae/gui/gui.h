@@ -46,7 +46,7 @@ public:
     void onKeyReleased(KeyCode code);
     void onCodepointInputed(uint32_t codepoint);
 
-    static const std::shared_ptr<Font> &getDefaultFont();
+    static const SharedPtr<Font> &getDefaultFont();
 
 private:
     SharedPtr<Control> getHoveredContol(const vec2 &pos,

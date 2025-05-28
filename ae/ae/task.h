@@ -1,15 +1,15 @@
 #ifndef AE_TASK_H
 #define AE_TASK_H
 
+#include "system/memory.h"
 #include "system/time.h"
 
 #include <functional>
-#include <memory>
 #include <queue>
 
 namespace ae {
 
-class Task : public std::enable_shared_from_this<Task>
+class Task : public EnableSharedFromThis<Task>
 {
 public:
     Task() = default;
@@ -50,11 +50,11 @@ public:
     TaskChain() = default;
     ~TaskChain() = default;
 
-    void addTask(const std::shared_ptr<Task> &task);
+    void addTask(const SharedPtr<Task> &task);
     bool update(const Time &dt);
 
 private:
-    std::queue<std::shared_ptr<Task>> m_tasks;
+    std::queue<SharedPtr<Task>> m_tasks;
 };
 
 } // namespace ae

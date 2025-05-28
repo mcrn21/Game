@@ -7,18 +7,18 @@ PoseAnimator::PoseAnimator()
     , m_delta_time{0.0f}
 {}
 
-PoseAnimator::PoseAnimator(const std::shared_ptr<PoseAnimation> &animation,
-                           const std::shared_ptr<Pose> &pose)
+PoseAnimator::PoseAnimator(const SharedPtr<PoseAnimation> &animation,
+                           const SharedPtr<Pose> &pose)
     : m_animation{animation}
     , m_pose{pose}
 {}
 
-void PoseAnimator::setAnimation(const std::shared_ptr<PoseAnimation> &animation)
+void PoseAnimator::setAnimation(const SharedPtr<PoseAnimation> &animation)
 {
     m_animation = animation;
 }
 
-void PoseAnimator::setPose(const std::shared_ptr<Pose> &pose)
+void PoseAnimator::setPose(const SharedPtr<Pose> &pose)
 {
     m_pose = pose;
 }

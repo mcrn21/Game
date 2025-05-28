@@ -95,7 +95,7 @@ void Collisions_S::update(const Time &elapsed_time)
 }
 
 void Collisions_S::resolveCollisions(entt::entity entity,
-                                     const std::shared_ptr<Collider> &collider,
+                                     const SharedPtr<Collider> &collider,
                                      vec3 &position,
                                      vec3 &velocity,
                                      float dt,

@@ -172,12 +172,12 @@ void Gui::onCodepointInputed(uint32_t codepoint)
         focused_control->onCodepointInputed(codepoint);
 }
 
-const std::shared_ptr<Font> &Gui::getDefaultFont()
+const SharedPtr<Font> &Gui::getDefaultFont()
 {
-    static std::shared_ptr<Font> default_font;
+    static SharedPtr<Font> default_font;
 
     if (!default_font) {
-        default_font = std::make_shared<Font>();
+        default_font = SharedPtr<Font>::create();
         default_font->loadFromMemory(reinterpret_cast<const uint8_t *>(
                                          b::embed<"fonts/default.ttf">().data()),
                                      b::embed<"fonts/default.ttf">().size());

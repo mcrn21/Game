@@ -4,17 +4,17 @@ namespace ae {
 
 Skybox::Skybox() {}
 
-const std::shared_ptr<Texture> &Skybox::getTexture() const
+const SharedPtr<Texture> &Skybox::getTexture() const
 {
     return m_texture;
 }
 
-void Skybox::setTexture(const std::shared_ptr<Texture> &texture)
+void Skybox::setTexture(const SharedPtr<Texture> &texture)
 {
     m_texture = texture;
 }
 
-void Skybox::create(const std::shared_ptr<Texture> &texture)
+void Skybox::create(const SharedPtr<Texture> &texture)
 {
     static const std::vector<SkyboxVertex> vertices = {
         // positions (x, y, z)

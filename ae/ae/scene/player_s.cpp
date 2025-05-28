@@ -162,7 +162,7 @@ void Player_S::updateCameraPosition(const Time &elapsed_time)
                        glm::radians(0.1f),
                        vec3{1.0f, 0.0f, 0.0f}); //glm::translate(test, vec3{0.005f, 0.0f, 0.0f});
 
-    auto mi = std::static_pointer_cast<ModelInstance>(get<Drawable_C>(player_c.model_entity));
+    auto mi = staticPointerCast<ModelInstance>(get<Drawable_C>(player_c.model_entity));
 
     // const auto &camera_c = get<Camera_C>(getScene()->getActiveCamera());
     // light_c.direction = camera_c.front;

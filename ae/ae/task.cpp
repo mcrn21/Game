@@ -5,7 +5,7 @@ namespace ae {
 
 void Task::run()
 {
-    App::getInstance().getTaskManager()->run(shared_from_this());
+    App::getInstance().getTaskManager()->run(sharedFromThis());
 }
 
 DelayTask::DelayTask(const Time &delay)
@@ -34,7 +34,7 @@ bool CallbackTask::update(const Time &)
     return true;
 }
 
-void TaskChain::addTask(const std::shared_ptr<Task> &task)
+void TaskChain::addTask(const SharedPtr<Task> &task)
 {
     m_tasks.push(task);
 }

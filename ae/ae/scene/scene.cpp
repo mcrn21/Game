@@ -50,7 +50,7 @@ Scene::Scene()
                                     5.0f,
                                     std::sin(angle) * 10.0f - 30.f};
 
-        auto sp = std::make_shared<Shape>();
+        auto sp = SharedPtr<Shape>::create();
         sp->createSphere(0.2f);
         auto e = createDrawableEntity(sp);
         m_data.registry.get<Transform_C>(e).position = transform_c.position;
@@ -90,7 +90,7 @@ void Scene::draw() const
     m_data.render_texture.display();
 }
 
-void Scene::createPlayer(const std::shared_ptr<Model> &model,
+void Scene::createPlayer(const SharedPtr<Model> &model,
                          const mat4 &player_transform,
                          const mat4 &model_transform)
 {
@@ -137,10 +137,10 @@ void Scene::createPlayer(const std::shared_ptr<Model> &model,
     addChild(player_entity, player_c.model_entity);
 
     auto &animator_c = m_data.registry.emplace<Animator_C>(player_c.model_entity);
-    animator_c.animator = std::make_shared<PoseAnimator>();
+    animator_c.animator = SharedPtr<PoseAnimator>::create();
     animator_c.animator->setAnimation(model->getAnimation("Animation"));
 
-    auto mi = std::static_pointer_cast<ModelInstance>(
+    auto mi = staticPointerCast<ModelInstance>(
         m_data.registry.get<Drawable_C>(player_c.model_entity));
 
     animator_c.animator->setPose(mi->getPose());
@@ -149,7 +149,7 @@ void Scene::createPlayer(const std::shared_ptr<Model> &model,
 
     auto &collider_c = m_data.registry.emplace<Collider_C>(player_entity);
     // collider_c = std::make_shared<SphereCollider>(vec3{0.0f}, 1.0f);
-    collider_c = std::make_shared<BoxCollider>(AABB{vec3{-1.0f}, vec3{1.0f}});
+    collider_c = SharedPtr<BoxCollider>::create(AABB{vec3{-1.0f}, vec3{1.0f}});
 
     m_data.player_s->setPlayerEntity(player_entity);
 
@@ -165,7 +165,7 @@ void Scene::createPlayer(const std::shared_ptr<Model> &model,
 
     addChild(player_c.camera_center, player_c.light_entity);
 
-    auto sp = std::make_shared<Shape>();
+    auto sp = SharedPtr<Shape>::create();
     sp->createSphere(1.0f);
     sp->getMaterial()->color.setAlpha(0.2f);
     auto e = createDrawableEntity(sp);

@@ -26,31 +26,31 @@ const std::string DefaultShaders::getShaderSource(const std::string &name)
     return sources.contains(name) ? sources.at(name) : std::string{};
 }
 
-std::shared_ptr<Shader> DefaultShaders::getSkybox()
+SharedPtr<Shader> DefaultShaders::getSkybox()
 {
-    static auto shader = std::make_shared<Shader>(getShaderSource("shaders/skybox.vert"),
-                                                  getShaderSource("shaders/skybox.frag"));
+    static auto shader = SharedPtr<Shader>::create(getShaderSource("shaders/skybox.vert"),
+                                                   getShaderSource("shaders/skybox.frag"));
     return shader;
 }
 
-std::shared_ptr<Shader> DefaultShaders::getMain()
+SharedPtr<Shader> DefaultShaders::getMain()
 {
-    static auto shader = std::make_shared<Shader>(getShaderSource("shaders/main.vert"),
-                                                  getShaderSource("shaders/main.frag"));
+    static auto shader = SharedPtr<Shader>::create(getShaderSource("shaders/main.vert"),
+                                                   getShaderSource("shaders/main.frag"));
     return shader;
 }
 
-std::shared_ptr<Shader> DefaultShaders::getScreenQuad()
+SharedPtr<Shader> DefaultShaders::getScreenQuad()
 {
-    static auto shader = std::make_shared<Shader>(getShaderSource("shaders/screen_quad.vert"),
-                                                  getShaderSource("shaders/screen_quad.frag"));
+    static auto shader = SharedPtr<Shader>::create(getShaderSource("shaders/screen_quad.vert"),
+                                                   getShaderSource("shaders/screen_quad.frag"));
     return shader;
 }
 
-std::shared_ptr<Shader> DefaultShaders::getGui()
+SharedPtr<Shader> DefaultShaders::getGui()
 {
-    static auto shader = std::make_shared<Shader>(getShaderSource("shaders/gui.vert"),
-                                                  getShaderSource("shaders/gui.frag"));
+    static auto shader = SharedPtr<Shader>::create(getShaderSource("shaders/gui.vert"),
+                                                   getShaderSource("shaders/gui.frag"));
     return shader;
 }
 

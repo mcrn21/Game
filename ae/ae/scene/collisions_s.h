@@ -23,7 +23,7 @@ public:
 
 private:
     void resolveCollisions(entt::entity entity,
-                           const std::shared_ptr<Collider> &collider,
+                           const SharedPtr<Collider> &collider,
                            vec3 &position,
                            vec3 &velocity,
                            float dt,

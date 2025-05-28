@@ -6,7 +6,7 @@ Mesh::Mesh() {}
 
 Mesh::Mesh(const std::vector<Vertex> &vertices,
            const std::vector<uint32_t> &indices,
-           const std::shared_ptr<Material> &material)
+           const SharedPtr<Material> &material)
 {
     create(vertices, indices, material);
 }
@@ -26,19 +26,19 @@ const std::vector<Triangle> &Mesh::getTriangles() const
     return m_triangles;
 }
 
-std::shared_ptr<Material> Mesh::getMaterial() const
+SharedPtr<Material> Mesh::getMaterial() const
 {
     return m_material;
 }
 
-void Mesh::setMaterial(const std::shared_ptr<Material> &material, const ivec4 &texture_rect)
+void Mesh::setMaterial(const SharedPtr<Material> &material, const ivec4 &texture_rect)
 {
     m_material = material;
 }
 
 void Mesh::create(const std::vector<Vertex> &vertices,
                   const std::vector<uint32_t> &indices,
-                  const std::shared_ptr<Material> &material)
+                  const SharedPtr<Material> &material)
 {
     destroy();
     m_vertex_array.create(vertices, indices);

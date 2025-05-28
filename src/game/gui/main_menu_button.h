@@ -29,8 +29,8 @@ protected:
 private:
     String m_string;
 
-    std::shared_ptr<FloatAnimation> m_a1;
-    std::shared_ptr<FloatAnimation> m_a2;
+    SharedPtr<FloatAnimation> m_a1;
+    SharedPtr<FloatAnimation> m_a2;
     float m_bg_fill;
 };
 

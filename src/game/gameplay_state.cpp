@@ -51,8 +51,8 @@ void GameplayState::update(const Time &dt)
     auto &app = App::getInstance();
 
     if (app.getInput()->isKeyPressed(KeyCode::ESCAPE)) {
-        std::make_shared<CallbackTask>([&]() {
-            app.getGameStateStack()->push(std::make_shared<MainMenuState>(true));
+        SharedPtr<CallbackTask>::create([&]() {
+            app.getGameStateStack()->push(SharedPtr<MainMenuState>::create(true));
         })->run();
     }
 

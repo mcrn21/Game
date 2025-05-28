@@ -2,9 +2,9 @@
 #define AE_GAME_STATE_STACK_H
 
 #include "game_state.h"
+#include "system/memory.h"
 #include "system/time.h"
 
-#include <memory>
 #include <vector>
 
 namespace ae {
@@ -15,8 +15,8 @@ public:
     GameStateStack();
     ~GameStateStack() = default;
 
-    void push(const std::shared_ptr<GameState> &state);
-    void replace(const std::shared_ptr<GameState> &state);
+    void push(const SharedPtr<GameState> &state);
+    void replace(const SharedPtr<GameState> &state);
     void pop();
     void clear();
 
@@ -24,7 +24,7 @@ public:
     void draw() const;
 
 private:
-    std::vector<std::shared_ptr<GameState>> m_states;
+    std::vector<SharedPtr<GameState>> m_states;
 };
 
 } // namespace ae

@@ -2,6 +2,7 @@
 #define AE_MESH_H
 
 #include "../../geometry/primitives.h"
+#include "../../system/memory.h"
 #include "../core/material.h"
 #include "../core/vertex.h"
 #include "../core/vertex_array.h"
@@ -15,20 +16,19 @@ public:
     Mesh();
     Mesh(const std::vector<Vertex> &vertices,
          const std::vector<uint32_t> &indices,
-         const std::shared_ptr<Material> &material);
+         const SharedPtr<Material> &material);
     ~Mesh() = default;
 
     const std::vector<Vertex> &getVertices() const;
     const std::vector<uint32_t> &getIndices() const;
     const std::vector<Triangle> &getTriangles() const;
 
-    std::shared_ptr<Material> getMaterial() const;
-    void setMaterial(const std::shared_ptr<Material> &material,
-                     const ivec4 &texture_rect = ivec4{0});
+    SharedPtr<Material> getMaterial() const;
+    void setMaterial(const SharedPtr<Material> &material, const ivec4 &texture_rect = ivec4{0});
 
     void create(const std::vector<Vertex> &vertices,
                 const std::vector<uint32_t> &indices,
-                const std::shared_ptr<Material> &material);
+                const SharedPtr<Material> &material);
     bool isValid() const;
     void destroy();
 
@@ -40,7 +40,7 @@ private:
     std::vector<Vertex> m_vertices;
     std::vector<uint32_t> m_indices;
     std::vector<Triangle> m_triangles;
-    std::shared_ptr<Material> m_material;
+    SharedPtr<Material> m_material;
     VertexArray m_vertex_array;
     AABB m_aabb;
 };

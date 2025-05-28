@@ -20,28 +20,6 @@
 
 using namespace ae;
 
-struct TEST_S : public EnableSharedFromThis<TEST_S>
-{
-    virtual ~TEST_S() { spdlog::debug("TEST_S destroy"); }
-    int32_t a = 123;
-};
-
-struct TEST_S_2 : public TEST_S
-{
-    ~TEST_S_2() { spdlog::debug("TEST_S_2 destroy"); }
-    int32_t b = 1005;
-};
-
-template<typename T>
-struct CustomDeleter
-{
-    void operator()(T *ptr) const noexcept
-    {
-        spdlog::debug("PIZDA");
-        ptr->~T();
-    }
-};
-
 int32_t main()
 {
     spdlog::set_level(spdlog::level::debug);
@@ -53,28 +31,7 @@ int32_t main()
     auto &app = App::getInstance();
     app.create(maybe_config.value());
 
-    WeakPtr<void> weak_test_1;
-    {
-        // spdlog::debug("Test: {}", EnableSharedFromThisBase<TEST_S>::value);
-
-        SharedPtr<void> test_2 = SharedPtr<TEST_S_2>::create<CustomDeleter<TEST_S_2>>();
-        SharedPtr<TEST_S> test_3 = staticPointerCast<TEST_S>(test_2);
-        spdlog::debug("test_3: {}", test_3->a);
-
-        weak_test_1 = test_2;
-        auto test_4 = weak_test_1.lock();
-        auto test_5 = staticPointerCast<TEST_S_2>(test_2);
-        spdlog::debug("test_5: {}", test_5->a);
-    }
-
-    auto test_5 = weak_test_1.lock();
-    spdlog::debug("test_5: {}", test_5.get() != nullptr);
-
-    // return 1;
-
-    //////
-
-    auto main_menu_state = std::make_shared<MainMenuState>();
+    auto main_menu_state = SharedPtr<MainMenuState>::create();
     // auto gameplay_state = std::make_shared<GameplayState>();
 
     // std::static_pointer_cast<gui::Control>(main_menu_state);
@@ -142,7 +99,7 @@ int32_t main()
         // auto box = app.getScene()->createMeshNodeEntity(box_model->getRootNode());
 
         {
-            auto cube_1 = std::make_shared<Shape>();
+            auto cube_1 = SharedPtr<Shape>::create();
             cube_1->createTriangle(1.0f); //createCube(1.0f);
             cube_1->getMaterial()->diffuse_texture = cube_1_tex;
 
@@ -154,7 +111,7 @@ int32_t main()
 
             auto cube1 = app.getScene()->createDrawableEntity(cube_1, cube1_trasform);
             auto &collider_c = registry.emplace<Collider_C>(cube1);
-            collider_c = std::make_shared<MeshCollider>(cube_1->getTriangles(), cube1_trasform);
+            collider_c = SharedPtr<MeshCollider>::create(cube_1->getTriangles(), cube1_trasform);
 
             mat4 cube2_trasform{1.0f};
             cube2_trasform = glm::scale(cube2_trasform, vec3{3.0f});
@@ -171,11 +128,11 @@ int32_t main()
 
             auto cube2 = app.getScene()->createDrawableEntity(cube_1, cube2_trasform);
             auto &collider_2_c = registry.emplace<Collider_C>(cube2);
-            collider_2_c = std::make_shared<MeshCollider>(cube_1->getTriangles(), cube2_trasform);
+            collider_2_c = SharedPtr<MeshCollider>::create(cube_1->getTriangles(), cube2_trasform);
         }
 
         // Skybox
-        auto skybox = std::make_shared<Skybox>();
+        auto skybox = SharedPtr<Skybox>::create();
         skybox->create(skybox_texture);
         auto skybox_entity = app.getScene()->createSkybox(skybox);
         app.getScene()->setActiveSkybox(skybox_entity);

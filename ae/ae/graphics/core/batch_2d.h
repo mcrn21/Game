@@ -55,16 +55,16 @@ public:
                             const Color &border_color,
                             float border_thickness);
 
-    void drawTextureRect(const vec2 &pos, const vec2 &size, const std::shared_ptr<Texture> &texture);
+    void drawTextureRect(const vec2 &pos, const vec2 &size, const SharedPtr<Texture> &texture);
     void drawTextureFrameRect(const vec2 &pos,
                               const vec2 &size,
                               const vec4 &borders,
-                              const std::shared_ptr<Texture> &texture);
+                              const SharedPtr<Texture> &texture);
 
     void drawText(const String &text,
                   const vec2 &pos,
                   const Color &fill_color,
-                  const std::shared_ptr<Font> &font,
+                  const SharedPtr<Font> &font,
                   float pixel_height = 32.0f,
                   float line_spaceing = 0.0f);
 
@@ -73,7 +73,7 @@ public:
     void draw() const;
 
 private:
-    void addDrawCommand(const std::shared_ptr<Texture> &texture, int32_t offset, int32_t count);
+    void addDrawCommand(const SharedPtr<Texture> &texture, int32_t offset, int32_t count);
 
     void drawQuad(const vec2 &left_bottom,
                   const vec2 &right_top,
@@ -91,7 +91,7 @@ private:
 private:
     struct DrawCommand
     {
-        std::shared_ptr<Texture> texture;
+        SharedPtr<Texture> texture;
         int32_t offset;
         int32_t count;
     };

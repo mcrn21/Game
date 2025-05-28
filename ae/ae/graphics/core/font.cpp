@@ -106,9 +106,9 @@ bool FontPage::load(const uint8_t *data, int32_t size, float pixel_height)
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_SWIZZLE_B, GL_ONE);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_SWIZZLE_A, GL_RED);
 
-    m_texture = std::make_shared<Texture>(texture_id,
-                                          ivec2{atlas_width, atlas_height},
-                                          TextureFormat::RED);
+    m_texture = SharedPtr<Texture>::create(texture_id,
+                                           ivec2{atlas_width, atlas_height},
+                                           TextureFormat::RED);
 
     m_pixel_height = pixel_height;
     m_ascent = face->size->metrics.ascender / 64.0f;
@@ -148,7 +148,7 @@ float FontPage::getLineGap() const
     return m_line_gap;
 }
 
-const std::shared_ptr<Texture> &FontPage::getTexture() const
+const SharedPtr<Texture> &FontPage::getTexture() const
 {
     return m_texture;
 }

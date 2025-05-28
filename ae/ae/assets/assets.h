@@ -1,9 +1,9 @@
 #ifndef AE_ASSETS_H
 #define AE_ASSETS_H
 
+#include "../system/memory.h"
 #include "asset_loader.h"
 
-#include <memory>
 #include <typeindex>
 #include <unordered_map>
 
@@ -11,17 +11,17 @@ namespace ae {
 
 class Assets
 {
-    using assets_map = std::unordered_map<std::string, std::shared_ptr<void>>;
+    using assets_map = std::unordered_map<std::string, SharedPtr<void>>;
 
 public:
     Assets() = default;
     ~Assets() = default;
 
     template<typename T>
-    std::shared_ptr<T> get(const std::string &asset_name);
+    SharedPtr<T> get(const std::string &asset_name);
 
     template<typename T>
-    void add(const std::string &asset_name, const std::shared_ptr<T> &asset);
+    void add(const std::string &asset_name, const SharedPtr<T> &asset);
 
     template<typename T>
     void remove(const std::string &asset_name);
@@ -30,17 +30,17 @@ public:
     bool has(const std::string &asset_name);
 
     template<typename T, typename... Args>
-    std::shared_ptr<T> loadFromFile(const std::string &asset_name, Args &&...args);
+    SharedPtr<T> loadFromFile(const std::string &asset_name, Args &&...args);
 
     template<typename T, typename... Args>
-    std::shared_ptr<T> loadFromMemory(const std::string &asset_name, Args &&...args);
+    SharedPtr<T> loadFromMemory(const std::string &asset_name, Args &&...args);
 
 private:
     std::unordered_map<std::type_index, assets_map> m_assets;
 };
 
 template<typename T>
-inline std::shared_ptr<T> Assets::get(const std::string &asset_name)
+inline SharedPtr<T> Assets::get(const std::string &asset_name)
 {
     auto assets_found = m_assets.find(typeid(T));
     if (assets_found == m_assets.end())
@@ -50,11 +50,11 @@ inline std::shared_ptr<T> Assets::get(const std::string &asset_name)
     if (asset_found == assets_found->second.end())
         return nullptr;
 
-    return std::static_pointer_cast<T>(asset_found->second);
+    return staticPointerCast<T>(asset_found->second);
 }
 
 template<typename T>
-inline void Assets::add(const std::string &asset_name, const std::shared_ptr<T> &asset)
+inline void Assets::add(const std::string &asset_name, const SharedPtr<T> &asset)
 {
     auto assets_found = m_assets.find(typeid(T));
     if (assets_found == m_assets.end())
@@ -89,13 +89,13 @@ inline bool Assets::has(const std::string &asset_name)
 }
 
 template<typename T, typename... Args>
-inline std::shared_ptr<T> Assets::loadFromFile(const std::string &asset_name, Args &&...args)
+inline SharedPtr<T> Assets::loadFromFile(const std::string &asset_name, Args &&...args)
 {
     return AssetLoader<T>::loadFromFile(this, asset_name, std::forward<Args>(args)...);
 }
 
 template<typename T, typename... Args>
-inline std::shared_ptr<T> Assets::loadFromMemory(const std::string &asset_name, Args &&...args)
+inline SharedPtr<T> Assets::loadFromMemory(const std::string &asset_name, Args &&...args)
 {
     return AssetLoader<T>::loadFromMemory(this, asset_name, std::forward<Args>(args)...);
 }

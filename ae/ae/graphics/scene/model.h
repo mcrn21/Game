@@ -1,8 +1,9 @@
 #ifndef AE_MODEL_H
 #define AE_MODEL_H
 
-#include "pose_animation.h"
+#include "../../system/memory.h"
 #include "mesh.h"
+#include "pose_animation.h"
 #include "skeleton.h"
 
 #include <filesystem>
@@ -16,18 +17,18 @@ public:
     MeshNode() = default;
     ~MeshNode() = default;
 
-    const std::vector<std::shared_ptr<Mesh>> &getMeshes() const;
-    void setMeshes(const std::vector<std::shared_ptr<Mesh>> &meshes);
+    const std::vector<SharedPtr<Mesh>> &getMeshes() const;
+    void setMeshes(const std::vector<SharedPtr<Mesh>> &meshes);
 
-    const std::vector<std::shared_ptr<MeshNode>> &getChildren() const;
-    void setChildren(const std::vector<std::shared_ptr<MeshNode>> &child_nodes);
+    const std::vector<SharedPtr<MeshNode>> &getChildren() const;
+    void setChildren(const std::vector<SharedPtr<MeshNode>> &child_nodes);
 
     const mat4 &getTransform() const;
     void setTransform(const mat4 &transform);
 
 private:
-    std::vector<std::shared_ptr<Mesh>> m_meshes;
-    std::vector<std::shared_ptr<MeshNode>> m_children;
+    std::vector<SharedPtr<Mesh>> m_meshes;
+    std::vector<SharedPtr<MeshNode>> m_children;
     mat4 m_transform{1.0f};
 };
 
@@ -39,30 +40,30 @@ public:
 
     bool loadFromFile(const std::filesystem::path &path);
 
-    const std::shared_ptr<MeshNode> &getRootNode() const;
-    void setRootNode(const std::shared_ptr<MeshNode> &node);
+    const SharedPtr<MeshNode> &getRootNode() const;
+    void setRootNode(const SharedPtr<MeshNode> &node);
 
     const AABB &getAABB() const;
     bool isTransparent() const;
 
-    const std::shared_ptr<Skeleton> &getSkeleton() const;
-    void setSkeleton(const std::shared_ptr<Skeleton> &skeleton);
+    const SharedPtr<Skeleton> &getSkeleton() const;
+    void setSkeleton(const SharedPtr<Skeleton> &skeleton);
 
-    std::shared_ptr<PoseAnimation> getAnimation(const std::string &name) const;
-    std::vector<std::shared_ptr<PoseAnimation>> &getAnimations();
-    void setAnimations(const std::vector<std::shared_ptr<PoseAnimation>> &animations);
-
-private:
-    AABB makeRecursiveAABB(const std::shared_ptr<MeshNode> &node) const;
-    bool makeRecursiveTransparent(const std::shared_ptr<MeshNode> &node) const;
+    SharedPtr<PoseAnimation> getAnimation(const std::string &name) const;
+    std::vector<SharedPtr<PoseAnimation>> &getAnimations();
+    void setAnimations(const std::vector<SharedPtr<PoseAnimation>> &animations);
 
 private:
-    std::shared_ptr<MeshNode> m_root_node;
+    AABB makeRecursiveAABB(const SharedPtr<MeshNode> &node) const;
+    bool makeRecursiveTransparent(const SharedPtr<MeshNode> &node) const;
+
+private:
+    SharedPtr<MeshNode> m_root_node;
     AABB m_aabb;
     bool m_transparent;
 
-    std::shared_ptr<Skeleton> m_skeleton;
-    std::vector<std::shared_ptr<PoseAnimation>> m_animations;
+    SharedPtr<Skeleton> m_skeleton;
+    std::vector<SharedPtr<PoseAnimation>> m_animations;
     std::unordered_map<std::string, int32_t> m_name_animation_to_index;
 };
 
