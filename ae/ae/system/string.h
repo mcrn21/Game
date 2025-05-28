@@ -36,7 +36,9 @@ public:
 
     String &operator=(const String &right);
     String &operator+=(const String &right);
+    String &operator+=(uint32_t codepoint);
 
+    void erase(int32_t pos, int32_t npos = -1);
     void clear();
 
     template<typename T>

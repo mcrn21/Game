@@ -14,10 +14,33 @@
 #include <ae/graphics/scene/skybox.h>
 #include <ae/graphics/scene/sprite.h>
 #include <ae/scene/components.h>
+#include <ae/system/memory.h>
 
 #include <spdlog/spdlog.h>
 
 using namespace ae;
+
+struct TEST_S : public EnableSharedFromThis<TEST_S>
+{
+    virtual ~TEST_S() { spdlog::debug("TEST_S destroy"); }
+    int32_t a = 123;
+};
+
+struct TEST_S_2 : public TEST_S
+{
+    ~TEST_S_2() { spdlog::debug("TEST_S_2 destroy"); }
+    int32_t b = 1005;
+};
+
+template<typename T>
+struct CustomDeleter
+{
+    void operator()(T *ptr) const noexcept
+    {
+        spdlog::debug("PIZDA");
+        ptr->~T();
+    }
+};
 
 int32_t main()
 {
@@ -30,8 +53,31 @@ int32_t main()
     auto &app = App::getInstance();
     app.create(maybe_config.value());
 
+    WeakPtr<void> weak_test_1;
+    {
+        // spdlog::debug("Test: {}", EnableSharedFromThisBase<TEST_S>::value);
+
+        SharedPtr<void> test_2 = SharedPtr<TEST_S_2>::create<CustomDeleter<TEST_S_2>>();
+        SharedPtr<TEST_S> test_3 = staticPointerCast<TEST_S>(test_2);
+        spdlog::debug("test_3: {}", test_3->a);
+
+        weak_test_1 = test_2;
+        auto test_4 = weak_test_1.lock();
+        auto test_5 = staticPointerCast<TEST_S_2>(test_2);
+        spdlog::debug("test_5: {}", test_5->a);
+    }
+
+    auto test_5 = weak_test_1.lock();
+    spdlog::debug("test_5: {}", test_5.get() != nullptr);
+
+    // return 1;
+
+    //////
+
     auto main_menu_state = std::make_shared<MainMenuState>();
     // auto gameplay_state = std::make_shared<GameplayState>();
+
+    // std::static_pointer_cast<gui::Control>(main_menu_state);
 
     app.getGameStateStack()->push(main_menu_state);
     // app.getGameStateStack()->replace(gameplay_state);
@@ -42,10 +88,6 @@ int32_t main()
     auto cube_1_tex = app.getAssets()->loadFromFile<Texture>("cube_1_tex", "_.jpeg");
     app.getAssets()->loadFromFile<Texture>("target", "target.png");
     app.getAssets()->loadFromFile<Texture>("frame", "frame.png");
-
-    auto font1 = app.getAssets()->loadFromFile<Font>("test_font_1",
-                                                     "Open_Sans/static/OpenSans-Regular.ttf",
-                                                     20.0f);
 
     auto skybox_texture = app.getAssets()->loadFromFile<Texture>("skybox",
                                                                  "skyboxes/StandardCubeMap.png",
@@ -137,26 +179,6 @@ int32_t main()
         skybox->create(skybox_texture);
         auto skybox_entity = app.getScene()->createSkybox(skybox);
         app.getScene()->setActiveSkybox(skybox_entity);
-    });
-
-    app.getInput()->keyPressed.connect([&](KeyCode keycode) {
-        if (keycode == KeyCode::TAB) {
-            app.getWindow()->setMouseEnabled(!app.getWindow()->isMouseEnabled());
-            return;
-        }
-
-        if (keycode == KeyCode::ESCAPE) {
-            // app.exit();
-
-            auto main_menu_state = std::make_shared<MainMenuState>(true);
-            app.getGameStateStack()->push(main_menu_state);
-
-            return;
-        }
-
-        if (keycode == KeyCode::DELETE) {
-            app.getScene()->destroyEntity(entity_id);
-        }
     });
 
     return app.exec();

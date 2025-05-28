@@ -32,6 +32,8 @@ add_executable(Game src/main.cpp
     src/game/gui/frame.h src/game/gui/frame.cpp
     src/game/gui/dialog.h src/game/gui/dialog.cpp
     src/game/gui/button.h src/game/gui/button.cpp
+    src/game/gui/input_text.h src/game/gui/input_text.cpp
+    src/game/gui/settings_frame.h src/game/gui/settings_frame.cpp
 
 )
 

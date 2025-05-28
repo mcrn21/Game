@@ -1,6 +1,7 @@
 #ifndef BUTTON_H
 #define BUTTON_H
 
+#include <ae/animation.h>
 #include <ae/graphics/core/font.h>
 #include <ae/gui/button_base.h>
 
@@ -11,9 +12,6 @@ class Button : public gui::ButtonBase
 public:
     Button();
     ~Button() = default;
-
-    const std::shared_ptr<Font> &getFont() const;
-    void setFont(const std::shared_ptr<Font> &font);
 
     const String &getString() const;
     void setString(const String &string);
@@ -28,8 +26,13 @@ protected:
     void drawControl(Batch2D &batch_2d);
 
 private:
-    std::shared_ptr<Font> m_font;
     String m_string;
+
+    std::shared_ptr<FloatAnimation> m_enter_animation;
+    std::shared_ptr<FloatAnimation> m_leave_animation;
+    Color m_bg_color;
+    Color m_border_color;
+    float m_anim_time;
 };
 
 #endif // BUTTON_H

@@ -79,6 +79,17 @@ String &String::operator+=(const String &right)
     return *this;
 }
 
+void String::erase(int32_t pos, int32_t npos)
+{
+    m_string.erase(pos, npos);
+}
+
+String &String::operator+=(uint32_t codepoint)
+{
+    m_string += codepoint;
+    return *this;
+}
+
 void String::clear()
 {
     m_string.clear();

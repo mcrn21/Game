@@ -8,41 +8,10 @@ Batch2D::Batch2D()
     m_vertex_array.create(std::vector<Batch2DVertex2>());
 }
 
-const Color &Batch2D::getBrushColor() const
-{
-    return m_brush_color;
-}
-
-void Batch2D::setBrushColor(const Color &color)
-{
-    m_brush_color = color;
-}
-
 void Batch2D::begin()
 {
-    m_brush_color = Color::black;
     m_draw_commands.clear();
     m_vertices.clear();
-}
-
-void Batch2D::drawRect(const vec2 &pos, const vec2 &size)
-{
-    int32_t start = m_vertices.size();
-
-    vec3 p1 = {pos.x, pos.y, 0.0f};
-    vec3 p2 = {pos.x + size.x, pos.y, 0.0f};
-    vec3 p3 = {pos.x + size.x, pos.y + size.y, 0.0f};
-    vec3 p4 = {pos.x, pos.y + size.y, 0.0f};
-
-    m_vertices.push_back({p1, m_brush_color.getColor(), {0.0f, 0.0f}});
-    m_vertices.push_back({p2, m_brush_color.getColor(), {1.0f, 0.0f}});
-    m_vertices.push_back({p4, m_brush_color.getColor(), {0.0f, 1.0f}});
-
-    m_vertices.push_back({p2, m_brush_color.getColor(), {1.0f, 0.0f}});
-    m_vertices.push_back({p3, m_brush_color.getColor(), {1.0f, 1.0f}});
-    m_vertices.push_back({p4, m_brush_color.getColor(), {0.0f, 1.0f}});
-
-    addDrawCommand(nullptr, start, m_vertices.size() - start);
 }
 
 void Batch2D::drawLine(const vec2 &from, const vec2 &to, float thickness, const Color &fill_color)
@@ -69,9 +38,10 @@ void Batch2D::drawLine(const vec2 &from, const vec2 &to, float thickness, const 
     addDrawCommand(nullptr, start, 6);
 }
 
-void Batch2D::drawSmoothPolyline(const std::vector<vec2> &points,
-                                 float thickness,
-                                 const Color &fill_color)
+void Batch2D::drawPath(const std::vector<vec2> &points,
+                       float thickness,
+                       const Color &fill_color,
+                       bool closed)
 {
     if (points.size() < 2)
         return;
@@ -79,33 +49,40 @@ void Batch2D::drawSmoothPolyline(const std::vector<vec2> &points,
     int32_t start = m_vertices.size();
     float half_thickness = thickness * 0.5f;
 
+    size_t count = points.size();
+    size_t limit = closed ? count + 1 : count;
+
     vec2 prev_out, prev_in;
     bool has_prev = false;
 
-    for (size_t i = 0; i < points.size(); ++i) {
-        const vec2 &p_curr = points[i];
+    for (size_t i = 0; i < limit; ++i) {
+        size_t i_curr = i % count;
+        size_t i_prev = (i_curr + count - 1) % count;
+        size_t i_next = (i_curr + 1) % count;
+
+        const vec2 &p_curr = points[i_curr];
 
         // Compute directions and normals
         vec2 dir_prev, dir_next;
         vec2 normal_prev, normal_next;
 
-        if (i == 0) {
-            dir_next = normalize(points[i + 1] - points[i]);
+        if (!closed && i == 0) {
+            dir_next = normalize(points[i_next] - points[i_curr]);
             normal_prev = vec2(-dir_next.y, dir_next.x);
             normal_next = normal_prev;
-        } else if (i == points.size() - 1) {
-            dir_prev = normalize(points[i] - points[i - 1]);
+        } else if (!closed && i == count - 1) {
+            dir_prev = normalize(points[i_curr] - points[i_prev]);
             normal_prev = vec2(-dir_prev.y, dir_prev.x);
             normal_next = normal_prev;
         } else {
-            dir_prev = normalize(points[i] - points[i - 1]);
-            dir_next = normalize(points[i + 1] - points[i]);
+            dir_prev = normalize(points[i_curr] - points[i_prev]);
+            dir_next = normalize(points[i_next] - points[i_curr]);
             normal_prev = vec2(-dir_prev.y, dir_prev.x);
             normal_next = vec2(-dir_next.y, dir_next.x);
         }
 
         // Miter calculation
-        vec2 miter = glm::normalize(normal_prev + normal_next);
+        vec2 miter = normalize(normal_prev + normal_next);
         float miter_len = half_thickness / std::max(0.0001f, dot(miter, normal_next));
         vec2 offset = miter * miter_len;
 
@@ -129,6 +106,10 @@ void Batch2D::drawSmoothPolyline(const std::vector<vec2> &points,
         prev_out = v_out;
         prev_in = v_in;
         has_prev = true;
+
+        // В режиме `closed` ограничиваем последнюю итерацию, чтобы не зациклить лишнее
+        if (!closed && i == count - 1)
+            break;
     }
 
     addDrawCommand(nullptr, start, m_vertices.size() - start);
@@ -138,6 +119,16 @@ void Batch2D::drawRect(const vec2 &pos, const vec2 &size, const Color &fill_colo
 {
     int32_t start = m_vertices.size();
     drawQuad(pos, pos + size, vec2{0.0f}, vec2{1.0f}, fill_color);
+    addDrawCommand(nullptr, start, m_vertices.size() - start);
+}
+
+void Batch2D::drawChamferedRect(const vec2 &pos,
+                                const vec2 &size,
+                                const vec4 &chamfer,
+                                const Color &fill_color)
+{
+    int32_t start = m_vertices.size();
+    drawChamferedQuad(pos, pos + size, chamfer, vec2{0.0f}, vec2{1.0f}, fill_color);
     addDrawCommand(nullptr, start, m_vertices.size() - start);
 }
 
@@ -250,24 +241,28 @@ void Batch2D::drawTextureFrameRect(const vec2 &pos,
 void Batch2D::drawText(const String &text,
                        const vec2 &pos,
                        const Color &fill_color,
-                       const std::shared_ptr<Font> &font)
+                       const std::shared_ptr<Font> &font,
+                       float pixel_height,
+                       float line_spaceing)
 {
     if (!font)
         return;
 
+    auto *font_page = font->getFontPage(pixel_height);
+
     int32_t start = m_vertices.size();
 
     vec2 cursor = pos;
-    cursor.y += font->getAscent();
+    cursor.y += font_page->getAscent();
 
     for (uint32_t cp : text) {
         if (cp == '\n') {
             cursor.x = pos.x;
-            cursor.y += font->getAscent() - font->getDescent() + font->getLineGap();
+            cursor.y += font_page->getAscent() - font_page->getDescent() + line_spaceing;
             continue;
         }
 
-        const Glyph *g = font->getGlyph(cp);
+        const Glyph *g = font_page->getGlyph(cp);
         if (!g)
             continue;
 
@@ -290,7 +285,7 @@ void Batch2D::drawText(const String &text,
         cursor.x += g->advance;
     }
 
-    addDrawCommand(font->getTexture(), start, m_vertices.size() - start);
+    addDrawCommand(font_page->getTexture(), start, m_vertices.size() - start);
 }
 
 void Batch2D::end()
@@ -323,6 +318,11 @@ void Batch2D::draw() const
 
 void Batch2D::addDrawCommand(const std::shared_ptr<Texture> &texture, int32_t offset, int32_t count)
 {
+    if (!m_draw_commands.empty() && m_draw_commands.back().texture == texture) {
+        m_draw_commands.back().count += count;
+        return;
+    }
+
     DrawCommand draw_command;
     draw_command.texture = texture;
     draw_command.offset = offset;
@@ -348,6 +348,71 @@ void Batch2D::drawQuad(const vec2 &left_bottom,
     m_vertices.push_back({p2, color.getColor(), {uv1.x, uv0.y}});
     m_vertices.push_back({p3, color.getColor(), {uv1.x, uv1.y}});
     m_vertices.push_back({p4, color.getColor(), {uv0.x, uv1.y}});
+}
+
+void Batch2D::drawChamferedQuad(const vec2 &left_bottom,
+                                const vec2 &right_top,
+                                const vec4 &chamfer,
+                                const vec2 &uv0,
+                                const vec2 &uv1,
+                                const Color &color)
+{
+    float l = left_bottom.x;
+    float b = left_bottom.y;
+    float r = right_top.x;
+    float t = right_top.y;
+
+    // Максимально допустимый срез для каждого угла
+    float max_chamfer_x = 0.5f * (r - l);
+    float max_chamfer_y = 0.5f * (t - b);
+
+    // Ограничиваем каждый срез по оси X и Y
+    auto clamp_chamfer = [&](float val) {
+        return std::min(val, std::min(max_chamfer_x, max_chamfer_y));
+    };
+
+    float c0 = clamp_chamfer(chamfer.x); // левый нижний
+    float c1 = clamp_chamfer(chamfer.y); // правый нижний
+    float c2 = clamp_chamfer(chamfer.z); // правый верхний
+    float c3 = clamp_chamfer(chamfer.w); // левый верхний
+
+    // Вершины по часовой стрелке, с учётом каждого среза
+    vec3 p0 = {l + c0, b, 0.0f}; // нижняя сторона между левым и правым низом
+    vec3 p1 = {r - c1, b, 0.0f};
+    vec3 p2 = {r, b + c1, 0.0f}; // правая сторона между низом и верхом
+    vec3 p3 = {r, t - c2, 0.0f};
+    vec3 p4 = {r - c2, t, 0.0f}; // верхняя сторона между правым и левым верхом
+    vec3 p5 = {l + c3, t, 0.0f};
+    vec3 p6 = {l, t - c3, 0.0f}; // левая сторона между верхом и низом
+    vec3 p7 = {l, b + c0, 0.0f};
+
+    auto col = color.getColor();
+
+    vec2 size = right_top - left_bottom;
+    auto uv = [&](const vec3 &p) {
+        return vec2{uv0.x + (uv1.x - uv0.x) * (p.x - l) / size.x,
+                    uv0.y + (uv1.y - uv0.y) * (p.y - b) / size.y};
+    };
+
+    int32_t start = m_vertices.size();
+
+    auto triangle = [&](const vec3 &a, const vec3 &b, const vec3 &c) {
+        m_vertices.push_back({a, col, uv(a)});
+        m_vertices.push_back({b, col, uv(b)});
+        m_vertices.push_back({c, col, uv(c)});
+    };
+
+    // Основной прямоугольник (восьмиугольник) из 6 треугольников
+    triangle(p0, p1, p5);
+    triangle(p1, p4, p5);
+    triangle(p1, p2, p3);
+    triangle(p1, p3, p4);
+    triangle(p5, p4, p6);
+    triangle(p4, p3, p6);
+    triangle(p5, p6, p0);
+    triangle(p6, p7, p0);
+    triangle(p0, p7, p1);
+    triangle(p7, p2, p1);
 }
 
 } // namespace ae

@@ -3,6 +3,7 @@
 
 #include "../graphics/core/font.h"
 #include "../graphics/core/render_texture.h"
+#include "../system/memory.h"
 #include "../system/time.h"
 #include "../window/input.h"
 #include "control.h"
@@ -17,6 +18,8 @@ namespace ae {
 
 class Gui
 {
+    friend class gui::Control;
+
 public:
     Gui();
     ~Gui() = default;
@@ -25,8 +28,8 @@ public:
     const RenderTexture &getRenderTexture() const;
     void setRenderTextureSize(const ivec2 &size);
 
-    std::shared_ptr<Control> top() const;
-    void push(const std::shared_ptr<Control> &control);
+    SharedPtr<Control> top() const;
+    void push(const SharedPtr<Control> &control);
     void pop();
     void clear();
 
@@ -38,22 +41,27 @@ public:
     void onButtonReleased(ButtonCode button);
     void onCursorMoved(int32_t x, int32_t y, int32_t delta_x, int32_t delta_y);
 
+    void onKeyPressed(KeyCode code);
+    void onKeyHeld(KeyCode code);
+    void onKeyReleased(KeyCode code);
+    void onCodepointInputed(uint32_t codepoint);
+
     static const std::shared_ptr<Font> &getDefaultFont();
 
 private:
-    std::shared_ptr<Control> getHoveredContol(const vec2 &pos,
-                                              vec2 *control_global_position = nullptr) const;
+    SharedPtr<Control> getHoveredContol(const vec2 &pos,
+                                        vec2 *control_global_position = nullptr) const;
 
 private:
     RenderTexture m_render_texture;
     mat4 m_proj_mat;
 
-    std::vector<std::shared_ptr<Control>> m_controls_stack;
+    std::vector<SharedPtr<Control>> m_controls_stack;
 
-    std::shared_ptr<Control> m_hovered_control;
-    std::shared_ptr<Control> m_focused_control;
+    WeakPtr<Control> m_hovered_control;
+    WeakPtr<Control> m_focused_control;
 
-    std::shared_ptr<Label> m_fps_label;
+    SharedPtr<Label> m_fps_label;
 };
 
 } // namespace ae

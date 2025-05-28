@@ -1,89 +1,90 @@
 #include "font.h"
 
-#define STB_TRUETYPE_IMPLEMENTATION
-#include "../../../3rd/stb/stb_truetype.h"
+#include <ft2build.h>
+#include FT_FREETYPE_H
 
 #include <GL/glew.h>
+#include <algorithm>
+#include <cstring>
 #include <fstream>
-#include <vector>
 
 namespace ae {
 
-Font::Font()
-    : m_ascent{0.0f}
+FontPage::FontPage()
+    : m_pixel_height{0.0f}
+    , m_ascent{0.0f}
     , m_descent{0.0f}
     , m_line_gap{0.0f}
-    , m_scale{0.0f}
 {}
-bool Font::loadFromFile(const std::filesystem::path &path, float requested_pixel_height)
+
+bool FontPage::load(const uint8_t *data, int32_t size, float pixel_height)
 {
-    std::ifstream file(path, std::ios::binary);
-    if (!file)
+    FT_Library ft;
+    if (FT_Init_FreeType(&ft))
         return false;
 
-    std::vector<uint8_t> buffer((std::istreambuf_iterator<char>(file)), {});
-
-    return loadFromMemory(buffer.data(), requested_pixel_height);
-}
-
-bool Font::loadFromMemory(const uint8_t *data, float requested_pixel_height)
-{
-    stbtt_fontinfo font;
-
-    if (!stbtt_InitFont(&font, data, 0))
+    FT_Face face;
+    if (FT_New_Memory_Face(ft, data, static_cast<FT_Long>(size), 0, &face))
         return false;
+
+    FT_Set_Pixel_Sizes(face, 0, static_cast<FT_UInt>(pixel_height));
 
     const int32_t atlas_width = 2048;
     const int32_t atlas_height = 2048;
 
-    std::vector<uint8_t> atlas;
-    atlas.resize(atlas_width * atlas_height, 0);
+    std::vector<uint8_t> atlas(atlas_width * atlas_height, 0);
 
-    stbtt_pack_context ctx;
-    stbtt_PackBegin(&ctx, atlas.data(), atlas_width, atlas_height, 0, 1, nullptr);
+    int32_t pen_x = 1, pen_y = 1; // Текущая позиция в атласе
+    int32_t row_height = 0;
 
-    stbtt_PackSetOversampling(&ctx, 3, 3);
+    auto insertGlyph = [&](uint32_t codepoint) {
+        if (FT_Load_Char(face, codepoint, FT_LOAD_RENDER))
+            return;
 
-    // Минимальный размер атласа, чтобы глифы были читаемы при маленьком размере
-    float atlas_pixel_height = std::max(requested_pixel_height, 96.0f);
+        FT_GlyphSlot g = face->glyph;
 
-    const int32_t ascii_count = 127 - 32 + 1;
-    const int32_t cyrillic_count = 0x44F - 0x410 + 1;
-    const int32_t total_chars = ascii_count + cyrillic_count + 2;
+        if (pen_x + g->bitmap.width + 1 >= atlas_width) {
+            pen_x = 1;
+            pen_y += row_height + 1;
+            row_height = 0;
+        }
 
-    std::vector<stbtt_packedchar> packed;
-    packed.resize(total_chars);
+        if (pen_y + g->bitmap.rows >= atlas_height)
+            return;
 
-    stbtt_pack_range ranges[4] = {};
+        // Копируем bitmap в атлас
+        for (int32_t y = 0; y < g->bitmap.rows; ++y) {
+            for (int32_t x = 0; x < g->bitmap.width; ++x) {
+                int32_t dst_x = pen_x + x;
+                int32_t dst_y = pen_y + y;
+                atlas[dst_y * atlas_width + dst_x] = g->bitmap.buffer[y * g->bitmap.pitch + x];
+            }
+        }
 
-    // ASCII
-    ranges[0].font_size = atlas_pixel_height;
-    ranges[0].first_unicode_codepoint_in_range = 32;
-    ranges[0].num_chars = ascii_count;
-    ranges[0].chardata_for_range = packed.data();
+        Glyph glyph;
+        glyph.size = vec2{g->bitmap.width, g->bitmap.rows};
+        glyph.offset = vec2{g->bitmap_left, -g->bitmap_top};
+        glyph.advance = g->advance.x / 64.0f; // 26.6 fixed point to float
+        glyph.uv0 = vec2{static_cast<float>(pen_x) / atlas_width,
+                         static_cast<float>(pen_y) / atlas_height};
+        glyph.uv1 = vec2{static_cast<float>(pen_x + g->bitmap.width) / atlas_width,
+                         static_cast<float>(pen_y + g->bitmap.rows) / atlas_height};
 
-    // Кириллица (А–я)
-    ranges[1].font_size = atlas_pixel_height;
-    ranges[1].first_unicode_codepoint_in_range = 0x410;
-    ranges[1].num_chars = cyrillic_count;
-    ranges[1].chardata_for_range = packed.data() + ascii_count;
+        m_glyphs[codepoint] = glyph;
 
-    // Ё
-    ranges[2].font_size = atlas_pixel_height;
-    ranges[2].first_unicode_codepoint_in_range = 0x401;
-    ranges[2].num_chars = 1;
-    ranges[2].chardata_for_range = packed.data() + ascii_count + cyrillic_count;
+        pen_x += g->bitmap.width + 1;
+        row_height = std::max(static_cast<uint32_t>(row_height), g->bitmap.rows);
+    };
 
-    // ё
-    ranges[3].font_size = atlas_pixel_height;
-    ranges[3].first_unicode_codepoint_in_range = 0x451;
-    ranges[3].num_chars = 1;
-    ranges[3].chardata_for_range = packed.data() + ascii_count + cyrillic_count + 1;
+    // ASCII + Кириллица + Ё/ё
+    for (uint32_t c = 32; c <= 126; ++c)
+        insertGlyph(c);
+    for (uint32_t c = 0x410; c <= 0x44F; ++c)
+        insertGlyph(c);
+    insertGlyph(0x401); // Ё
+    insertGlyph(0x451); // ё
 
-    stbtt_PackFontRanges(&ctx, data, 0, ranges, 4);
-    stbtt_PackEnd(&ctx);
-
-    // Создаём OpenGL текстуру
+    // Создаём текстуру
     uint32_t texture_id;
     glGenTextures(1, &texture_id);
     glBindTexture(GL_TEXTURE_2D, texture_id);
@@ -99,7 +100,6 @@ bool Font::loadFromMemory(const uint8_t *data, float requested_pixel_height)
 
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-
     glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_SWIZZLE_R, GL_ONE);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_SWIZZLE_G, GL_ONE);
@@ -110,106 +110,123 @@ bool Font::loadFromMemory(const uint8_t *data, float requested_pixel_height)
                                           ivec2{atlas_width, atlas_height},
                                           TextureFormat::RED);
 
-    // Коэффициент масштабирования глифов из атласа к нужному размеру
-    float scale = requested_pixel_height / atlas_pixel_height;
+    m_pixel_height = pixel_height;
+    m_ascent = face->size->metrics.ascender / 64.0f;
+    m_descent = face->size->metrics.descender / 64.0f;
+    m_line_gap = (face->size->metrics.height - face->size->metrics.ascender
+                  + abs(face->size->metrics.descender))
+                 / 64.0f;
 
-    int32_t asc, desc, gap;
-    stbtt_GetFontVMetrics(&font, &asc, &desc, &gap);
-    m_scale = stbtt_ScaleForPixelHeight(&font, requested_pixel_height);
-    m_ascent = asc * m_scale;
-    m_descent = desc * m_scale;
-    m_line_gap = gap * m_scale;
-
-    float cx = 0.0f, cy = 0.0f;
-    for (int32_t i = 0; i < total_chars; ++i) {
-        cx = 0.0f, cy = 0.0f;
-
-        stbtt_aligned_quad q;
-        stbtt_GetPackedQuad(packed.data(), atlas_width, atlas_height, i, &cx, &cy, &q, 0);
-
-        uint32_t codepoint;
-        if (i < ascii_count)
-            codepoint = 32 + i;
-        else if (i < ascii_count + cyrillic_count)
-            codepoint = 0x410 + (i - ascii_count);
-        else if (i == ascii_count + cyrillic_count)
-            codepoint = 0x401;
-        else
-            codepoint = 0x451;
-
-        Glyph g;
-        g.size = vec2(q.x1 - q.x0, q.y1 - q.y0) * scale;
-        g.offset = vec2(q.x0, q.y0) * scale;
-        g.advance = packed[i].xadvance * scale;
-        g.uv0 = vec2(q.s0, q.t0);
-        g.uv1 = vec2(q.s1, q.t1);
-
-        m_glyphs[codepoint] = g;
-    }
-
-    m_pixel_height = requested_pixel_height;
+    FT_Done_Face(face);
+    FT_Done_FreeType(ft);
 
     return true;
 }
 
-const std::shared_ptr<Texture> &Font::getTexture() const
-{
-    return m_texture;
-}
-
-bool Font::isValid() const
+bool FontPage::isValid() const
 {
     return m_texture && m_texture->isValid();
 }
 
-float Font::getAscent() const
+float FontPage::getPixelHeight() const
+{
+    return m_pixel_height;
+}
+
+float FontPage::getAscent() const
 {
     return m_ascent;
 }
-float Font::getDescent() const
+
+float FontPage::getDescent() const
 {
     return m_descent;
 }
-float Font::getLineGap() const
+
+float FontPage::getLineGap() const
 {
     return m_line_gap;
 }
 
-const Glyph *Font::getGlyph(uint32_t codepoint) const
+const std::shared_ptr<Texture> &FontPage::getTexture() const
+{
+    return m_texture;
+}
+
+const Glyph *FontPage::getGlyph(uint32_t codepoint) const
 {
     auto it = m_glyphs.find(codepoint);
     return (it != m_glyphs.end()) ? &it->second : nullptr;
 }
 
-const float Font::getPixelHeight() const
-{
-    return m_pixel_height;
-}
-
-vec2 Font::getTextSize(const String &string) const
+vec2 FontPage::getTextSize(const String &string, float line_spaceing) const
 {
     float max_line_width = 0.0f;
     float current_line_width = 0.0f;
-    int line_count = 1;
+    int32_t line_count = 1;
 
-    for (uint32_t ch : string) {
-        if (ch == '\n') {
+    for (uint32_t codepoint : string) {
+        if (codepoint == '\n') {
             max_line_width = std::max(max_line_width, current_line_width);
             current_line_width = 0.0f;
             line_count++;
             continue;
         }
 
-        const Glyph *glyph = getGlyph(ch);
+        const Glyph *glyph = getGlyph(codepoint);
         if (glyph)
             current_line_width += glyph->advance;
     }
 
     max_line_width = std::max(max_line_width, current_line_width);
-    float line_height = m_ascent - m_descent + m_line_gap;
+    float line_height = m_ascent - m_descent + line_spaceing;
     float total_height = line_count * line_height;
 
     return vec2{max_line_width, total_height};
+}
+
+Font::Font() {}
+
+bool Font::loadFromFile(const std::filesystem::path &path)
+{
+    m_font_data.clear();
+    m_pages.clear();
+
+    std::ifstream file(path, std::ios::binary);
+    if (!file)
+        return false;
+
+    m_font_data = std::vector<uint8_t>((std::istreambuf_iterator<char>(file)), {});
+    return true;
+}
+
+bool Font::loadFromMemory(const uint8_t *data, int32_t size)
+{
+    if (!data || size == 0)
+        return false;
+
+    m_font_data.clear();
+    m_pages.clear();
+
+    m_font_data.resize(size);
+    std::memcpy(m_font_data.data(), data, size);
+    return true;
+}
+
+const FontPage *Font::getFontPage(float pixel_height) const
+{
+    if (m_font_data.empty())
+        return nullptr;
+
+    auto found = m_pages.find(pixel_height);
+    if (found != m_pages.end())
+        return found->second.get();
+
+    auto page = std::make_unique<FontPage>();
+    if (!page->load(m_font_data.data(), m_font_data.size(), pixel_height))
+        return nullptr;
+    auto [it, inserted] = m_pages.emplace(pixel_height, std::move(page));
+    return it->second.get();
 }
 
 } // namespace ae

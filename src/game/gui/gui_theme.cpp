@@ -1,144 +1,144 @@
 #include "gui_theme.h"
 
+// Palette
 // Main menu
-Color GuiTheme::main_menu_bg_color = Color::fromInt(0, 0, 0, 180);
-vec2 GuiTheme::main_menu_button_size{256.0f, 32.0f};
+Color GuiTheme::Palette::main_menu_bg = Color::fromInt(0, 0, 0, 180);
 
 // Main menu button
-//Color::fromInt(255, 98, 93, 255);
-Color GuiTheme::main_menu_button_color = Color::fromInt(253, 183, 68, 255);
+Color GuiTheme::Palette::main_menu_button_border = Color::fromInt(243, 181, 98, 255);
+Color GuiTheme::Palette::main_menu_button_hovered_bg = Color::fromInt(173, 111, 28, 255);
+Color GuiTheme::Palette::main_menu_button_text = Color::white;
 
-void GuiTheme::drawMainMenuButtonBg(const vec2 &pos, const vec2 &size, float fill, Batch2D &batch_2d)
+// Button
+Color GuiTheme::Palette::button_bg = Color::fromInt(15, 8, 3, 220);
+Color GuiTheme::Palette::button_hovered_bg = Color::fromInt(28, 69, 71, 220);
+Color GuiTheme::Palette::button_border = Color::fromInt(243, 181, 98, 255);
+Color GuiTheme::Palette::button_hovered_border = Color::fromInt(213, 53, 43, 255);
+Color GuiTheme::Palette::button_text = Color::white;
+
+// Dialog
+Color GuiTheme::Palette::dialog_bg = Color::fromInt(15, 8, 3, 220);
+Color GuiTheme::Palette::dialog_border = Color::fromInt(243, 181, 98, 255);
+Color GuiTheme::Palette::dialog_border_2 = Color::fromInt(173, 111, 28, 255);
+Color GuiTheme::Palette::dialog_border_3 = Color::fromInt(213, 53, 43, 255);
+
+// Metrics
+// Main menu button
+float GuiTheme::Metrics::main_menu_button_font_pixel_size = 28.0f;
+float GuiTheme::Metrics::main_menu_button_height = 36.0f;
+float GuiTheme::Metrics::main_menu_button_border_thickness = 10.0f;
+float GuiTheme::Metrics::main_menu_buttons_corner_offset = 64.0f;
+float GuiTheme::Metrics::main_menu_buttons_spacing = 20.0f;
+
+// Buttons
+float GuiTheme::Metrics::button_font_pixel_size = 28.0f;
+vec2 GuiTheme::Metrics::button_padding = vec2{28.0f, 22.0f};
+
+// Dialog
+float GuiTheme::Metrics::dialog_font_pixel_size = 28.0f;
+float GuiTheme::Metrics::dialog_text_padding = 36.0f;
+float GuiTheme::Metrics::dialog_button_height = 36.0f;
+vec2 GuiTheme::Metrics::dialog_button_padding = vec2{28.0f, 6.0f};
+float GuiTheme::Metrics::dialog_buttons_spacing = 48.0f;
+float GuiTheme::Metrics::dialog_buttons_bottom_offset = 28.0f;
+
+GuiTheme::Palette GuiTheme::palette;
+GuiTheme::Metrics GuiTheme::metrics;
+
+void GuiTheme::drawMainMenuButtonBg(const vec2 &pos,
+                                    const vec2 &size,
+                                    const Color &bg_color,
+                                    const Color &border_color,
+                                    float fill,
+                                    Batch2D &batch_2d)
 {
-    batch_2d.drawRect(pos, vec2{main_menu_button_left_border, size.y}, main_menu_button_color);
+    batch_2d.drawRect(pos, vec2{metrics.main_menu_button_border_thickness, size.y}, border_color);
 
-    float rect_2_offset = main_menu_button_left_border + main_menu_button_left_border_2;
-    batch_2d.drawRect(vec2{pos.x + rect_2_offset, pos.y},
-                      vec2{(size.x - rect_2_offset) * fill, size.y},
-                      main_menu_button_color);
+    batch_2d.drawRect(vec2{pos.x + metrics.main_menu_button_border_thickness * 1.4f, pos.y},
+                      vec2{(size.x - metrics.main_menu_button_border_thickness * 1.4f) * fill,
+                           size.y},
+                      bg_color);
 }
 
-// Frame
-Color GuiTheme::frame_bg_color = Color::fromInt(15, 8, 3, 220);
-Color GuiTheme::frame_border_color = Color::fromInt(115, 103, 77, 255);
-Color GuiTheme::frame_border_color_2 = Color::fromInt(215, 182, 77, 255);
-
-void GuiTheme::drawFrameBg(const vec2 &pos, const vec2 &size, Batch2D &batch_2d)
+void GuiTheme::drawDialogBg(const vec2 &pos, const vec2 &size, Batch2D &batch_2d)
 {
-    float border_thickness = 6.0f;
-    float border_thickness_2 = 6.0f;
-    float border_width = size.x / 10.0f;
-    float corner_border_width = size.x / 10.0f;
+    float bg_offset = 2.0f;
+    float min_size = std::min(size.x, size.y);
+    float border_thickness = std::min(6.0f, min_size * 0.05f);
+    vec4 corners{min_size * 0.12f, min_size * 0.06f, min_size * 0.06f, min_size * 0.06f};
 
-    float bg_offset = 3.0f;
-
-    batch_2d.drawRectWithBorder(pos + bg_offset,
-                                size - bg_offset * 2.0f,
-                                frame_bg_color,
-                                frame_border_color,
-                                border_thickness);
+    batch_2d.drawChamferedRect(pos + bg_offset, size - bg_offset * 2.0f, corners, palette.dialog_bg);
 
     std::vector<vec2> points;
+    float border_offset = 8.0f;
 
-    float left_offset = 0.0f;
-    float top_offset = 0.0f;
+    float b_space = min_size * 0.05f;
 
-    // Left top corner
-    points = {vec2{left_offset, 42.0f},
-              vec2{left_offset, 8.0f},
-              vec2{8.0f, top_offset},
-              vec2{64.0f, top_offset}};
-    batch_2d.drawSmoothPolyline(points, border_thickness_2, frame_border_color_2);
+    points = {vec2{pos.x + size.x * 0.7f, pos.y + size.y},
+              vec2{pos.x + corners.w, pos.y + size.y},
+              vec2{pos.x, pos.y + size.y - corners.w},
+              vec2{pos.x, pos.y + corners.x},
+              vec2{pos.x + corners.x, pos.y},
+              vec2{pos.x + size.x - corners.y, pos.y},
+              vec2{pos.x + size.x, pos.y + corners.y},
+              vec2{pos.x + size.x, pos.y + size.y * 0.7f}};
+    batch_2d.drawPath(points, border_thickness, palette.dialog_border);
 
-    // batch_2d.drawLine(vec2{6.0f, 0.0f}, vec2{40.0f, 0.0f}, border_thickness_2, frame_border_color_2);
-    // batch_2d.drawLine(vec2{0.0f, 6.0f}, vec2{0.0f, 40.0f}, border_thickness_2, frame_border_color_2);
+    points = {vec2{pos.x + size.x, pos.y + size.y * 0.7f + b_space},
+              vec2{pos.x + size.x, pos.y + size.y - corners.z},
+              vec2{pos.x + size.x - corners.z, pos.y + size.y},
+              vec2{pos.x + size.x * 0.7f + b_space, pos.y + size.y}};
+    batch_2d.drawPath(points, border_thickness, palette.dialog_border_3);
 
-    // float h_border_left_offset = pos.x + border_thickness_2;
-    // float h_border_top_offset = pos.y + border_thickness_2 * 1.5f;
-    // float h_border_right_offset = pos.x + size.x - border_thickness_2;
-    // float h_border_bottom_offset = pos.y + size.y - border_thickness_2 * 1.5;
-    // float h_border_middle_offset = pos.x + size.x / 2.0f - border_width / 2.0f;
+    float inline_border_offset = border_thickness * 2.0f;
 
-    // // Top
-    // batch_2d.drawLine(vec2{h_border_left_offset, h_border_top_offset},
-    //                   vec2{h_border_left_offset + corner_border_width * 3.0f, h_border_top_offset},
-    //                   border_thickness_2,
-    //                   frame_border_color_2);
+    points = {vec2{pos.x + inline_border_offset, pos.y + size.y * 0.3f},
+              vec2{pos.x + inline_border_offset, pos.y + corners.x + border_thickness},
+              vec2{pos.x + corners.x + border_thickness, pos.y + inline_border_offset},
+              vec2{pos.x + size.x * 0.3f, pos.y + inline_border_offset}};
+    batch_2d.drawPath(points, border_thickness * 0.5f, palette.dialog_border_2);
 
-    // float off = h_border_left_offset + corner_border_width * 3.0f + corner_border_width * 0.3f;
-    // for (int32_t i = 0; i < 5; ++i) {
-    //     float w = border_width * (0.1f * (5 - i));
-    //     batch_2d.drawLine(vec2{off, h_border_top_offset},
-    //                       vec2{off + w, h_border_top_offset},
-    //                       border_thickness_2,
-    //                       frame_border_color_2);
-    //     off += w + corner_border_width * 0.3f;
-    // }
-
-    // // batch_2d.drawLine(vec2{h_border_middle_offset, h_border_top_offset},
-    // //                   vec2{h_border_middle_offset + border_width * 3.0f, h_border_top_offset},
-    // //                   border_thickness_2,
-    // //                   frame_border_color_2);
-
-    // batch_2d.drawLine(vec2{h_border_right_offset, h_border_top_offset},
-    //                   vec2{h_border_right_offset - corner_border_width, h_border_top_offset},
-    //                   border_thickness_2,
-    //                   frame_border_color_2);
-
-    // // Bottom
-    // batch_2d.drawLine(vec2{h_border_left_offset, h_border_bottom_offset},
-    //                   vec2{h_border_left_offset + corner_border_width, h_border_bottom_offset},
-    //                   border_thickness_2,
-    //                   frame_border_color_2);
-
-    // // batch_2d.drawLine(vec2{h_border_middle_offset + border_width, h_border_bottom_offset},
-    // //                   vec2{h_border_middle_offset - border_width * 2.0f, h_border_bottom_offset},
-    // //                   border_thickness_2,
-    // //                   frame_border_color_2);
-
-    // batch_2d.drawLine(vec2{h_border_right_offset, h_border_bottom_offset},
-    //                   vec2{h_border_right_offset - corner_border_width * 3.0f,
-    //                        h_border_bottom_offset},
-    //                   border_thickness_2,
-    //                   frame_border_color_2);
-
-    // float v_border_left_offset = pos.x + border_thickness_2 * 1.5f;
-    // float v_border_top_offset = pos.y + border_thickness_2 * 2.0f;
-    // float v_border_right_offset = pos.x + size.x - border_thickness_2 * 1.5f;
-    // float v_border_bottom_offset = pos.y + size.y - border_thickness_2 * 2.0f;
-    // float v_border_middle_offset = pos.y + size.y / 2.0f - border_width / 2.0f;
-
-    // // Left
-    // batch_2d.drawLine(vec2{v_border_left_offset, v_border_top_offset},
-    //                   vec2{v_border_left_offset,
-    //                        v_border_top_offset + corner_border_width - border_thickness_2},
-    //                   border_thickness_2,
-    //                   frame_border_color_2);
-
-    // batch_2d.drawLine(vec2{v_border_left_offset, v_border_bottom_offset},
-    //                   vec2{v_border_left_offset,
-    //                        v_border_bottom_offset - corner_border_width * 2.0f},
-    //                   border_thickness_2,
-    //                   frame_border_color_2);
-
-    // // Right
-    // batch_2d.drawLine(vec2{v_border_right_offset, v_border_top_offset},
-    //                   vec2{v_border_right_offset, v_border_top_offset + corner_border_width * 2.0f},
-    //                   border_thickness_2,
-    //                   frame_border_color_2);
-
-    // batch_2d.drawLine(vec2{v_border_right_offset, v_border_bottom_offset},
-    //                   vec2{v_border_right_offset,
-    //                        v_border_bottom_offset - corner_border_width + border_thickness_2},
-    //                   border_thickness_2,
-    //                   frame_border_color_2);
-
-    // std::vector<vec2> points = {vec2{50.0f},
-    //                             vec2{70.0f, 20.0f},
-    //                             vec2{100.0f, 80.0f},
-    //                             vec2{150.0f, 30.0f}};
-    // batch_2d.drawSmoothPolyline(points, 10.0f, Color::green);
+    points = {vec2{pos.x + size.x - inline_border_offset, pos.y + size.y * 0.8f},
+              vec2{pos.x + size.x - inline_border_offset,
+                   pos.y + size.y - corners.z - border_thickness},
+              vec2{pos.x + size.x - corners.z - border_thickness,
+                   pos.y + size.y - inline_border_offset},
+              vec2{pos.x + size.x * 0.8f, pos.y + size.y - inline_border_offset}};
+    batch_2d.drawPath(points, border_thickness * 0.5f, palette.dialog_border_3);
 }
 
-// Exit dialog
-vec2 GuiTheme::exit_dialog_size{500.0f, 300.0f};
+void GuiTheme::drawButtonBg(const vec2 &pos,
+                            const vec2 &size,
+                            const Color &bg_color,
+                            const Color &border_color,
+                            Batch2D &batch_2d)
+{
+    float min_size = std::min(size.x, size.y);
+    float bg_offset = 1.0f;
+    float border_thickness = std::min(6.0f, min_size * 0.05f);
+    float border_width = min_size * 0.2f;
+    vec4 corners{min_size * 0.12f, min_size * 0.06f, min_size * 0.06f, min_size * 0.06f};
+
+    batch_2d.drawRect(pos + bg_offset, size - bg_offset * 2.0f, bg_color);
+
+    std::vector<vec2> points;
+    points = {vec2{pos.x, pos.y + border_width},
+              vec2{pos.x, pos.y},
+              vec2{pos.x + border_width, pos.y}};
+    batch_2d.drawPath(points, border_thickness, border_color);
+
+    points = {vec2{pos.x + size.x - border_width, pos.y},
+              vec2{pos.x + size.x, pos.y},
+              vec2{pos.x + size.x, pos.y + border_width}};
+    batch_2d.drawPath(points, border_thickness, border_color);
+
+    points = {vec2{pos.x + size.x, pos.y + size.y - border_width},
+              vec2{pos.x + size.x, pos.y + size.y},
+              vec2{pos.x + size.x - border_width, pos.y + size.y}};
+    batch_2d.drawPath(points, border_thickness, border_color);
+
+    points = {vec2{pos.x + border_width, pos.y + size.y},
+              vec2{pos.x, pos.y + size.y},
+              vec2{pos.x, pos.y + size.y - border_width}};
+    batch_2d.drawPath(points, border_thickness, border_color);
+}

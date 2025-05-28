@@ -144,6 +144,10 @@ public:
     float getScrollY() const;
     void setScrollY(float yoffset);
 
+    // Codepoint
+    uint32_t getCodepoint() const;
+    void setCodepoint(uint32_t codepoint);
+
 private:
     void update();
 
@@ -163,6 +167,8 @@ public:
 
     sigslot::signal<float, float> scrolled;
 
+    sigslot::signal<uint32_t> codepointInputed;
+
 private:
     std::vector<std::pair<bool, int32_t>> m_states;
 
@@ -174,6 +180,8 @@ private:
 
     float m_scroll_x;
     float m_scroll_y;
+
+    uint32_t m_codepoint;
 
     uint32_t m_update_counter;
 };

@@ -13,6 +13,7 @@ find_package(spdlog REQUIRED)
 find_package(assimp REQUIRED)
 find_package(EnTT 3.16 REQUIRED)
 find_package(tomlplusplus)
+find_package(Freetype REQUIRED)
 
 add_subdirectory(3rd/embed)
 
@@ -34,7 +35,7 @@ add_library(ae SHARED
     ae/scene/scene.h ae/scene/scene.cpp
     3rd/stb/stb_image.h
     3rd/stb/stb_image_write.h
-    3rd/stb/stb_truetype.h
+
     ae/graphics/core/shader.h ae/graphics/core/shader.cpp
     ae/system/files.h ae/system/files.cpp
     ae/graphics/common/enums.h
@@ -122,6 +123,8 @@ add_library(ae SHARED
     ae/task.h ae/task.cpp
     ae/animation_manager.h ae/animation_manager.cpp
     ae/animation.h ae/animation.cpp
+    ae/gui/input_text_base.h ae/gui/input_text_base.cpp
+    ae/system/memory.h
 
 )
 
@@ -134,6 +137,7 @@ target_link_libraries(ae PRIVATE
     assimp::assimp
     EnTT::EnTT
     tomlplusplus::tomlplusplus
+    Freetype::Freetype
 )
 
 b_embed(ae shaders/main.vert)

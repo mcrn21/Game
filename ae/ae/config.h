@@ -19,6 +19,7 @@ struct Config
     int32_t window_width = 800;
     int32_t window_height = 600;
     std::string window_title = "ae";
+    int32_t msaa = 0;
 
     // Game
     int32_t game_frame_rate = 60;

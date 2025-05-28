@@ -14,9 +14,6 @@ public:
     MainMenuButton();
     ~MainMenuButton() = default;
 
-    const std::shared_ptr<Font> &getFont() const;
-    void setFont(const std::shared_ptr<Font> &font);
-
     const String &getString() const;
     void setString(const String &string);
 
@@ -30,7 +27,6 @@ protected:
     void drawControl(Batch2D &batch_2d);
 
 private:
-    std::shared_ptr<Font> m_font;
     String m_string;
 
     std::shared_ptr<FloatAnimation> m_a1;

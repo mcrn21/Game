@@ -19,7 +19,10 @@ public:
     void update(const Time &dt);
 
 private:
-    std::vector<std::shared_ptr<Task>> m_tasks;
+    // Используется двойной буффер задач, который
+    // переключается на кажлм апдейте
+    int32_t m_current_buffer;
+    std::vector<std::shared_ptr<Task>> m_tasks[2];
 };
 
 } // namespace ae

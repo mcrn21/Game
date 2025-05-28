@@ -19,10 +19,10 @@ class Window : public RenderTarget
 {
 public:
     Window();
-    Window(int32_t width, int32_t height, const std::string &title);
+    Window(int32_t width, int32_t height, const std::string &title, int32_t msaa = 0);
     ~Window() = default;
 
-    bool create(int32_t width, int32_t height, const std::string &title);
+    bool create(int32_t width, int32_t height, const std::string &title, int32_t msaa = 0);
     bool isValid() const;
     void destroy();
 
@@ -48,6 +48,7 @@ private:
     static void cursorPosCallback(GLFWwindow *glfw_window, double x, double y);
     static void scrollCallback(GLFWwindow *glfw_window, double xoffset, double yoffset);
     static void sizeCallback(GLFWwindow *glfw_window, int32_t width, int32_t height);
+    static void setCharCallback(GLFWwindow *glfw_window, uint32_t codepoint);
 
 private:
     std::unique_ptr<GLFWwindow, GLFWWindowDeleter> m_window;

@@ -87,6 +87,27 @@ void Player_S::update()
         movement_c.wants_to_jump = true;
 
     patch<Movement_C>(m_player_entity);
+
+    // Camera rotate
+    float delta_x = input->getCursorDeltaX();
+    float delta_y = input->getCursorDeltaY();
+
+    auto *window = App::getInstance().getWindow();
+
+    auto &camera_center_transform_c = get<Transform_C>(player_c.camera_center);
+
+    float dir_y = camera_center_transform_c.rotation.x;
+    float dir_x = camera_center_transform_c.rotation.y;
+
+    dir_y -= (-static_cast<float>(delta_y) / window->getSize().y * 1.5f);
+    dir_y = std::clamp(dir_y, glm::radians(-89.0f), glm::radians(89.0f)); // ограничение по вертикали
+
+    dir_x += -static_cast<float>(delta_x) / window->getSize().x * 1.5f;
+
+    camera_center_transform_c.rotation.x = dir_y;
+    camera_center_transform_c.rotation.y = dir_x;
+
+    patch<Transform_C>(player_c.camera_center);
 }
 
 void Player_S::updateCameraPosition(const Time &elapsed_time)
@@ -157,27 +178,27 @@ void Player_S::updateCameraPosition(const Time &elapsed_time)
 
 void Player_S::onMouseMoved(int32_t x, int32_t y, int32_t delta_x, int32_t delta_y)
 {
-    if (!isValid(m_player_entity))
-        return;
+    // if (!isValid(m_player_entity))
+    //     return;
 
-    auto *window = App::getInstance().getWindow();
+    // auto *window = App::getInstance().getWindow();
 
-    const auto &player_c = get<Player_C>(m_player_entity);
+    // const auto &player_c = get<Player_C>(m_player_entity);
 
-    auto &transform_c = get<Transform_C>(player_c.camera_center);
+    // auto &transform_c = get<Transform_C>(player_c.camera_center);
 
-    float dir_y = transform_c.rotation.x;
-    float dir_x = transform_c.rotation.y;
+    // float dir_y = transform_c.rotation.x;
+    // float dir_x = transform_c.rotation.y;
 
-    dir_y -= (-static_cast<float>(delta_y) / window->getSize().y * 1.5f);
-    dir_y = std::clamp(dir_y, glm::radians(-89.0f), glm::radians(89.0f)); // ограничение по вертикали
+    // dir_y -= (-static_cast<float>(delta_y) / window->getSize().y * 1.5f);
+    // dir_y = std::clamp(dir_y, glm::radians(-89.0f), glm::radians(89.0f)); // ограничение по вертикали
 
-    dir_x += -static_cast<float>(delta_x) / window->getSize().x * 1.5f;
+    // dir_x += -static_cast<float>(delta_x) / window->getSize().x * 1.5f;
 
-    transform_c.rotation.x = dir_y;
-    transform_c.rotation.y = dir_x;
+    // transform_c.rotation.x = dir_y;
+    // transform_c.rotation.y = dir_x;
 
-    patch<Transform_C>(player_c.camera_center);
+    // patch<Transform_C>(player_c.camera_center);
 
     // auto mi = std::static_pointer_cast<ModelInstance>(
     //     registry.get<Drawable_C>(player_c.model_entity));

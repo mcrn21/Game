@@ -37,14 +37,14 @@ void Gui::setRenderTextureSize(const ivec2 &size)
         control->setSize(vec2{size.x, size.y});
 }
 
-std::shared_ptr<Control> Gui::top() const
+SharedPtr<Control> Gui::top() const
 {
     if (m_controls_stack.empty())
         return nullptr;
     return m_controls_stack.back();
 }
 
-void Gui::push(const std::shared_ptr<Control> &control)
+void Gui::push(const SharedPtr<Control> &control)
 {
     m_controls_stack.push_back(control);
     control->setSize(m_render_texture.getSize());
@@ -91,27 +91,32 @@ void Gui::draw() const
 
 void Gui::onButtonPressed(ButtonCode button)
 {
-    if (!m_hovered_control) {
-        if (m_focused_control)
-            m_focused_control->setState(m_focused_control->getState() & ~Control::FOCUSED);
-        m_focused_control = nullptr;
+    auto hovered_control = m_hovered_control.lock();
+    auto focused_control = m_focused_control.lock();
+
+    if (!hovered_control) {
+        if (focused_control)
+            focused_control->setState(focused_control->getState() & ~Control::FOCUSED);
+        m_focused_control.reset();
         return;
     }
 
-    if (m_focused_control)
-        m_focused_control->setState(m_focused_control->getState() & ~Control::FOCUSED);
+    if (focused_control)
+        focused_control->setState(focused_control->getState() & ~Control::FOCUSED);
 
     m_focused_control = m_hovered_control;
 
-    m_focused_control->onButtonPressed(button);
-    m_focused_control->setState(m_focused_control->getState() | Control::FOCUSED | Control::PRESSED);
+    focused_control = m_focused_control.lock();
+    focused_control->onButtonPressed(button);
+    focused_control->setState(focused_control->getState() | Control::FOCUSED | Control::PRESSED);
 }
 
 void Gui::onButtonReleased(ButtonCode button)
 {
-    if (m_focused_control) {
-        m_focused_control->onButtonReleased(button);
-        m_focused_control->setState(m_focused_control->getState() & ~Control::PRESSED);
+    auto focused_control = m_focused_control.lock();
+    if (focused_control) {
+        focused_control->onButtonReleased(button);
+        focused_control->setState(focused_control->getState() & ~Control::PRESSED);
     }
 }
 
@@ -120,20 +125,51 @@ void Gui::onCursorMoved(int32_t x, int32_t y, int32_t delta_x, int32_t delta_y)
     vec2 control_global_position{0.0f};
     auto c = getHoveredContol(vec2{x, y}, &control_global_position);
 
-    if (m_hovered_control && m_hovered_control != c) {
-        m_hovered_control->onCursorLeave();
-        m_hovered_control->setState(m_hovered_control->getState() & ~Control::HOVERED);
+    auto hovered_control = m_hovered_control.lock();
+
+    if (hovered_control && hovered_control != c) {
+        hovered_control->onCursorLeave();
+        hovered_control->setState(hovered_control->getState() & ~Control::HOVERED);
     }
 
-    if (c && m_hovered_control != c) {
+    if (c && hovered_control != c) {
         c->onCursorEnter();
         c->setState(c->getState() | Control::HOVERED);
     }
 
     m_hovered_control = c;
 
-    if (m_hovered_control)
-        m_hovered_control->onCursorMoved(vec2{x, y} - control_global_position);
+    hovered_control = m_hovered_control.lock();
+    if (hovered_control)
+        hovered_control->onCursorMoved(vec2{x, y} - control_global_position);
+}
+
+void Gui::onKeyPressed(KeyCode code)
+{
+    auto focused_control = m_focused_control.lock();
+    if (focused_control)
+        focused_control->onKeyPressed(code);
+}
+
+void Gui::onKeyHeld(KeyCode code)
+{
+    auto focused_control = m_focused_control.lock();
+    if (focused_control)
+        focused_control->onKeyHeld(code);
+}
+
+void Gui::onKeyReleased(KeyCode code)
+{
+    auto focused_control = m_focused_control.lock();
+    if (focused_control)
+        focused_control->onKeyReleased(code);
+}
+
+void Gui::onCodepointInputed(uint32_t codepoint)
+{
+    auto focused_control = m_focused_control.lock();
+    if (focused_control)
+        focused_control->onCodepointInputed(codepoint);
 }
 
 const std::shared_ptr<Font> &Gui::getDefaultFont()
@@ -144,17 +180,20 @@ const std::shared_ptr<Font> &Gui::getDefaultFont()
         default_font = std::make_shared<Font>();
         default_font->loadFromMemory(reinterpret_cast<const uint8_t *>(
                                          b::embed<"fonts/default.ttf">().data()),
-                                     32.0f);
+                                     b::embed<"fonts/default.ttf">().size());
     }
 
     return default_font;
 }
 
-std::shared_ptr<Control> Gui::getHoveredContol(const vec2 &pos, vec2 *control_global_position) const
+SharedPtr<Control> Gui::getHoveredContol(const vec2 &pos, vec2 *control_global_position) const
 {
-    if (!m_controls_stack.empty() && m_controls_stack.back()->isVisible()
-        && m_controls_stack.back()->contains(pos))
-        return m_controls_stack.back()->findContolAtPos(pos, control_global_position);
+    if (!m_controls_stack.empty() && m_controls_stack.back()->contains(pos)) {
+        auto c = m_controls_stack.back()->findContolAtPos(pos, control_global_position);
+        if (c && (!c->isEnable() || !c->isEnable()))
+            return nullptr;
+        return c;
+    }
     return nullptr;
 }
 

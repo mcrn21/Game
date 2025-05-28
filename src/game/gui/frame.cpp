@@ -7,5 +7,5 @@ Frame::Frame()
 
 void Frame::drawControl(Batch2D &batch_2d)
 {
-    GuiTheme::drawFrameBg(vec2{0.0f}, getSize(), batch_2d);
+    GuiTheme::drawDialogBg(vec2{0.0f}, getSize(), batch_2d);
 }

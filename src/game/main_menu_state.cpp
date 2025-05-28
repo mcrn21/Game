@@ -53,7 +53,7 @@ void MainMenuState::draw() const
     glEnable(GL_DEPTH_TEST);
 }
 
-std::shared_ptr<gui::Control> MainMenuState::createGui()
+SharedPtr<gui::Control> MainMenuState::createGui()
 {
     auto &app = App::getInstance();
 

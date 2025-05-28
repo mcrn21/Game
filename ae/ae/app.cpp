@@ -27,7 +27,10 @@ bool App::create(const Config &config)
     m_tick_time = seconds(1.0f / static_cast<float>(config.game_frame_rate));
 
     m_window = std::make_unique<Window>();
-    if (!m_window->create(config.window_width, config.window_height, config.window_title))
+    if (!m_window->create(config.window_width,
+                          config.window_height,
+                          config.window_title,
+                          config.msaa))
         return false;
 
     // Task manager
@@ -48,6 +51,10 @@ bool App::create(const Config &config)
     m_window->getInput().buttonPressed.connect(&Gui::onButtonPressed, m_gui.get());
     m_window->getInput().buttonReleased.connect(&Gui::onButtonReleased, m_gui.get());
     m_window->getInput().cursorMoved.connect(&Gui::onCursorMoved, m_gui.get());
+    m_window->getInput().keyPressed.connect(&Gui::onKeyPressed, m_gui.get());
+    m_window->getInput().keyHolded.connect(&Gui::onKeyHeld, m_gui.get());
+    m_window->getInput().keyReleased.connect(&Gui::onKeyReleased, m_gui.get());
+    m_window->getInput().codepointInputed.connect(&Gui::onCodepointInputed, m_gui.get());
 
     m_game_state_stack = std::make_unique<GameStateStack>();
 

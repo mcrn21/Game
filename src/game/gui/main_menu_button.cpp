@@ -7,7 +7,7 @@ MainMenuButton::MainMenuButton()
     : gui::ButtonBase{}
     , m_bg_fill{0.0f}
 {
-    m_font = Gui::getDefaultFont();
+    setFontPixelSize(GuiTheme::metrics.main_menu_button_font_pixel_size);
 
     m_a1 = std::make_shared<FloatAnimation>(
         0.0f,
@@ -28,16 +28,6 @@ MainMenuButton::MainMenuButton()
             repaint();
         },
         Easing::easeInOutExpo);
-}
-
-const std::shared_ptr<Font> &MainMenuButton::getFont() const
-{
-    return m_font;
-}
-
-void MainMenuButton::setFont(const std::shared_ptr<Font> &font)
-{
-    m_font = font;
 }
 
 const String &MainMenuButton::getString() const
@@ -77,10 +67,20 @@ void MainMenuButton::onCursorLeave()
 
 void MainMenuButton::drawControl(Batch2D &batch_2d)
 {
-    GuiTheme::drawMainMenuButtonBg(vec2{0.0f}, getSize(), m_bg_fill, batch_2d);
+    GuiTheme::drawMainMenuButtonBg(vec2{0.0f},
+                                   getSize(),
+                                   GuiTheme::palette.main_menu_button_hovered_bg,
+                                   GuiTheme::palette.main_menu_button_border,
+                                   m_bg_fill,
+                                   batch_2d);
+
+    auto *font_page = getFont()->getFontPage(getFontPixelSize());
+    vec2 pos;
+    pos.x = GuiTheme::metrics.main_menu_button_border_thickness * 2.2f;
+    pos.y = (getSize().y - (font_page->getAscent() - font_page->getDescent())) / 2.0f;
     batch_2d.drawText(m_string,
-                      vec2{GuiTheme::main_menu_button_text_left_offset,
-                           (getSize().y - m_font->getPixelHeight()) / 2.0f},
-                      Color::white,
-                      m_font);
+                      pos,
+                      GuiTheme::palette.main_menu_button_text,
+                      getFont(),
+                      getFontPixelSize());
 }

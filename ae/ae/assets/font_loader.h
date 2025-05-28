@@ -13,8 +13,7 @@ class AssetLoader<Font>
 public:
     static std::shared_ptr<Font> loadFromFile(Assets *assets,
                                               const std::string &asset_name,
-                                              const std::filesystem::path &path,
-                                              float pixel_height)
+                                              const std::filesystem::path &path)
     {
         if (path.empty())
             return nullptr;
@@ -24,7 +23,7 @@ public:
             return nullptr;
 
         auto font = std::make_shared<Font>();
-        if (!font->loadFromFile(path, pixel_height))
+        if (!font->loadFromFile(path))
             return nullptr;
 
         assets->add(name, font);
@@ -35,13 +34,13 @@ public:
     static std::shared_ptr<Font> loadFromMemory(Assets *assets,
                                                 const std::string &asset_name,
                                                 const uint8_t *data,
-                                                float pixel_height)
+                                                int32_t size)
     {
         if (!data)
             return nullptr;
 
         auto font = std::make_shared<Font>();
-        if (!font->loadFromMemory(data, pixel_height))
+        if (!font->loadFromMemory(data, size))
             return nullptr;
 
         assets->add(asset_name, font);

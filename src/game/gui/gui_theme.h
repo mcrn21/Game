@@ -10,33 +10,69 @@ using namespace ae;
 
 struct GuiTheme
 {
-    // Main menu
-    static Color main_menu_bg_color;
-    static vec2 main_menu_button_size;
-    static constexpr float main_menu_button_spacing = 24.0f;
-    static constexpr float main_menu_button_offset_x = 64.0f;
+    static struct Palette
+    {
+        // Main menu
+        static Color main_menu_bg;
 
-    // Main menu button
-    static constexpr float main_menu_button_left_border = 8.0f;
-    static constexpr float main_menu_button_left_border_2 = 3.0f;
-    static constexpr float main_menu_button_text_left_offset = 16.0f;
+        // Main menu button
+        static Color main_menu_button_border;
+        static Color main_menu_button_hovered_bg;
+        static Color main_menu_button_text;
 
-    static Color main_menu_button_color;
+        // Button
+        static Color button_bg;
+        static Color button_hovered_bg;
+        static Color button_border;
+        static Color button_hovered_border;
+        static Color button_text;
+
+        // Dialog
+        static Color dialog_bg;
+        static Color dialog_border;
+        static Color dialog_border_2;
+        static Color dialog_border_3;
+
+    } palette;
+
+    static struct Metrics
+    {
+        // Main menu button
+        static float main_menu_button_font_pixel_size;
+        static float main_menu_button_height;
+        static float main_menu_button_border_thickness;
+        static float main_menu_buttons_corner_offset;
+        static float main_menu_buttons_spacing;
+
+        // Button
+        static float button_font_pixel_size;
+        static vec2 button_padding;
+
+        // Dialog
+        static float dialog_font_pixel_size;
+        static float dialog_text_padding;
+        static float dialog_button_height;
+        static vec2 dialog_button_padding;
+        static float dialog_buttons_spacing;
+        static float dialog_buttons_bottom_offset;
+    } metrics;
+
+    /////
 
     static void drawMainMenuButtonBg(const vec2 &pos,
                                      const vec2 &size,
+                                     const Color &bg_color,
+                                     const Color &border_color,
                                      float fill,
                                      Batch2D &batch_2d);
 
-    // Frame
-    static Color frame_bg_color;
-    static Color frame_border_color;
-    static Color frame_border_color_2;
+    static void drawDialogBg(const vec2 &pos, const vec2 &size, Batch2D &batch_2d);
 
-    static void drawFrameBg(const vec2 &pos, const vec2 &size, Batch2D &batch_2d);
-
-    // Exit dialog
-    static vec2 exit_dialog_size;
+    static void drawButtonBg(const vec2 &pos,
+                             const vec2 &size,
+                             const Color &bg_color,
+                             const Color &border_color,
+                             Batch2D &batch_2d);
 };
 
 #endif // GUI_THEME_H

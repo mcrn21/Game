@@ -20,7 +20,7 @@ public:
     void draw() const;
 
 private:
-    std::shared_ptr<gui::Control> createGui();
+    SharedPtr<gui::Control> createGui();
 
 private:
     bool m_gameplay;

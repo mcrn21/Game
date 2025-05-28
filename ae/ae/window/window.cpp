@@ -2,6 +2,7 @@
 
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
+#include <spdlog/spdlog.h>
 
 namespace ae {
 
@@ -15,13 +16,13 @@ Window::Window()
     : m_mouse_enabled{true}
 {}
 
-Window::Window(int32_t width, int32_t height, const std::string &title)
+Window::Window(int32_t width, int32_t height, const std::string &title, int32_t msaa)
     : m_mouse_enabled{true}
 {
     create(width, height, title);
 }
 
-bool Window::create(int32_t width, int32_t height, const std::string &title)
+bool Window::create(int32_t width, int32_t height, const std::string &title, int32_t msaa)
 {
     if (m_window)
         return false;
@@ -33,6 +34,8 @@ bool Window::create(int32_t width, int32_t height, const std::string &title)
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
     glfwWindowHint(GLFW_RESIZABLE, GL_TRUE);
+
+    glfwWindowHint(GLFW_SAMPLES, msaa);
 
     m_window = std::unique_ptr<GLFWwindow, GLFWWindowDeleter>(
         glfwCreateWindow(width, height, title.c_str(), nullptr, nullptr));
@@ -47,6 +50,7 @@ bool Window::create(int32_t width, int32_t height, const std::string &title)
     glfwSetKeyCallback(m_window.get(), &Window::keyCallback);
     glfwSetScrollCallback(m_window.get(), &Window::scrollCallback);
     glfwSetWindowSizeCallback(m_window.get(), &Window::sizeCallback);
+    glfwSetCharCallback(m_window.get(), &Window::setCharCallback);
 
     glfwMakeContextCurrent(m_window.get());
 
@@ -56,7 +60,11 @@ bool Window::create(int32_t width, int32_t height, const std::string &title)
         return false;
     }
 
-    glfwWindowHint(GLFW_SAMPLES, 4);
+    glEnable(GL_MULTISAMPLE);
+
+    int32_t samples = 0;
+    glGetIntegerv(GL_SAMPLES, &samples);
+    spdlog::info("MSAA: {}", samples);
 
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_CULL_FACE);
@@ -167,6 +175,12 @@ void Window::sizeCallback(GLFWwindow *glfw_window, int32_t width, int32_t height
 
     window->setViewport({0, 0, width, height});
     window->setSize({width, height});
+}
+
+void Window::setCharCallback(GLFWwindow *glfw_window, uint32_t codepoint)
+{
+    Window *window = static_cast<Window *>(glfwGetWindowUserPointer(glfw_window));
+    window->getInput().setCodepoint(codepoint);
 }
 
 } // namespace ae

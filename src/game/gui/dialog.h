@@ -2,18 +2,18 @@
 #define DIALOG_H
 
 #include "button.h"
-#include "frame.h"
 
-class Dialog : public Frame
+#include <ae/gui/control.h>
+
+using namespace ae;
+
+class Dialog : public gui::Control
 {
 public:
     Dialog();
     ~Dialog() = default;
 
     void setCenter(const vec2 &center);
-
-    const std::shared_ptr<Font> &getFont() const;
-    void setFont(const std::shared_ptr<Font> &font);
 
     const String &getString() const;
     void setString(const String &string);
@@ -27,8 +27,7 @@ protected:
     void drawControl(Batch2D &batch_2d);
 
 private:
-    void updateDialogPosition();
-    void updateButtonPositions();
+    void updateGeometry();
 
 public:
     sigslot::signal<> accepted;
@@ -37,11 +36,10 @@ public:
 private:
     vec2 m_center;
 
-    std::shared_ptr<Font> m_font;
     String m_string;
 
-    std::shared_ptr<Button> m_accept_button;
-    std::shared_ptr<Button> m_cancel_button;
+    SharedPtr<Button> m_accept_button;
+    SharedPtr<Button> m_cancel_button;
 };
 
 #endif // DIALOG_H

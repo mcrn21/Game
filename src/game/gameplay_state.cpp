@@ -1,4 +1,5 @@
 #include "gameplay_state.h"
+#include "main_menu_state.h"
 
 #include <ae/app.h>
 
@@ -13,23 +14,31 @@ GameplayState::GameplayState()
 void GameplayState::onEnter()
 {
     spdlog::debug("GameplayState::onEnter");
+    auto &app = App::getInstance();
+    app.getWindow()->setMouseEnabled(false);
 }
 
 void GameplayState::onExit()
 {
     spdlog::debug("GameplayState::onExit");
+    auto &app = App::getInstance();
+    app.getWindow()->setMouseEnabled(true);
 }
 
 void GameplayState::onPause()
 {
     spdlog::debug("GameplayState::onPause");
     m_paused = true;
+    auto &app = App::getInstance();
+    app.getWindow()->setMouseEnabled(true);
 }
 
 void GameplayState::onResume()
 {
     spdlog::debug("GameplayState::onResume");
     m_paused = false;
+    auto &app = App::getInstance();
+    app.getWindow()->setMouseEnabled(false);
 }
 
 bool GameplayState::isTranslucent() const
@@ -40,6 +49,12 @@ bool GameplayState::isTranslucent() const
 void GameplayState::update(const Time &dt)
 {
     auto &app = App::getInstance();
+
+    if (app.getInput()->isKeyPressed(KeyCode::ESCAPE)) {
+        std::make_shared<CallbackTask>([&]() {
+            app.getGameStateStack()->push(std::make_shared<MainMenuState>(true));
+        })->run();
+    }
 
     // Обновляем сцену и интерфейс
     app.getScene()->tickUpdate(dt);

@@ -17,6 +17,7 @@ Input::Input()
     , m_cursor_dragged{false}
     , m_scroll_x{0.0f}
     , m_scroll_y{0.0f}
+    , m_codepoint{0}
     , m_update_counter{0}
 {}
 
@@ -96,6 +97,17 @@ void Input::setScrollY(float yoffset)
     scrolled(m_scroll_x, m_scroll_y);
 }
 
+uint32_t Input::getCodepoint() const
+{
+    return m_codepoint;
+}
+
+void Input::setCodepoint(uint32_t codepoint)
+{
+    m_codepoint = codepoint;
+    codepointInputed(codepoint);
+}
+
 void Input::update()
 {
     ++m_update_counter;
@@ -103,6 +115,7 @@ void Input::update()
     m_cursor_delta_y = 0;
     m_scroll_x = 0.0f;
     m_scroll_y = 0.0f;
+    m_codepoint = 0;
 }
 
 void Input::setKeyPressed(KeyCode keycode, int32_t pressed)

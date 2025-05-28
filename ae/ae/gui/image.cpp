@@ -57,11 +57,6 @@ void Image::onButtonReleased(ButtonCode button)
 
 void Image::drawControl(Batch2D &batch_2d)
 {
-    batch_2d.setBrushColor(Color::white);
-
-    if (getState() & PRESSED)
-        batch_2d.setBrushColor(Color::red);
-
     batch_2d.drawTextureFrameRect({0.0f, 0.0f},
                                   getSize(),
                                   vec4{12.0f, 12.0f, 64.0f, 12.0f},

@@ -36,19 +36,19 @@ public:
     Batch2D();
     ~Batch2D() = default;
 
-    const Color &getBrushColor() const;
-    void setBrushColor(const Color &color);
-
     void begin();
 
-    void drawRect(const vec2 &pos, const vec2 &size);
-
     void drawLine(const vec2 &from, const vec2 &to, float thickness, const Color &fill_color);
-    void drawSmoothPolyline(const std::vector<vec2> &points,
-                            float thickness,
-                            const Color &fill_color);
+    void drawPath(const std::vector<vec2> &points,
+                  float thickness,
+                  const Color &fill_color,
+                  bool closed = false);
 
     void drawRect(const vec2 &pos, const vec2 &size, const Color &fill_color);
+    void drawChamferedRect(const vec2 &pos,
+                           const vec2 &size,
+                           const vec4 &chamfer,
+                           const Color &fill_color);
     void drawRectWithBorder(const vec2 &pos,
                             const vec2 &size,
                             const Color &fill_color,
@@ -60,10 +60,13 @@ public:
                               const vec2 &size,
                               const vec4 &borders,
                               const std::shared_ptr<Texture> &texture);
+
     void drawText(const String &text,
                   const vec2 &pos,
                   const Color &fill_color,
-                  const std::shared_ptr<Font> &font);
+                  const std::shared_ptr<Font> &font,
+                  float pixel_height = 32.0f,
+                  float line_spaceing = 0.0f);
 
     void end();
 
@@ -78,6 +81,13 @@ private:
                   const vec2 &uv1,
                   const Color &color);
 
+    void drawChamferedQuad(const vec2 &left_bottom,
+                           const vec2 &right_top,
+                           const vec4 &chamfer,
+                           const vec2 &uv0,
+                           const vec2 &uv1,
+                           const Color &color);
+
 private:
     struct DrawCommand
     {
@@ -88,8 +98,6 @@ private:
 
     std::vector<DrawCommand> m_draw_commands;
     std::vector<Batch2DVertex2> m_vertices;
-
-    Color m_brush_color;
 
     mutable VertexArray m_vertex_array;
 };
