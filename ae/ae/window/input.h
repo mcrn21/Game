@@ -4,6 +4,7 @@
 #include "../../3rd/sigslot/signal.hpp"
 
 #include <cstdint>
+#include <string.h>
 #include <vector>
 
 struct GLFWwindow;
@@ -101,6 +102,24 @@ enum class KeyCode : int32_t {
     UNKNOWN = -1
 };
 
+enum class KeyModifier : uint8_t {
+    NONE = 0,
+    SHIFT = 1 << 0,
+    CTRL = 1 << 1,
+    ALT = 1 << 2,
+    SUPER = 1 << 3
+};
+
+inline KeyModifier operator|(KeyModifier a, KeyModifier b)
+{
+    return static_cast<KeyModifier>(static_cast<uint8_t>(a) | static_cast<uint8_t>(b));
+}
+
+inline KeyModifier operator&(KeyModifier a, KeyModifier b)
+{
+    return static_cast<KeyModifier>(static_cast<uint8_t>(a) & static_cast<uint8_t>(b));
+}
+
 enum class ButtonCode : int32_t {
     BUTTON_0 = 0,
     BUTTON_1,
@@ -109,26 +128,55 @@ enum class ButtonCode : int32_t {
     BUTTON_4,
     BUTTON_5,
     BUTTON_6,
-    BUTTON_7
+    BUTTON_7,
+    UNKNOWN = -1
 };
+
+enum class ScrollDirection : int32_t {
+    SCROLL_UP = 0,
+    SCROLL_DOWN,
+    SCROLL_LEFT,
+    SCROLL_RIGHT,
+    UNKNOWN = -1
+};
+
+namespace input_utils {
+
+std::string keyCodeToString(KeyCode keycode);
+KeyCode keyCodeFromString(const std::string &string);
+bool isKeyModifier(KeyCode code);
+KeyModifier keyCodeToModifier(KeyCode code);
+
+std::string buttonCodeToString(ButtonCode button);
+ButtonCode buttonCodeFromString(const std::string &string);
+
+std::string scrollDirectionToString(ScrollDirection scroll_direction);
+ScrollDirection scrollDirectionFromString(const std::string &string);
+
+bool hasModifier(KeyModifier modifiers, KeyModifier flag);
+
+} // namespace input_utils
 
 class Input
 {
     friend class Window;
 
-public:
+public:        
     Input();
     ~Input() = default;
 
     // Keyboard
-    bool isKeyHeld(KeyCode keycode) const;
-    bool isKeyPressed(KeyCode keycode) const;
-    bool isKeyReleased(KeyCode keycode) const;
+    bool isKeyDown(KeyCode keycode) const;
+    bool isKeyJustDown(KeyCode keycode) const;
+    bool isKeyJustUp(KeyCode keycode) const;
 
     // Mouse
-    bool isButtonHeld(ButtonCode button) const;
-    bool isButtonPressed(ButtonCode button) const;
-    bool isButtonReleased(ButtonCode button) const;
+    bool isButtonDown(ButtonCode button) const;
+    bool isButtonJustDown(ButtonCode button) const;
+    bool isButtonJustUp(ButtonCode button) const;
+
+    // Modifiers
+    KeyModifier getModifiers() const;
 
     // Cursor
     int32_t getCursorX() const;
@@ -153,24 +201,22 @@ private:
 
     void setKeyPressed(KeyCode keycode, int32_t pressed);
     void setButtonPressed(ButtonCode button, int32_t pressed);
+    void setModifiers(KeyModifier modifiers);
     void setCursorPosition(int32_t x, int32_t y);
 
 public:
-    sigslot::signal<KeyCode> keyPressed;
-    sigslot::signal<KeyCode> keyReleased;
-    sigslot::signal<KeyCode> keyHolded;
-
-    sigslot::signal<ButtonCode> buttonPressed;
-    sigslot::signal<ButtonCode> buttonReleased;
-
+    sigslot::signal<KeyCode> keyJustDown;
+    sigslot::signal<KeyCode> keyJustUp;
+    sigslot::signal<KeyCode> keyDown;
+    sigslot::signal<ButtonCode> buttonJustDown;
+    sigslot::signal<ButtonCode> buttonJustUp;
     sigslot::signal<int32_t, int32_t, int32_t, int32_t> cursorMoved;
-
     sigslot::signal<float, float> scrolled;
-
     sigslot::signal<uint32_t> codepointInputed;
 
 private:
     std::vector<std::pair<bool, int32_t>> m_states;
+    KeyModifier m_modifiers;
 
     int32_t m_cursor_x;
     int32_t m_cursor_y;

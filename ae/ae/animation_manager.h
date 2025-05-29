@@ -13,11 +13,11 @@ public:
     AnimationManager();
     ~AnimationManager() = default;
 
-    void add(const SharedPtr<Animation> &animation);
+    void add(const s_ptr<Animation> &animation);
     void update(const Time &dt);
 
 private:
-    std::vector<SharedPtr<Animation>> m_animations;
+    std::vector<s_ptr<Animation>> m_animations;
 };
 
 } // namespace ae

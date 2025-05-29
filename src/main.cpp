@@ -20,6 +20,12 @@
 
 using namespace ae;
 
+struct TEST_S
+{
+    ~TEST_S() { spdlog::debug("TEST_S::~TEST_S"); }
+    int32_t a = 1000;
+};
+
 int32_t main()
 {
     spdlog::set_level(spdlog::level::debug);
@@ -31,7 +37,7 @@ int32_t main()
     auto &app = App::getInstance();
     app.create(maybe_config.value());
 
-    auto main_menu_state = SharedPtr<MainMenuState>::create();
+    auto main_menu_state = createShared<MainMenuState>();
     // auto gameplay_state = std::make_shared<GameplayState>();
 
     // std::static_pointer_cast<gui::Control>(main_menu_state);
@@ -99,7 +105,7 @@ int32_t main()
         // auto box = app.getScene()->createMeshNodeEntity(box_model->getRootNode());
 
         {
-            auto cube_1 = SharedPtr<Shape>::create();
+            auto cube_1 = createShared<Shape>();
             cube_1->createTriangle(1.0f); //createCube(1.0f);
             cube_1->getMaterial()->diffuse_texture = cube_1_tex;
 
@@ -111,7 +117,7 @@ int32_t main()
 
             auto cube1 = app.getScene()->createDrawableEntity(cube_1, cube1_trasform);
             auto &collider_c = registry.emplace<Collider_C>(cube1);
-            collider_c = SharedPtr<MeshCollider>::create(cube_1->getTriangles(), cube1_trasform);
+            collider_c = createShared<MeshCollider>(cube_1->getTriangles(), cube1_trasform);
 
             mat4 cube2_trasform{1.0f};
             cube2_trasform = glm::scale(cube2_trasform, vec3{3.0f});
@@ -128,11 +134,11 @@ int32_t main()
 
             auto cube2 = app.getScene()->createDrawableEntity(cube_1, cube2_trasform);
             auto &collider_2_c = registry.emplace<Collider_C>(cube2);
-            collider_2_c = SharedPtr<MeshCollider>::create(cube_1->getTriangles(), cube2_trasform);
+            collider_2_c = createShared<MeshCollider>(cube_1->getTriangles(), cube2_trasform);
         }
 
         // Skybox
-        auto skybox = SharedPtr<Skybox>::create();
+        auto skybox = createShared<Skybox>();
         skybox->create(skybox_texture);
         auto skybox_entity = app.getScene()->createSkybox(skybox);
         app.getScene()->setActiveSkybox(skybox_entity);

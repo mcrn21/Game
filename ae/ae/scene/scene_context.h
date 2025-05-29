@@ -29,19 +29,19 @@ public:
     entt::entity createBoundedEntity(const mat4 &transform = mat4{1.0f},
                                      const AABB &aabb = AABB{vec3{-1.0f}, vec3{1.0f}});
 
-    entt::entity createDrawableEntity(const SharedPtr<Drawable> &drawable,
+    entt::entity createDrawableEntity(const s_ptr<Drawable> &drawable,
                                       const mat4 &transform = mat4{1.0f},
                                       entt::entity parent = entt::null);
 
-    entt::entity createMeshNodeEntity(const SharedPtr<MeshNode> &mesh_node,
+    entt::entity createMeshNodeEntity(const s_ptr<MeshNode> &mesh_node,
                                       const mat4 &transform = mat4{1.0f},
                                       entt::entity parent = entt::null);
 
-    entt::entity createModelEntity(const SharedPtr<Model> &model,
+    entt::entity createModelEntity(const s_ptr<Model> &model,
                                    const mat4 &transform = mat4{1.0f},
                                    entt::entity parent = entt::null);
 
-    void createMeshNodeEntities(const SharedPtr<MeshNode> &mesh_node,
+    void createMeshNodeEntities(const s_ptr<MeshNode> &mesh_node,
                                 const mat4 &transform = mat4{1.0f});
 
     // Entities management
@@ -88,7 +88,7 @@ public:
     void setActiveDirectLight(entt::entity entity);
 
     // Skybox
-    entt::entity createSkybox(const SharedPtr<Skybox> &skybox);
+    entt::entity createSkybox(const s_ptr<Skybox> &skybox);
 
     entt::entity getActiveSkybox() const;
     void setActiveSkybox(entt::entity entity);

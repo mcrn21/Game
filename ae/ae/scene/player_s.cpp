@@ -69,13 +69,13 @@ void Player_S::update()
 
     vec3 input_dir{0.0f};
 
-    if (input->isKeyHeld(KeyCode::W))
+    if (input->isKeyDown(KeyCode::W))
         input_dir += camera_c.front;
-    if (input->isKeyHeld(KeyCode::S))
+    if (input->isKeyDown(KeyCode::S))
         input_dir -= camera_c.front;
-    if (input->isKeyHeld(KeyCode::A))
+    if (input->isKeyDown(KeyCode::A))
         input_dir -= camera_c.right;
-    if (input->isKeyHeld(KeyCode::D))
+    if (input->isKeyDown(KeyCode::D))
         input_dir += camera_c.right;
 
     if (glm::length2(input_dir) > 0.0f)
@@ -83,7 +83,7 @@ void Player_S::update()
 
     movement_c.input_direction = input_dir;
 
-    if (input->isKeyHeld(KeyCode::SPACE) && movement_c.on_ground)
+    if (input->isKeyDown(KeyCode::SPACE) && movement_c.on_ground)
         movement_c.wants_to_jump = true;
 
     patch<Movement_C>(m_player_entity);

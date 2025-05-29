@@ -10,11 +10,11 @@ class PoseAnimator
 {
 public:
     PoseAnimator();
-    PoseAnimator(const SharedPtr<PoseAnimation> &animation, const SharedPtr<Pose> &pose);
+    PoseAnimator(const s_ptr<PoseAnimation> &animation, const s_ptr<Pose> &pose);
     ~PoseAnimator() = default;
 
-    void setAnimation(const SharedPtr<PoseAnimation> &animation);
-    void setPose(const SharedPtr<Pose> &pose);
+    void setAnimation(const s_ptr<PoseAnimation> &animation);
+    void setPose(const s_ptr<Pose> &pose);
 
     void play();
     void update(float dt);
@@ -24,8 +24,8 @@ private:
     void calculateBoneLocalTransform();
 
 private:
-    SharedPtr<PoseAnimation> m_animation;
-    SharedPtr<Pose> m_pose;
+    s_ptr<PoseAnimation> m_animation;
+    s_ptr<Pose> m_pose;
     float m_current_time;
     float m_delta_time;
 };

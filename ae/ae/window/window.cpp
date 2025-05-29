@@ -37,7 +37,7 @@ bool Window::create(int32_t width, int32_t height, const std::string &title, int
 
     glfwWindowHint(GLFW_SAMPLES, msaa);
 
-    m_window = std::unique_ptr<GLFWwindow, GLFWWindowDeleter>(
+    m_window = u_ptr<GLFWwindow, GLFWWindowDeleter>(
         glfwCreateWindow(width, height, title.c_str(), nullptr, nullptr));
 
     if (!m_window)
@@ -143,6 +143,18 @@ void Window::keyCallback(
 {
     Window *window = static_cast<Window *>(glfwGetWindowUserPointer(glfw_window));
     bool pressed = (action == GLFW_PRESS || action == GLFW_REPEAT);
+
+    KeyModifier modifiers = KeyModifier::NONE;
+    if (mode & GLFW_MOD_SHIFT)
+        modifiers = modifiers | KeyModifier::SHIFT;
+    if (mode & GLFW_MOD_CONTROL)
+        modifiers = modifiers | KeyModifier::CTRL;
+    if (mode & GLFW_MOD_ALT)
+        modifiers = modifiers | KeyModifier::ALT;
+    if (mode & GLFW_MOD_SUPER)
+        modifiers = modifiers | KeyModifier::SUPER;
+
+    window->getInput().setModifiers(modifiers);
     window->getInput().setKeyPressed(static_cast<KeyCode>(keycode), pressed);
 }
 

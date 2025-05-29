@@ -78,7 +78,7 @@ void Collisions_S::update(const Time &elapsed_time)
     m_component_watcher.freeze();
     m_component_watcher.process();
 
-    if (App::getInstance().getInput()->isKeyPressed(KeyCode::C)) {
+    if (App::getInstance().getInput()->isKeyJustDown(KeyCode::C)) {
         m_debug = !m_debug;
     }
 
@@ -95,7 +95,7 @@ void Collisions_S::update(const Time &elapsed_time)
 }
 
 void Collisions_S::resolveCollisions(entt::entity entity,
-                                     const SharedPtr<Collider> &collider,
+                                     const s_ptr<Collider> &collider,
                                      vec3 &position,
                                      vec3 &velocity,
                                      float dt,

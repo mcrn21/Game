@@ -71,14 +71,14 @@ struct Light_C
     Type type = POINT;
 };
 
-using Drawable_C = SharedPtr<Drawable>;
+using Drawable_C = s_ptr<Drawable>;
 
 struct Animator_C
 {
-    SharedPtr<PoseAnimator> animator;
+    s_ptr<PoseAnimator> animator;
 };
 
-using Skybox_C = SharedPtr<Skybox>;
+using Skybox_C = s_ptr<Skybox>;
 
 struct Transform_C
 {
@@ -177,7 +177,7 @@ struct InMotion_C
 struct Dynamic_C
 {};
 
-using Collider_C = SharedPtr<Collider>;
+using Collider_C = s_ptr<Collider>;
 
 struct Collisions_C
 {

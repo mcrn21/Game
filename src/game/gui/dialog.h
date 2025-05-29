@@ -38,8 +38,8 @@ private:
 
     String m_string;
 
-    SharedPtr<Button> m_accept_button;
-    SharedPtr<Button> m_cancel_button;
+    s_ptr<Button> m_accept_button;
+    s_ptr<Button> m_cancel_button;
 };
 
 #endif // DIALOG_H

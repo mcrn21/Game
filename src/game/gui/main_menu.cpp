@@ -2,23 +2,22 @@
 #include "gui_theme.h"
 #include "settings_frame.h"
 
-#include <ae/task.h>
+#include <ae/app.h>
 
 #include <spdlog/spdlog.h>
 
-MainMenu::MainMenu()
+MainMenu::MainMenu(bool gameplay)
     : Control{}
+    , m_gameplay{gameplay}
 {
+    auto &app = App::getInstance();
+
     m_all_buttons = {{String{"NEW GAME"}, [&]() { new_game(); }},
                      {String{"SAVE GAME"}, [&]() {}},
                      {String{"LOAD GAME"}, [&]() {}},
                      {String{"RESUME"}, [&]() { resume(); }},
                      {String{"SETTINGS"},
-                      [&]() {
-                          SharedPtr<CallbackTask>::create([&]() {
-                              setActiveFrame(createSettingsFrame());
-                          })->run();
-                      }},
+                      [&]() { app.runLater([&]() { setActiveFrame(createSettingsFrame()); }); }},
                      {String{"EXIT TO MAIN MENU"}, [&]() { createExitToMainMenuDialog(); }},
                      {String{"EXIT"}, [&]() { createExitGameDialog(); }}};
 
@@ -26,15 +25,38 @@ MainMenu::MainMenu()
     m_gameplay_button_nums = {3, 1, 2, 0, 4, 5, 6};
 }
 
-void MainMenu::setMainMenuButtons(bool gameplay)
+void MainMenu::back()
 {
-    // Clear old buttons
-    for (auto &main_menu_button : m_main_menu_buttons)
-        main_menu_button->setParent(nullptr);
-    m_main_menu_buttons.clear();
+    s_ptr<gui::Control> to_remove;
 
+    if (m_exit_game_dialog) {
+        to_remove = m_exit_game_dialog;
+        m_exit_game_dialog.reset();
+    }
+
+    if (m_exit_main_menu_dialog) {
+        to_remove = m_exit_main_menu_dialog;
+        m_exit_main_menu_dialog.reset();
+    }
+
+    if (to_remove) {
+        auto &app = App::getInstance();
+        app.runLater([to_remove, this]() {
+            to_remove->setParent(nullptr);
+            setEnbaleMainMenuButtons(true);
+        });
+    } else {
+        if (m_gameplay)
+            resume();
+        else
+            createExitGameDialog();
+    }
+}
+
+void MainMenu::onCreated()
+{
     // Add new buttons
-    auto *button_nums = gameplay ? &m_gameplay_button_nums : &m_main_menu_button_nums;
+    auto *button_nums = m_gameplay ? &m_gameplay_button_nums : &m_main_menu_button_nums;
 
     float button_width = 1.0f;
     for (int32_t button_num : *button_nums) {
@@ -112,11 +134,12 @@ void MainMenu::createExitGameDialog()
     dialog->accepted.connect([this]() { exit(); });
 
     dialog->canceled.connect([this]() {
-        SharedPtr<CallbackTask>::create([&]() {
+        auto &app = App::getInstance();
+        app.runLater([&]() {
             m_exit_game_dialog->setParent(nullptr);
             m_exit_game_dialog.reset();
             setEnbaleMainMenuButtons(true);
-        })->run();
+        });
     });
 
     m_exit_game_dialog = dialog;
@@ -141,18 +164,19 @@ void MainMenu::createExitToMainMenuDialog()
     dialog->accepted.connect([this]() { exit_to_main_menu(); });
 
     dialog->canceled.connect([this]() {
-        SharedPtr<CallbackTask>::create([&]() {
+        auto &app = App::getInstance();
+        app.runLater([&]() {
             m_exit_main_menu_dialog->setParent(nullptr);
             m_exit_main_menu_dialog.reset();
             setEnbaleMainMenuButtons(true);
-        })->run();
+        });
     });
 
     m_exit_main_menu_dialog = dialog;
     setEnbaleMainMenuButtons(false);
 }
 
-void MainMenu::setActiveFrame(const SharedPtr<Control> &active_frame)
+void MainMenu::setActiveFrame(const s_ptr<Control> &active_frame)
 {
     if (m_active_frame) {
         m_active_frame->setParent(nullptr);
@@ -165,18 +189,18 @@ void MainMenu::setActiveFrame(const SharedPtr<Control> &active_frame)
     m_active_frame->setPosition(vec2{100.0f, 100.0f});
     m_active_frame->setSize(vec2{400.0f});
 
-    auto delay = SharedPtr<DelayTask>::create(seconds(3.0f));
-    auto destroy_task = SharedPtr<CallbackTask>::create([this]() {
-        m_active_frame->setParent(nullptr);
-        m_active_frame.reset();
-    });
-    auto chain = SharedPtr<TaskChain>::create();
-    chain->addTask(delay);
-    chain->addTask(destroy_task);
-    chain->run();
+    // auto delay = createShared<DelayTask>(seconds(3.0f));
+    // auto destroy_task = createShared<CallbackTask>([this]() {
+    //     m_active_frame->setParent(nullptr);
+    //     m_active_frame.reset();
+    // });
+    // auto chain = createShared<TaskChain>();
+    // chain->addTask(delay);
+    // chain->addTask(destroy_task);
+    // chain->run();
 }
 
-SharedPtr<gui::Control> MainMenu::createSettingsFrame()
+s_ptr<gui::Control> MainMenu::createSettingsFrame()
 {
     auto settings_frame = gui::Control::create<SettingsFrame>();
 

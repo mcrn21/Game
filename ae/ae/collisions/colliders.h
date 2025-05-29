@@ -5,10 +5,10 @@
 #include "../geometry/geometry_utils.h"
 #include "../geometry/primitives.h"
 #include "../geometry/triangles_node.h"
+#include "../system/memory.h"
 
 #include <glm/glm.hpp>
 
-#include <memory>
 #include <vector>
 
 using namespace glm;
@@ -81,7 +81,7 @@ struct MeshCollider : public Collider
         //collisions_utils::aabbFromTriangles(transformed_triangles);
     }
 
-    std::unique_ptr<TrianglesNode> root;
+    u_ptr<TrianglesNode> root;
 };
 
 } // namespace ae

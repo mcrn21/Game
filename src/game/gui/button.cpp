@@ -13,7 +13,7 @@ Button::Button()
     m_bg_color = GuiTheme::palette.button_bg;
     m_border_color = GuiTheme::palette.button_border;
 
-    m_enter_animation = SharedPtr<FloatAnimation>::create(
+    m_enter_animation = createShared<FloatAnimation>(
         0.0f,
         1.0f,
         seconds(0.2f),
@@ -28,7 +28,7 @@ Button::Button()
         },
         Easing::linear);
 
-    m_leave_animation = SharedPtr<FloatAnimation>::create(
+    m_leave_animation = createShared<FloatAnimation>(
         1.0f,
         0.0f,
         seconds(0.2f),

@@ -2,6 +2,7 @@
 #define AE_SCENE_DATA_H
 
 #include "../graphics/core/render_texture.h"
+#include "../system/memory.h"
 #include "bvh.h"
 
 #include <entt/entt.hpp>
@@ -31,11 +32,11 @@ struct SceneData
 
     bool enable_shadow = false;
 
-    std::unique_ptr<Draw_S> draw_s;
-    std::unique_ptr<Collisions_S> collisions_s;
-    std::unique_ptr<Lights_S> lights_s;
-    std::unique_ptr<Player_S> player_s;
-    std::unique_ptr<Movement_S> movement_s;
+    u_ptr<Draw_S> draw_s;
+    u_ptr<Collisions_S> collisions_s;
+    u_ptr<Lights_S> lights_s;
+    u_ptr<Player_S> player_s;
+    u_ptr<Movement_S> movement_s;
 
     bool camera_dirty = true;
     bool scene_dirty = true;

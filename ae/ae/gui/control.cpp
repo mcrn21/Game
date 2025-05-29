@@ -35,12 +35,12 @@ Gui *Control::getGui() const
     return m_gui;
 }
 
-SharedPtr<Control> Control::getParent() const
+s_ptr<Control> Control::getParent() const
 {
     return m_parent.lock();
 }
 
-void Control::setParent(const SharedPtr<Control> &parent)
+void Control::setParent(const s_ptr<Control> &parent)
 {
     auto p = m_parent.lock();
     if (p) {
@@ -60,7 +60,7 @@ void Control::setParent(const SharedPtr<Control> &parent)
         updateGui(nullptr);
 }
 
-const std::vector<SharedPtr<Control> > &Control::getChildren() const
+const std::vector<s_ptr<Control> > &Control::getChildren() const
 {
     return m_children;
 }
@@ -128,7 +128,7 @@ const mat4 &Control::getTransform() const
     return m_transform;
 }
 
-SharedPtr<Control> Control::findContolAtPos(const vec2 &pos, vec2 *control_global_position)
+s_ptr<Control> Control::findContolAtPos(const vec2 &pos, vec2 *control_global_position)
 {
     if (control_global_position)
         *control_global_position += m_position;
@@ -159,12 +159,12 @@ void Control::setFontPixelSize(float pixel_size)
     m_font_pixel_size = pixel_size;
 }
 
-const SharedPtr<Font> &Control::getFont() const
+const s_ptr<Font> &Control::getFont() const
 {
     return m_font;
 }
 
-void Control::setFont(const SharedPtr<Font> &font)
+void Control::setFont(const s_ptr<Font> &font)
 {
     m_font = font;
 }

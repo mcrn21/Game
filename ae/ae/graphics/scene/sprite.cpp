@@ -9,7 +9,7 @@ Sprite::Sprite()
 {}
 
 Sprite::Sprite(const vec2 &size,
-               const SharedPtr<Material> &material,
+               const s_ptr<Material> &material,
                const ivec4 &texture_rect)
     : m_size{size}
     , m_material{material}
@@ -17,12 +17,12 @@ Sprite::Sprite(const vec2 &size,
     , m_need_update{true}
 {}
 
-SharedPtr<Material> Sprite::getMaterial() const
+s_ptr<Material> Sprite::getMaterial() const
 {
     return m_material;
 }
 
-void Sprite::setMaterial(const SharedPtr<Material> &material, const ivec4 &texture_rect)
+void Sprite::setMaterial(const s_ptr<Material> &material, const ivec4 &texture_rect)
 {
     m_material = material;
     m_texture_rect = texture_rect;

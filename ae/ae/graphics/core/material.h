@@ -16,8 +16,8 @@ struct Material
         , shininess{32.0f}
     {}
 
-    Material(const SharedPtr<Texture> &diffuse_texture,
-             const SharedPtr<Texture> &specular_texture = {},
+    Material(const s_ptr<Texture> &diffuse_texture,
+             const s_ptr<Texture> &specular_texture = {},
              const Color &color = Color::white,
              float shininess = 32.0f)
         : diffuse_texture{diffuse_texture}
@@ -33,8 +33,8 @@ struct Material
                || (color.getAlpha() < 1.0f);
     }
 
-    SharedPtr<Texture> diffuse_texture;
-    SharedPtr<Texture> specular_texture;
+    s_ptr<Texture> diffuse_texture;
+    s_ptr<Texture> specular_texture;
     Color color;
     float shininess;
 };

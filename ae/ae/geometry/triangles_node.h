@@ -1,9 +1,9 @@
 #ifndef AE_TRIANGLES_NODE_H
 #define AE_TRIANGLES_NODE_H
 
+#include "../system/memory.h"
 #include "primitives.h"
 
-#include <memory>
 #include <vector>
 
 namespace ae {
@@ -14,8 +14,8 @@ struct TrianglesNode
 
     AABB aabb;
     std::vector<Triangle> triangles;
-    std::unique_ptr<TrianglesNode> left;
-    std::unique_ptr<TrianglesNode> right;
+    u_ptr<TrianglesNode> left;
+    u_ptr<TrianglesNode> right;
 };
 
 } // namespace ae

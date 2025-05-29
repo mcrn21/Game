@@ -37,14 +37,14 @@ void Gui::setRenderTextureSize(const ivec2 &size)
         control->setSize(vec2{size.x, size.y});
 }
 
-SharedPtr<Control> Gui::top() const
+s_ptr<Control> Gui::top() const
 {
     if (m_controls_stack.empty())
         return nullptr;
     return m_controls_stack.back();
 }
 
-void Gui::push(const SharedPtr<Control> &control)
+void Gui::push(const s_ptr<Control> &control)
 {
     m_controls_stack.push_back(control);
     control->setSize(m_render_texture.getSize());
@@ -172,12 +172,12 @@ void Gui::onCodepointInputed(uint32_t codepoint)
         focused_control->onCodepointInputed(codepoint);
 }
 
-const SharedPtr<Font> &Gui::getDefaultFont()
+const s_ptr<Font> &Gui::getDefaultFont()
 {
-    static SharedPtr<Font> default_font;
+    static s_ptr<Font> default_font;
 
     if (!default_font) {
-        default_font = SharedPtr<Font>::create();
+        default_font = createShared<Font>();
         default_font->loadFromMemory(reinterpret_cast<const uint8_t *>(
                                          b::embed<"fonts/default.ttf">().data()),
                                      b::embed<"fonts/default.ttf">().size());
@@ -186,7 +186,7 @@ const SharedPtr<Font> &Gui::getDefaultFont()
     return default_font;
 }
 
-SharedPtr<Control> Gui::getHoveredContol(const vec2 &pos, vec2 *control_global_position) const
+s_ptr<Control> Gui::getHoveredContol(const vec2 &pos, vec2 *control_global_position) const
 {
     if (!m_controls_stack.empty() && m_controls_stack.back()->contains(pos)) {
         auto c = m_controls_stack.back()->findContolAtPos(pos, control_global_position);

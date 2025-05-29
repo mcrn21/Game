@@ -1,6 +1,8 @@
 #ifndef MAIN_MENU_STATE_H
 #define MAIN_MENU_STATE_H
 
+#include "gui/main_menu.h"
+
 #include <ae/game_state.h>
 #include <ae/graphics/core/quad.h>
 #include <ae/gui/control.h>
@@ -20,9 +22,11 @@ public:
     void draw() const;
 
 private:
-    SharedPtr<gui::Control> createGui();
+    s_ptr<MainMenu> createGui();
+    void setupKeyBindings();
 
 private:
+    s_ptr<MainMenu> m_main_menu;
     bool m_gameplay;
     Quad m_render_quad;
 };

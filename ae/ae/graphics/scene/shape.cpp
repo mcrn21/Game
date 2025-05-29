@@ -28,7 +28,7 @@ void Shape::createTriangle(float radius)
 
     std::vector<uint32_t> indices = {0, 1, 2};
 
-    Mesh::create(vertices, indices, SharedPtr<Material>::create());
+    Mesh::create(vertices, indices, createShared<Material>());
 }
 
 void Shape::createCube(float half_size)
@@ -106,7 +106,7 @@ void Shape::createCube(float half_size)
         indices.push_back(base_index + 0);
     }
 
-    Mesh::create(vertices, indices, SharedPtr<Material>::create());
+    Mesh::create(vertices, indices, createShared<Material>());
 }
 
 void Shape::createSphere(float radius, int32_t segments, int32_t rings)
@@ -173,7 +173,7 @@ void Shape::createCapsule(float radius, float height, int32_t segments, int32_t 
         }
     }
 
-    Mesh::create(vertices, indices, SharedPtr<Material>::create());
+    Mesh::create(vertices, indices, createShared<Material>());
 }
 
 } // namespace ae

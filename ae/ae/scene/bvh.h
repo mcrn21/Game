@@ -3,9 +3,8 @@
 
 #include "../geometry/frustum.h"
 #include "../geometry/primitives.h"
+#include "../system/memory.h"
 
-#include <functional>
-#include <memory>
 #include <vector>
 
 namespace ae {
@@ -18,8 +17,8 @@ public:
     {
         AABB aabb;
         T value = invalid_value;
-        std::unique_ptr<Node> left;
-        std::unique_ptr<Node> right;
+        u_ptr<Node> left;
+        u_ptr<Node> right;
 
         bool isLeaf() const { return value != invalid_value; }
     };
@@ -60,10 +59,10 @@ public:
     }
 
 private:
-    void insertRecursive(std::unique_ptr<Node> &node, const T &value, const AABB &aabb)
+    void insertRecursive(u_ptr<Node> &node, const T &value, const AABB &aabb)
     {
         if (!node) {
-            node = std::make_unique<Node>();
+            node = createUnique<Node>();
             node->aabb = aabb;
             node->value = value;
             return;
@@ -74,8 +73,8 @@ private:
             auto old_bounds = node->aabb;
 
             node->value = invalid_value;
-            node->left = std::make_unique<Node>();
-            node->right = std::make_unique<Node>();
+            node->left = createUnique<Node>();
+            node->right = createUnique<Node>();
 
             node->left->aabb = old_bounds;
             node->left->value = old_entity;
@@ -98,7 +97,7 @@ private:
         }
     }
 
-    bool removeRecursive(std::unique_ptr<Node> &node, const T &value)
+    bool removeRecursive(u_ptr<Node> &node, const T &value)
     {
         if (!node)
             return false;
@@ -129,9 +128,7 @@ private:
         return removed_left || removed_right;
     }
 
-    void queryRecursive(const std::unique_ptr<Node> &node,
-                        const AABB &aabb,
-                        std::vector<T> &results) const
+    void queryRecursive(const u_ptr<Node> &node, const AABB &aabb, std::vector<T> &results) const
     {
         if (!node || !node->aabb.intersects(aabb))
             return;
@@ -145,9 +142,7 @@ private:
     }
 
     template<typename Callback>
-    void queryRecursive(const std::unique_ptr<Node> &node,
-                        const AABB &aabb,
-                        Callback &&callback) const
+    void queryRecursive(const u_ptr<Node> &node, const AABB &aabb, Callback &&callback) const
     {
         if (!node || !node->aabb.intersects(aabb))
             return;
@@ -160,7 +155,7 @@ private:
         }
     }
 
-    void queryRecursive(const std::unique_ptr<Node> &node,
+    void queryRecursive(const u_ptr<Node> &node,
                         const Frustum &frustum,
                         std::vector<T> &results) const
     {
@@ -176,9 +171,7 @@ private:
     }
 
     template<typename Callback>
-    void queryRecursive(const std::unique_ptr<Node> &node,
-                        const Frustum &frustum,
-                        Callback &&callback) const
+    void queryRecursive(const u_ptr<Node> &node, const Frustum &frustum, Callback &&callback) const
     {
         if (!node || !frustum.intersectWithAABB(node->aabb))
             return;
@@ -198,7 +191,7 @@ private:
     }
 
 private:
-    std::unique_ptr<Node> m_root;
+    u_ptr<Node> m_root;
 };
 
 } // namespace ae

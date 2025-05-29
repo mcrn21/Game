@@ -15,14 +15,14 @@ void GameplayState::onEnter()
 {
     spdlog::debug("GameplayState::onEnter");
     auto &app = App::getInstance();
-    app.getWindow()->setMouseEnabled(false);
+    // app.getWindow()->setMouseEnabled(false);
 }
 
 void GameplayState::onExit()
 {
     spdlog::debug("GameplayState::onExit");
     auto &app = App::getInstance();
-    app.getWindow()->setMouseEnabled(true);
+    // app.getWindow()->setMouseEnabled(true);
 }
 
 void GameplayState::onPause()
@@ -30,7 +30,7 @@ void GameplayState::onPause()
     spdlog::debug("GameplayState::onPause");
     m_paused = true;
     auto &app = App::getInstance();
-    app.getWindow()->setMouseEnabled(true);
+    // app.getWindow()->setMouseEnabled(true);
 }
 
 void GameplayState::onResume()
@@ -38,7 +38,7 @@ void GameplayState::onResume()
     spdlog::debug("GameplayState::onResume");
     m_paused = false;
     auto &app = App::getInstance();
-    app.getWindow()->setMouseEnabled(false);
+    // app.getWindow()->setMouseEnabled(false);
 }
 
 bool GameplayState::isTranslucent() const
@@ -50,9 +50,9 @@ void GameplayState::update(const Time &dt)
 {
     auto &app = App::getInstance();
 
-    if (app.getInput()->isKeyPressed(KeyCode::ESCAPE)) {
-        SharedPtr<CallbackTask>::create([&]() {
-            app.getGameStateStack()->push(SharedPtr<MainMenuState>::create(true));
+    if (app.getInput()->isKeyJustDown(KeyCode::ESCAPE)) {
+        createShared<CallbackTask>([&]() {
+            app.getGameStateStack()->push(createShared<MainMenuState>(true));
         })->run();
     }
 

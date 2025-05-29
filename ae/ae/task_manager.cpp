@@ -9,7 +9,7 @@ TaskManager::TaskManager()
     m_current_buffer = 0;
 }
 
-void TaskManager::run(const SharedPtr<Task> &task)
+void TaskManager::run(const s_ptr<Task> &task)
 {
     m_tasks[m_current_buffer].push_back(task);
 }

@@ -12,7 +12,7 @@ template<>
 class AssetLoader<Model>
 {
 public:
-    static SharedPtr<Model> loadFromFile(Assets *assets,
+    static s_ptr<Model> loadFromFile(Assets *assets,
                                          const std::string &asset_name,
                                          const std::filesystem::path &path)
     {
@@ -23,7 +23,7 @@ public:
         if (name.empty())
             return nullptr;
 
-        auto model = SharedPtr<Model>::create();
+        auto model = createShared<Model>();
 
         AssimpHelper assimp_helper{path, assets};
         if (!assimp_helper.load(model.get()))

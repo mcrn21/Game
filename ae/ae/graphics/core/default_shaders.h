@@ -11,10 +11,10 @@ struct DefaultShaders
     static const std::unordered_map<std::string, std::string> &getShaderSources();
     static const std::string getShaderSource(const std::string &name);
 
-    static SharedPtr<Shader> getSkybox();
-    static SharedPtr<Shader> getMain();
-    static SharedPtr<Shader> getScreenQuad();
-    static SharedPtr<Shader> getGui();
+    static s_ptr<Shader> getSkybox();
+    static s_ptr<Shader> getMain();
+    static s_ptr<Shader> getScreenQuad();
+    static s_ptr<Shader> getGui();
 };
 
 } // namespace ae

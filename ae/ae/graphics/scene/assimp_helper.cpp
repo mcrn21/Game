@@ -29,7 +29,7 @@ bool AssimpHelper::load(Model *model)
         if (skeleton->getBoneCount() != 0)
             model->setSkeleton(skeleton);
 
-        std::vector<SharedPtr<PoseAnimation>> animations;
+        std::vector<s_ptr<PoseAnimation>> animations;
         for (int32_t i = 0; i < ai_scene->mNumAnimations; ++i)
             animations.push_back(processAnimation(ai_scene->mAnimations[i]));
         model->setAnimations(animations);
@@ -38,13 +38,13 @@ bool AssimpHelper::load(Model *model)
     return true;
 }
 
-SharedPtr<MeshNode> AssimpHelper::processNode(const aiNode *ai_node)
+s_ptr<MeshNode> AssimpHelper::processNode(const aiNode *ai_node)
 {
     if (!ai_node)
         return nullptr;
 
-    std::vector<SharedPtr<MeshNode>> child_nodes;
-    std::vector<SharedPtr<Mesh>> meshes;
+    std::vector<s_ptr<MeshNode>> child_nodes;
+    std::vector<s_ptr<Mesh>> meshes;
 
     // std::string node_name = ai_node->mName.C_Str();
     // spdlog::debug("Node: {}", node_name);
@@ -63,7 +63,7 @@ SharedPtr<MeshNode> AssimpHelper::processNode(const aiNode *ai_node)
             child_nodes.push_back(child_mesh_node);
     }
 
-    auto mesh_node = SharedPtr<MeshNode>::create();
+    auto mesh_node = createShared<MeshNode>();
     mesh_node->setChildren(child_nodes);
     mesh_node->setMeshes(meshes);
     mesh_node->setTransform(сonvertMatrixToGLM(ai_node->mTransformation));
@@ -71,7 +71,7 @@ SharedPtr<MeshNode> AssimpHelper::processNode(const aiNode *ai_node)
     return mesh_node;
 }
 
-SharedPtr<Mesh> AssimpHelper::processMesh(const aiMesh *ai_mesh)
+s_ptr<Mesh> AssimpHelper::processMesh(const aiMesh *ai_mesh)
 {
     std::vector<Vertex> vertices;
     std::vector<uint32_t> indices;
@@ -126,7 +126,7 @@ SharedPtr<Mesh> AssimpHelper::processMesh(const aiMesh *ai_mesh)
     // Extract bones
     extractBoneWeightForVertices(ai_mesh, vertices);
 
-    auto mesh = SharedPtr<Mesh>::create();
+    auto mesh = createShared<Mesh>();
 
     aiMaterial *ai_material = ai_scene->mMaterials[ai_mesh->mMaterialIndex];
     auto material = processMaterial(ai_material);
@@ -136,9 +136,9 @@ SharedPtr<Mesh> AssimpHelper::processMesh(const aiMesh *ai_mesh)
     return mesh;
 }
 
-SharedPtr<Material> AssimpHelper::processMaterial(const aiMaterial *ai_material)
+s_ptr<Material> AssimpHelper::processMaterial(const aiMaterial *ai_material)
 {
-    auto material = SharedPtr<Material>::create();
+    auto material = createShared<Material>();
     material->diffuse_texture = loadMaterialTexture(ai_material,
                                                     aiTextureType_DIFFUSE,
                                                     Texture::getDefaultDiffuseTexture());
@@ -149,22 +149,22 @@ SharedPtr<Material> AssimpHelper::processMaterial(const aiMaterial *ai_material)
     return material;
 }
 
-SharedPtr<Texture> AssimpHelper::loadMaterialTexture(const aiMaterial *ai_material,
+s_ptr<Texture> AssimpHelper::loadMaterialTexture(const aiMaterial *ai_material,
                                                      aiTextureType type,
-                                                     const SharedPtr<Texture> &default_texture)
+                                                     const s_ptr<Texture> &default_texture)
 {
     for (int32_t i = 0; i < ai_material->GetTextureCount(type); ++i) {
         aiString str;
         ai_material->GetTexture(type, i, &str);
         std::string texture_name{str.data, str.length};
 
-        SharedPtr<Texture> texture;
+        s_ptr<Texture> texture;
 
         if (texture_name.starts_with('*')) {
             const aiTexture *ai_texture = ai_scene->GetEmbeddedTexture(texture_name.data());
 
             if (ai_texture) {
-                texture = SharedPtr<Texture>::create();
+                texture = createShared<Texture>();
                 texture->loadFromMemory(reinterpret_cast<uint8_t *>(ai_texture->pcData),
                                         ai_texture->mHeight == 0
                                             ? ai_texture->mWidth
@@ -182,7 +182,7 @@ SharedPtr<Texture> AssimpHelper::loadMaterialTexture(const aiMaterial *ai_materi
             if (assets->has<Texture>(texture_asset_name))
                 return assets->get<Texture>(texture_asset_name);
 
-            texture = SharedPtr<Texture>::create();
+            texture = createShared<Texture>();
             if (texture->loadFromFile(texture_path))
                 assets->add(texture_asset_name, texture);
 
@@ -192,7 +192,7 @@ SharedPtr<Texture> AssimpHelper::loadMaterialTexture(const aiMaterial *ai_materi
             if (found_texture != loaded_textures.end())
                 return found_texture->second;
 
-            texture = SharedPtr<Texture>::create();
+            texture = createShared<Texture>();
             if (texture->loadFromFile(texture_path))
                 loaded_textures.emplace(texture_asset_name, texture);
 
@@ -247,11 +247,11 @@ void AssimpHelper::extractBoneWeightForVertices(const aiMesh *mesh, std::vector<
     }
 }
 
-SharedPtr<Skeleton> AssimpHelper::buildSkeleton()
+s_ptr<Skeleton> AssimpHelper::buildSkeleton()
 {
     bone_map.clear();
 
-    auto skeleton = SharedPtr<Skeleton>::create();
+    auto skeleton = createShared<Skeleton>();
     std::unordered_map<std::string, mat4> bone_offsets;
 
     for (int32_t i = 0; i < ai_scene->mNumMeshes; ++i) {
@@ -290,9 +290,9 @@ SharedPtr<Skeleton> AssimpHelper::buildSkeleton()
     return skeleton;
 }
 
-SharedPtr<PoseAnimation> AssimpHelper::processAnimation(const aiAnimation *ai_animation)
+s_ptr<PoseAnimation> AssimpHelper::processAnimation(const aiAnimation *ai_animation)
 {
-    auto animation = SharedPtr<PoseAnimation>::create();
+    auto animation = createShared<PoseAnimation>();
 
     animation->setName(ai_animation->mName.C_Str());
     animation->setDuration(ai_animation->mDuration);

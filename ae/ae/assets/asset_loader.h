@@ -12,13 +12,13 @@ class AssetLoader
 {
 public:
     template<typename... Args>
-    static SharedPtr<T> loadFromFile(Assets *, const std::string &, Args &&...args)
+    static s_ptr<T> loadFromFile(Assets *, const std::string &, Args &&...args)
     {
         return nullptr;
     }
 
     template<typename... Args>
-    static SharedPtr<T> loadFromMemory(Assets *, const std::string &, Args &&...args)
+    static s_ptr<T> loadFromMemory(Assets *, const std::string &, Args &&...args)
     {
         return nullptr;
     }

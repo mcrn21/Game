@@ -304,19 +304,19 @@ int32_t Texture::getNextTextureNumber()
     return m_binded_textures.size();
 }
 
-SharedPtr<Texture> Texture::getDefaultDiffuseTexture()
+s_ptr<Texture> Texture::getDefaultDiffuseTexture()
 {
-    static SharedPtr<Texture> texture = SharedPtr<Texture>::create(ivec2{1, 1},
-                                                                   TextureFormat::RGB,
-                                                                   &DEFAULT_DIFFUSE_TEXTURE_DATA[0]);
+    static s_ptr<Texture> texture = createShared<Texture>(ivec2{1, 1},
+                                                              TextureFormat::RGB,
+                                                              &DEFAULT_DIFFUSE_TEXTURE_DATA[0]);
     return texture;
 }
 
-SharedPtr<Texture> Texture::getDefaultSpecularTexture()
+s_ptr<Texture> Texture::getDefaultSpecularTexture()
 {
-    static SharedPtr<Texture> texture = SharedPtr<Texture>::create(ivec2{1, 1},
-                                                                   TextureFormat::RGB,
-                                                                   &DEFAULT_SPECULAR_TEXTURE_DATA[0]);
+    static s_ptr<Texture> texture = createShared<Texture>(ivec2{1, 1},
+                                                              TextureFormat::RGB,
+                                                              &DEFAULT_SPECULAR_TEXTURE_DATA[0]);
     return texture;
 }
 

@@ -11,7 +11,7 @@ template<>
 class AssetLoader<Texture>
 {
 public:
-    static SharedPtr<Texture> loadFromFile(Assets *assets,
+    static s_ptr<Texture> loadFromFile(Assets *assets,
                                            const std::string &asset_name,
                                            const std::filesystem::path &path,
                                            TextureType type = TextureType::DEFAULT)
@@ -23,7 +23,7 @@ public:
         if (name.empty())
             return nullptr;
 
-        auto texture = SharedPtr<Texture>::create();
+        auto texture = createShared<Texture>();
         if (!texture->loadFromFile(path, type))
             return nullptr;
 
@@ -32,7 +32,7 @@ public:
         return texture;
     }
 
-    static SharedPtr<Texture> loadFromMemory(Assets *assets,
+    static s_ptr<Texture> loadFromMemory(Assets *assets,
                                              const std::string &asset_name,
                                              const uint8_t *data,
                                              int32_t size,
@@ -41,7 +41,7 @@ public:
         if (size == 0)
             return nullptr;
 
-        auto texture = SharedPtr<Texture>::create();
+        auto texture = createShared<Texture>();
         if (!texture->loadFromMemory(data, size, type))
             return nullptr;
 

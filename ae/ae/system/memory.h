@@ -145,6 +145,9 @@ class SharedPtr
     template<typename T2, typename U2>
     friend SharedPtr<T2> reinterpretPointerCast(const SharedPtr<U2> &);
 
+    template<typename T2, typename Deleter, typename... Args>
+    friend SharedPtr<T2> createShared(Args &&...args);
+
 public:
     SharedPtr()
         : m_control_block{nullptr}
@@ -159,7 +162,7 @@ public:
     template<typename U,
              typename Deleter = detail::DefaultDeleter<U>,
              typename = std::enable_if_t<std::is_convertible_v<U *, T *>>>
-    SharedPtr(U *value) noexcept
+    explicit SharedPtr(U *value) noexcept
         : m_control_block{nullptr}
         , m_raw{nullptr}
     {
@@ -280,23 +283,6 @@ public:
         return m_control_block->shared_count.load(std::memory_order_acquire);
     }
 
-    template<typename U>
-    bool operator==(const SharedPtr<U> &other) const noexcept
-    {
-        return m_raw == other.m_raw;
-    }
-    template<typename U>
-    bool operator!=(const SharedPtr<U> &other) const noexcept
-    {
-        return m_raw != other.m_raw;
-    }
-
-    bool operator==(std::nullptr_t) const noexcept { return m_raw == nullptr; }
-    bool operator!=(std::nullptr_t) const noexcept { return m_raw != nullptr; }
-
-    friend bool operator==(std::nullptr_t, const SharedPtr &ptr) noexcept { return ptr == nullptr; }
-    friend bool operator!=(std::nullptr_t, const SharedPtr &ptr) noexcept { return ptr != nullptr; }
-
     template<typename Deleter = detail::InplaceDeleter<T>, typename... Args>
     static SharedPtr create(Args &&...args)
     {
@@ -342,6 +328,42 @@ private:
     T *m_raw;
 };
 
+template<typename T, typename U>
+bool operator==(const SharedPtr<T> &lhs, const SharedPtr<U> &rhs) noexcept
+{
+    return lhs.get() == rhs.get();
+}
+
+template<typename T, typename U>
+bool operator!=(const SharedPtr<T> &lhs, const SharedPtr<U> &rhs) noexcept
+{
+    return lhs.get() != rhs.get();
+}
+
+template<typename T>
+bool operator==(const SharedPtr<T> &ptr, std::nullptr_t) noexcept
+{
+    return ptr.get() == nullptr;
+}
+
+template<typename T>
+bool operator==(std::nullptr_t, const SharedPtr<T> &ptr) noexcept
+{
+    return ptr.get() == nullptr;
+}
+
+template<typename T>
+bool operator!=(const SharedPtr<T> &ptr, std::nullptr_t) noexcept
+{
+    return ptr.get() != nullptr;
+}
+
+template<typename T>
+bool operator!=(std::nullptr_t, const SharedPtr<T> &ptr) noexcept
+{
+    return ptr.get() != nullptr;
+}
+
 template<typename T>
 class WeakPtr
 {
@@ -366,9 +388,8 @@ public:
 
     template<typename U, typename = std::enable_if_t<std::is_convertible_v<U *, T *>>>
     WeakPtr(const SharedPtr<U> &other) noexcept
-        : m_control_block{nullptr}
+        : m_control_block{other.m_control_block}
     {
-        m_control_block = other.m_control_block;
         if (other.m_control_block)
             m_control_block->addWeak();
     }
@@ -427,8 +448,10 @@ public:
 private:
     void release() noexcept
     {
-        if (m_control_block && m_control_block->releaseWeak())
+        if (m_control_block) {
+            m_control_block->releaseWeak();
             m_control_block = nullptr;
+        }
     }
 
 private:
@@ -472,6 +495,145 @@ inline SharedPtr<T> reinterpretPointerCast(const SharedPtr<U> &ptr)
 {
     return SharedPtr<T>{ptr.m_control_block, reinterpret_cast<T *>(ptr.get()), true};
 }
+
+template<typename T, typename Deleter = detail::DefaultDeleter<T>>
+class UniquePtr
+{
+public:
+    constexpr UniquePtr() noexcept
+        : m_value(nullptr)
+        , m_deleter(Deleter{})
+    {}
+
+    UniquePtr(std::nullptr_t) noexcept
+        : m_value{nullptr}
+        , m_deleter(Deleter{})
+    {}
+
+    explicit UniquePtr(T *value) noexcept
+        : m_value(value)
+        , m_deleter(Deleter{})
+    {}
+
+    UniquePtr(T *value, Deleter deleter) noexcept
+        : m_value(value)
+        , m_deleter(deleter)
+    {}
+
+    UniquePtr(const UniquePtr &) = delete;
+
+    UniquePtr(UniquePtr &&other) noexcept
+        : m_value(other.release())
+        , m_deleter(Deleter{})
+    {}
+
+    template<typename U, typename = std::enable_if_t<std::is_convertible_v<U *, T *>>>
+    UniquePtr(UniquePtr<U> &&other) noexcept
+        : m_value(other.release())
+        , m_deleter(Deleter{})
+    {}
+
+    ~UniquePtr() { reset(); }
+
+    UniquePtr &operator=(const UniquePtr &) = delete;
+
+    UniquePtr &operator=(UniquePtr &&other) noexcept
+    {
+        if (this != &other) {
+            reset();
+            m_value = other.release();
+            m_deleter = Deleter{};
+        }
+        return *this;
+    }
+
+    template<typename U, typename = std::enable_if_t<std::is_convertible_v<U *, T *>>>
+    UniquePtr &operator=(UniquePtr &&other) noexcept
+    {
+        if (this != &other) {
+            reset();
+            m_value = other.release();
+            m_deleter = Deleter{};
+        }
+        return *this;
+    }
+
+    T *get() const noexcept { return m_value; }
+    T *operator->() const noexcept { return m_value; }
+    T &operator*() const noexcept { return *m_value; }
+
+    explicit operator bool() const noexcept { return m_value != nullptr; }
+
+    void reset(T *ptr = nullptr) noexcept
+    {
+        if (m_value)
+            m_deleter(m_value);
+
+        m_value = ptr;
+    }
+
+    T *release() noexcept
+    {
+        T *temp = m_value;
+        m_value = nullptr;
+        return temp;
+    }
+
+    void swap(UniquePtr &other) noexcept
+    {
+        std::swap(m_value, other.m_value);
+        std::swap(m_deleter, other.m_deleter);
+    }
+
+private:
+    T *m_value;
+    Deleter m_deleter;
+};
+
+template<typename T, typename Deleter>
+bool operator==(const UniquePtr<T, Deleter> &ptr, std::nullptr_t) noexcept
+{
+    return ptr.get() == nullptr;
+}
+
+template<typename T, typename Deleter>
+bool operator==(std::nullptr_t, const UniquePtr<T, Deleter> &ptr) noexcept
+{
+    return ptr.get() == nullptr;
+}
+
+template<typename T, typename Deleter>
+bool operator!=(const UniquePtr<T, Deleter> &ptr, std::nullptr_t) noexcept
+{
+    return ptr.get() != nullptr;
+}
+
+template<typename T, typename Deleter>
+bool operator!=(std::nullptr_t, const UniquePtr<T, Deleter> &ptr) noexcept
+{
+    return ptr.get() != nullptr;
+}
+
+template<typename T, typename Deleter = detail::InplaceDeleter<T>, typename... Args>
+inline SharedPtr<T> createShared(Args &&...args)
+{
+    return SharedPtr<T>::template create<Deleter>(std::forward<Args>(args)...);
+}
+
+template<typename T, typename Deleter = detail::DefaultDeleter<T>, typename... Args>
+inline UniquePtr<T, Deleter> createUnique(Args &&...args)
+{
+    return UniquePtr<T, Deleter>{new T(std::forward<Args>(args)...)};
+}
+
+template<typename T>
+using s_ptr = SharedPtr<T>;
+
+template<typename T>
+using w_ptr = WeakPtr<T>;
+
+template<typename T, typename Deleter = detail::DefaultDeleter<T>>
+using u_ptr = UniquePtr<T, Deleter>;
 
 } // namespace ae
 

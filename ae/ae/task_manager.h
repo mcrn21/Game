@@ -14,14 +14,14 @@ public:
     TaskManager();
     ~TaskManager() = default;
 
-    void run(const SharedPtr<Task> &task);
+    void run(const s_ptr<Task> &task);
     void update(const Time &dt);
 
 private:
     // Используется двойной буффер задач, который
     // переключается на кажлм апдейте
     int32_t m_current_buffer;
-    std::vector<SharedPtr<Task>> m_tasks[2];
+    std::vector<s_ptr<Task>> m_tasks[2];
 };
 
 } // namespace ae

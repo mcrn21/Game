@@ -11,17 +11,17 @@ namespace ae {
 
 class Assets
 {
-    using assets_map = std::unordered_map<std::string, SharedPtr<void>>;
+    using assets_map = std::unordered_map<std::string, s_ptr<void>>;
 
 public:
     Assets() = default;
     ~Assets() = default;
 
     template<typename T>
-    SharedPtr<T> get(const std::string &asset_name);
+    s_ptr<T> get(const std::string &asset_name);
 
     template<typename T>
-    void add(const std::string &asset_name, const SharedPtr<T> &asset);
+    void add(const std::string &asset_name, const s_ptr<T> &asset);
 
     template<typename T>
     void remove(const std::string &asset_name);
@@ -30,17 +30,17 @@ public:
     bool has(const std::string &asset_name);
 
     template<typename T, typename... Args>
-    SharedPtr<T> loadFromFile(const std::string &asset_name, Args &&...args);
+    s_ptr<T> loadFromFile(const std::string &asset_name, Args &&...args);
 
     template<typename T, typename... Args>
-    SharedPtr<T> loadFromMemory(const std::string &asset_name, Args &&...args);
+    s_ptr<T> loadFromMemory(const std::string &asset_name, Args &&...args);
 
 private:
     std::unordered_map<std::type_index, assets_map> m_assets;
 };
 
 template<typename T>
-inline SharedPtr<T> Assets::get(const std::string &asset_name)
+inline s_ptr<T> Assets::get(const std::string &asset_name)
 {
     auto assets_found = m_assets.find(typeid(T));
     if (assets_found == m_assets.end())
@@ -54,7 +54,7 @@ inline SharedPtr<T> Assets::get(const std::string &asset_name)
 }
 
 template<typename T>
-inline void Assets::add(const std::string &asset_name, const SharedPtr<T> &asset)
+inline void Assets::add(const std::string &asset_name, const s_ptr<T> &asset)
 {
     auto assets_found = m_assets.find(typeid(T));
     if (assets_found == m_assets.end())
@@ -89,13 +89,13 @@ inline bool Assets::has(const std::string &asset_name)
 }
 
 template<typename T, typename... Args>
-inline SharedPtr<T> Assets::loadFromFile(const std::string &asset_name, Args &&...args)
+inline s_ptr<T> Assets::loadFromFile(const std::string &asset_name, Args &&...args)
 {
     return AssetLoader<T>::loadFromFile(this, asset_name, std::forward<Args>(args)...);
 }
 
 template<typename T, typename... Args>
-inline SharedPtr<T> Assets::loadFromMemory(const std::string &asset_name, Args &&...args)
+inline s_ptr<T> Assets::loadFromMemory(const std::string &asset_name, Args &&...args)
 {
     return AssetLoader<T>::loadFromMemory(this, asset_name, std::forward<Args>(args)...);
 }

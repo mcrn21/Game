@@ -11,7 +11,7 @@ App::App()
     : m_running{false}
     , m_tick_time{seconds(1.0f / 60.0f)} // Default 60 fps
     , m_fps{0}
-    , m_assets{std::make_unique<Assets>()}
+    , m_assets{createUnique<Assets>()}
 {}
 
 App &App::getInstance()
@@ -26,7 +26,7 @@ bool App::create(const Config &config)
 
     m_tick_time = seconds(1.0f / static_cast<float>(config.game_frame_rate));
 
-    m_window = std::make_unique<Window>();
+    m_window = createUnique<Window>();
     if (!m_window->create(config.window_width,
                           config.window_height,
                           config.window_title,
@@ -34,29 +34,31 @@ bool App::create(const Config &config)
         return false;
 
     // Task manager
-    m_task_manager = std::make_unique<TaskManager>();
+    m_task_manager = createUnique<TaskManager>();
 
     // Animation manager
-    m_animation_manager = std::make_unique<AnimationManager>();
+    m_animation_manager = createUnique<AnimationManager>();
 
-    m_scene = std::make_unique<Scene>();
+    m_scene = createUnique<Scene>();
     m_scene->setRenderTextureSize(ivec2{config.window_width, config.window_height});
     m_window->sizeChanged.connect(&Scene::setRenderTextureSize, m_scene.get());
 
-    m_gui = std::make_unique<Gui>();
+    m_gui = createUnique<Gui>();
     m_gui->setRenderTextureSize(ivec2{config.window_width, config.window_height});
     m_window->sizeChanged.connect(&Gui::setRenderTextureSize, m_gui.get());
 
     // Input
-    m_window->getInput().buttonPressed.connect(&Gui::onButtonPressed, m_gui.get());
-    m_window->getInput().buttonReleased.connect(&Gui::onButtonReleased, m_gui.get());
+    m_window->getInput().buttonJustDown.connect(&Gui::onButtonPressed, m_gui.get());
+    m_window->getInput().buttonJustUp.connect(&Gui::onButtonReleased, m_gui.get());
     m_window->getInput().cursorMoved.connect(&Gui::onCursorMoved, m_gui.get());
-    m_window->getInput().keyPressed.connect(&Gui::onKeyPressed, m_gui.get());
-    m_window->getInput().keyHolded.connect(&Gui::onKeyHeld, m_gui.get());
-    m_window->getInput().keyReleased.connect(&Gui::onKeyReleased, m_gui.get());
+    m_window->getInput().keyJustDown.connect(&Gui::onKeyPressed, m_gui.get());
+    m_window->getInput().keyDown.connect(&Gui::onKeyHeld, m_gui.get());
+    m_window->getInput().keyJustUp.connect(&Gui::onKeyReleased, m_gui.get());
     m_window->getInput().codepointInputed.connect(&Gui::onCodepointInputed, m_gui.get());
 
-    m_game_state_stack = std::make_unique<GameStateStack>();
+    m_game_state_stack = createUnique<GameStateStack>();
+
+    m_input_action_manager = createUnique<InputActionManager>();
 
     return true;
 }
@@ -109,6 +111,16 @@ AnimationManager *App::getAnimationManager() const
     return m_animation_manager.get();
 }
 
+InputActionManager *App::getInputActionManager() const
+{
+    return m_input_action_manager.get();
+}
+
+void App::runLater(const std::function<void()> &callback)
+{
+    m_task_manager->run(createShared<CallbackTask>(callback));
+}
+
 int32_t App::getFps() const
 {
     return m_fps;
@@ -134,6 +146,7 @@ int32_t App::exec()
         m_fps = m_fps * (1.0f - m_fps_alpha) + (1.0f / m_elapsed_time.asSeconds()) * m_fps_alpha;
 
         m_window->pollEvents();
+        m_input_action_manager->update(m_window->getInput());
 
         while (accumulator >= m_tick_time) {
             m_animation_manager->update(m_tick_time);

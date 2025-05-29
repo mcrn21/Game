@@ -15,8 +15,8 @@ public:
     GameStateStack();
     ~GameStateStack() = default;
 
-    void push(const SharedPtr<GameState> &state);
-    void replace(const SharedPtr<GameState> &state);
+    void push(const s_ptr<GameState> &state);
+    void replace(const s_ptr<GameState> &state);
     void pop();
     void clear();
 
@@ -24,7 +24,7 @@ public:
     void draw() const;
 
 private:
-    std::vector<SharedPtr<GameState>> m_states;
+    std::vector<s_ptr<GameState>> m_states;
 };
 
 } // namespace ae

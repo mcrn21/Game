@@ -4,7 +4,7 @@ namespace ae {
 
 AnimationManager::AnimationManager() {}
 
-void AnimationManager::add(const SharedPtr<Animation> &animation)
+void AnimationManager::add(const s_ptr<Animation> &animation)
 {
     if (!animation || animation->m_animation_manager != nullptr)
         return;
@@ -22,7 +22,7 @@ void AnimationManager::update(const Time &dt)
 {
     m_animations.erase(std::remove_if(m_animations.begin(),
                                       m_animations.end(),
-                                      [&](SharedPtr<Animation> &a) {
+                                      [&](s_ptr<Animation> &a) {
                                           bool result = a->update(dt);
                                           if (result)
                                               a->m_animation_manager = nullptr;

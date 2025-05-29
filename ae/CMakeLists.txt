@@ -125,6 +125,9 @@ add_library(ae SHARED
     ae/animation.h ae/animation.cpp
     ae/gui/input_text_base.h ae/gui/input_text_base.cpp
     ae/system/memory.h
+    ae/input_action_manager.h ae/input_action_manager.cpp
+    ae/common/utils.h ae/common/utils.cpp
+
 
 )
 

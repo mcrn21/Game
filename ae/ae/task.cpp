@@ -34,7 +34,7 @@ bool CallbackTask::update(const Time &)
     return true;
 }
 
-void TaskChain::addTask(const SharedPtr<Task> &task)
+void TaskChain::addTask(const s_ptr<Task> &task)
 {
     m_tasks.push(task);
 }

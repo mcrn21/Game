@@ -6,27 +6,26 @@ ModelInstance::ModelInstance()
     : m_transparent{false}
 {}
 
-ModelInstance::ModelInstance(const SharedPtr<Model> &model)
+ModelInstance::ModelInstance(const s_ptr<Model> &model)
     : m_transparent{false}
 {
     setModel(model);
 }
 
-const SharedPtr<Model> &ModelInstance::getModel() const
+const s_ptr<Model> &ModelInstance::getModel() const
 {
     return m_model;
 }
 
-void ModelInstance::setModel(const SharedPtr<Model> &model)
+void ModelInstance::setModel(const s_ptr<Model> &model)
 {
     m_model = model;
     m_aabb = model ? model->getAABB() : AABB{};
     m_transparent = model ? model->isTransparent() : false;
-    m_pose = model && model->getSkeleton() ? SharedPtr<Pose>::create(model->getSkeleton())
-                                           : nullptr;
+    m_pose = model && model->getSkeleton() ? createShared<Pose>(model->getSkeleton()) : nullptr;
 }
 
-const SharedPtr<Pose> &ModelInstance::getPose() const
+const s_ptr<Pose> &ModelInstance::getPose() const
 {
     return m_pose;
 }
@@ -56,7 +55,7 @@ void ModelInstance::draw(const RenderState &render_state) const
         recursiveDraw(m_model->getRootNode(), render_state);
 }
 
-void ModelInstance::recursiveDraw(const SharedPtr<MeshNode> &node,
+void ModelInstance::recursiveDraw(const s_ptr<MeshNode> &node,
                                   const RenderState &render_state) const
 {
     auto new_render_state = render_state;

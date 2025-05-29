@@ -2,9 +2,8 @@
 #define AE_WINDOW_H
 
 #include "../graphics/core/render_target.h"
+#include "../system/memory.h"
 #include "input.h"
-
-#include <memory>
 
 struct GLFWwindow;
 
@@ -51,7 +50,7 @@ private:
     static void setCharCallback(GLFWwindow *glfw_window, uint32_t codepoint);
 
 private:
-    std::unique_ptr<GLFWwindow, GLFWWindowDeleter> m_window;
+    u_ptr<GLFWwindow, GLFWWindowDeleter> m_window;
     Input m_input;
     bool m_mouse_enabled;
 };

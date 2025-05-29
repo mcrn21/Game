@@ -28,8 +28,8 @@ protected:
 private:
     String m_string;
 
-    SharedPtr<FloatAnimation> m_enter_animation;
-    SharedPtr<FloatAnimation> m_leave_animation;
+    s_ptr<FloatAnimation> m_enter_animation;
+    s_ptr<FloatAnimation> m_leave_animation;
     Color m_bg_color;
     Color m_border_color;
     float m_anim_time;

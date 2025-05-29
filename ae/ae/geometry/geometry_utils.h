@@ -1,6 +1,7 @@
 #ifndef AE_GEOMETRY_UTILS_H
 #define AE_GEOMETRY_UTILS_H
 
+#include "../system/memory.h"
 #include "primitives.h"
 #include "triangles_node.h"
 
@@ -15,8 +16,7 @@ namespace ae::geometry_utils {
 AABB aabbFromSphere(const Sphere &sphere);
 AABB aabbFromTriangles(const std::vector<Triangle> &triangles);
 
-std::unique_ptr<TrianglesNode> buildTrianglesTree(const std::vector<Triangle> &triangles,
-                                                  int depth = 0);
+u_ptr<TrianglesNode> buildTrianglesTree(const std::vector<Triangle> &triangles, int depth = 0);
 
 int32_t largestAxis(const vec3 &v);
 

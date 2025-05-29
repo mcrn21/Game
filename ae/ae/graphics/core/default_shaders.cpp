@@ -26,31 +26,31 @@ const std::string DefaultShaders::getShaderSource(const std::string &name)
     return sources.contains(name) ? sources.at(name) : std::string{};
 }
 
-SharedPtr<Shader> DefaultShaders::getSkybox()
+s_ptr<Shader> DefaultShaders::getSkybox()
 {
-    static auto shader = SharedPtr<Shader>::create(getShaderSource("shaders/skybox.vert"),
-                                                   getShaderSource("shaders/skybox.frag"));
+    static auto shader = createShared<Shader>(getShaderSource("shaders/skybox.vert"),
+                                              getShaderSource("shaders/skybox.frag"));
     return shader;
 }
 
-SharedPtr<Shader> DefaultShaders::getMain()
+s_ptr<Shader> DefaultShaders::getMain()
 {
-    static auto shader = SharedPtr<Shader>::create(getShaderSource("shaders/main.vert"),
-                                                   getShaderSource("shaders/main.frag"));
+    static auto shader = createShared<Shader>(getShaderSource("shaders/main.vert"),
+                                              getShaderSource("shaders/main.frag"));
     return shader;
 }
 
-SharedPtr<Shader> DefaultShaders::getScreenQuad()
+s_ptr<Shader> DefaultShaders::getScreenQuad()
 {
-    static auto shader = SharedPtr<Shader>::create(getShaderSource("shaders/screen_quad.vert"),
-                                                   getShaderSource("shaders/screen_quad.frag"));
+    static auto shader = createShared<Shader>(getShaderSource("shaders/screen_quad.vert"),
+                                              getShaderSource("shaders/screen_quad.frag"));
     return shader;
 }
 
-SharedPtr<Shader> DefaultShaders::getGui()
+s_ptr<Shader> DefaultShaders::getGui()
 {
-    static auto shader = SharedPtr<Shader>::create(getShaderSource("shaders/gui.vert"),
-                                                   getShaderSource("shaders/gui.frag"));
+    static auto shader = createShared<Shader>(getShaderSource("shaders/gui.vert"),
+                                              getShaderSource("shaders/gui.frag"));
     return shader;
 }
 

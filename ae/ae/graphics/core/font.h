@@ -1,6 +1,7 @@
 #ifndef AE_FONT_H
 #define AE_FONT_H
 
+#include "../../system/memory.h"
 #include "../../system/string.h"
 #include "glyph.h"
 #include "texture.h"
@@ -26,7 +27,7 @@ public:
     float getDescent() const;
     float getLineGap() const;
 
-    const SharedPtr<Texture> &getTexture() const;
+    const s_ptr<Texture> &getTexture() const;
     const Glyph *getGlyph(uint32_t codepoint) const;
 
     vec2 getTextSize(const String &string, float line_spaceing = 0.0f) const;
@@ -37,7 +38,7 @@ private:
     float m_descent;
     float m_line_gap;
 
-    SharedPtr<Texture> m_texture;
+    s_ptr<Texture> m_texture;
     std::unordered_map<uint32_t, Glyph> m_glyphs;
 };
 
@@ -54,7 +55,7 @@ public:
 
 private:
     std::vector<uint8_t> m_font_data;
-    mutable std::unordered_map<float, std::unique_ptr<FontPage>> m_pages;
+    mutable std::unordered_map<float, u_ptr<FontPage>> m_pages;
 };
 
 } // namespace ae

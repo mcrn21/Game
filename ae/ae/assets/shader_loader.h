@@ -11,7 +11,7 @@ template<>
 class AssetLoader<Shader>
 {
 public:
-    static SharedPtr<Shader> loadFromFile(Assets *assets,
+    static s_ptr<Shader> loadFromFile(Assets *assets,
                                           const std::string &asset_name,
                                           const std::filesystem::path &path,
                                           ShaderType type)
@@ -19,14 +19,14 @@ public:
         if (asset_name.empty())
             return nullptr;
 
-        auto shader = SharedPtr<Shader>::create();
+        auto shader = createShared<Shader>();
         if (shader->loadFromFile(path, type))
             assets->add<Shader>(asset_name, shader);
 
         return shader;
     }
 
-    static SharedPtr<Shader> loadFromFile(Assets *assets,
+    static s_ptr<Shader> loadFromFile(Assets *assets,
                                           const std::string &asset_name,
                                           const std::filesystem::path &vertex_path,
                                           const std::filesystem::path &fragment_path)
@@ -34,14 +34,14 @@ public:
         if (asset_name.empty())
             return nullptr;
 
-        auto shader = SharedPtr<Shader>::create();
+        auto shader = createShared<Shader>();
         if (shader->loadFromFile(vertex_path, fragment_path))
             assets->add<Shader>(asset_name, shader);
 
         return shader;
     }
 
-    static SharedPtr<Shader> loadFromFile(Assets *assets,
+    static s_ptr<Shader> loadFromFile(Assets *assets,
                                           const std::string &asset_name,
                                           const std::filesystem::path &vertex_path,
                                           const std::filesystem::path &geometry_path,
@@ -50,14 +50,14 @@ public:
         if (asset_name.empty())
             return nullptr;
 
-        auto shader = SharedPtr<Shader>::create();
+        auto shader = createShared<Shader>();
         if (shader->loadFromFile(vertex_path, geometry_path, fragment_path))
             assets->add<Shader>(asset_name, shader);
 
         return shader;
     }
 
-    static SharedPtr<Shader> loadFromMemory(Assets *assets,
+    static s_ptr<Shader> loadFromMemory(Assets *assets,
                                             const std::string &asset_name,
                                             const std::string &shader_code,
                                             ShaderType type)
@@ -65,14 +65,14 @@ public:
         if (asset_name.empty())
             return nullptr;
 
-        auto shader = SharedPtr<Shader>::create();
+        auto shader = createShared<Shader>();
         if (shader->loadFromMemory(shader_code, type))
             assets->add<Shader>(asset_name, shader);
 
         return shader;
     }
 
-    static SharedPtr<Shader> loadFromMemory(Assets *assets,
+    static s_ptr<Shader> loadFromMemory(Assets *assets,
                                             const std::string &asset_name,
                                             const std::string &vertex_shader,
                                             const std::string &fragment_shader)
@@ -80,14 +80,14 @@ public:
         if (asset_name.empty())
             return nullptr;
 
-        auto shader = SharedPtr<Shader>::create();
+        auto shader = createShared<Shader>();
         if (shader->loadFromMemory(vertex_shader, fragment_shader))
             assets->add<Shader>(asset_name, shader);
 
         return shader;
     }
 
-    static SharedPtr<Shader> loadFromMemory(Assets *assets,
+    static s_ptr<Shader> loadFromMemory(Assets *assets,
                                             const std::string &asset_name,
                                             const std::string &vertex_shader,
                                             const std::string &geometry_shader,
@@ -96,7 +96,7 @@ public:
         if (asset_name.empty())
             return nullptr;
 
-        auto shader = SharedPtr<Shader>::create();
+        auto shader = createShared<Shader>();
         if (shader->loadFromMemory(vertex_shader, geometry_shader, fragment_shader))
             assets->add<Shader>(asset_name, shader);
 

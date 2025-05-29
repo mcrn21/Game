@@ -24,12 +24,12 @@ AABB aabbFromTriangles(const std::vector<Triangle> &triangles)
     return {min - 0.01f, max + 0.01f};
 }
 
-std::unique_ptr<TrianglesNode> buildTrianglesTree(const std::vector<Triangle> &triangles, int depth)
+u_ptr<TrianglesNode> buildTrianglesTree(const std::vector<Triangle> &triangles, int depth)
 {
     if (triangles.empty())
         return nullptr;
 
-    auto node = std::make_unique<TrianglesNode>();
+    auto node = createUnique<TrianglesNode>();
 
     node->aabb = aabbFromTriangles(triangles);
 

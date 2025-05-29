@@ -1,7 +1,5 @@
 #include "main_menu_state.h"
 #include "gameplay_state.h"
-#include "gui/main_menu.h"
-#include "gui/main_menu_button.h"
 
 #include <ae/app.h>
 #include <ae/gui/label.h>
@@ -18,9 +16,13 @@ void MainMenuState::onEnter()
 {
     spdlog::debug("MainMenuState::onEnter");
 
-    auto &app = App::getInstance();
+    setupKeyBindings();
 
-    app.getGui()->push(createGui());
+    auto &app = App::getInstance();
+    app.runLater([&]() {
+        m_main_menu = createGui();
+        app.getGui()->push(m_main_menu);
+    });
 }
 
 void MainMenuState::onExit()
@@ -35,6 +37,13 @@ void MainMenuState::onExit()
 void MainMenuState::update(const Time &dt)
 {
     auto &app = App::getInstance();
+
+    if (m_main_menu) {
+        auto *input_actions = app.getInputActionManager();
+        // При нажатии Escape закрываются диалоги
+        if (input_actions->isActionJustActivated("back"))
+            m_main_menu->back();
+    }
 
     // Обновляем сцену и интерфейс
     app.getGui()->update(dt);
@@ -53,34 +62,41 @@ void MainMenuState::draw() const
     glEnable(GL_DEPTH_TEST);
 }
 
-SharedPtr<gui::Control> MainMenuState::createGui()
+s_ptr<MainMenu> MainMenuState::createGui()
 {
     auto &app = App::getInstance();
-
-    auto root = gui::Control::create<MainMenu>();
+    auto root = gui::Control::create<MainMenu>(m_gameplay);
 
     root->new_game.connect([&]() {
-        SharedPtr<CallbackTask>::create([&]() {
-            auto gameplay_state = SharedPtr<GameplayState>::create();
+        app.runLater([&]() {
+            auto gameplay_state = createShared<GameplayState>();
             app.getGameStateStack()->replace(gameplay_state);
-        })->run();
+        });
     });
 
-    root->resume.connect([&]() { app.getGameStateStack()->pop(); });
+    root->resume.connect([&]() { app.runLater([&]() { app.getGameStateStack()->pop(); }); });
 
     root->exit_to_main_menu.connect([&]() {
-        SharedPtr<CallbackTask>::create([&]() {
+        app.runLater([&]() {
             app.getGameStateStack()->pop();
             app.getGameStateStack()->pop();
 
-            auto main_menu_state = SharedPtr<MainMenuState>::create();
+            auto main_menu_state = createShared<MainMenuState>();
             app.getGameStateStack()->push(main_menu_state);
-        })->run();
+        });
     });
 
     root->exit.connect([&]() { app.exit(); });
 
-    root->setMainMenuButtons(m_gameplay);
-
     return root;
+}
+
+void MainMenuState::setupKeyBindings()
+{
+    auto &app = App::getInstance();
+
+    auto *input_actions = app.getInputActionManager();
+    input_actions->clear();
+
+    input_actions->bindKeys({{"back", std::vector<std::string>{"Escape"}}});
 }

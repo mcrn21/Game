@@ -16,24 +16,24 @@ class ModelInstance : public Drawable
 {
 public:
     ModelInstance();
-    ModelInstance(const SharedPtr<Model> &model);
+    ModelInstance(const s_ptr<Model> &model);
     ~ModelInstance() = default;
 
-    const SharedPtr<Model> &getModel() const;
-    void setModel(const SharedPtr<Model> &model);
+    const s_ptr<Model> &getModel() const;
+    void setModel(const s_ptr<Model> &model);
 
-    const SharedPtr<Pose> &getPose() const;
+    const s_ptr<Pose> &getPose() const;
 
     const AABB &getAABB() const;
     bool isTransparent() const;
     void draw(const RenderState &render_state) const;
 
 private:
-    void recursiveDraw(const SharedPtr<MeshNode> &node, const RenderState &render_state) const;
+    void recursiveDraw(const s_ptr<MeshNode> &node, const RenderState &render_state) const;
 
 private:
-    SharedPtr<Model> m_model;
-    SharedPtr<Pose> m_pose;
+    s_ptr<Model> m_model;
+    s_ptr<Pose> m_pose;
     AABB m_aabb;
     bool m_transparent;
 };

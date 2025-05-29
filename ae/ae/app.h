@@ -7,8 +7,10 @@
 #include "config.h"
 #include "game_state_stack.h"
 #include "gui/gui.h"
+#include "input_action_manager.h"
 #include "scene/scene.h"
 #include "system/clock.h"
+#include "system/memory.h"
 #include "task_manager.h"
 #include "window/glfw_manager.h"
 #include "window/input.h"
@@ -38,6 +40,10 @@ public:
     GameStateStack *getGameStateStack() const;
     TaskManager *getTaskManager() const;
     AnimationManager *getAnimationManager() const;
+    InputActionManager *getInputActionManager() const;
+
+    // Создает CallbackTask и запускает
+    void runLater(const std::function<void()> &callback);
 
     int32_t getFps() const;
 
@@ -63,13 +69,14 @@ private:
     int32_t m_fps;
     const float m_fps_alpha = 0.3f;
 
-    std::unique_ptr<Window> m_window;
-    std::unique_ptr<Assets> m_assets;
-    std::unique_ptr<Scene> m_scene;
-    std::unique_ptr<Gui> m_gui;
-    std::unique_ptr<GameStateStack> m_game_state_stack;
-    std::unique_ptr<TaskManager> m_task_manager;
-    std::unique_ptr<AnimationManager> m_animation_manager;
+    u_ptr<Window> m_window;
+    u_ptr<Assets> m_assets;
+    u_ptr<Scene> m_scene;
+    u_ptr<Gui> m_gui;
+    u_ptr<GameStateStack> m_game_state_stack;
+    u_ptr<TaskManager> m_task_manager;
+    u_ptr<AnimationManager> m_animation_manager;
+    u_ptr<InputActionManager> m_input_action_manager;
 };
 
 } // namespace ae

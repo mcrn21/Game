@@ -51,9 +51,9 @@ public:
     };
 
     template<typename T, typename... Args>
-    static SharedPtr<T> create(Args &&...args)
+    static s_ptr<T> create(Args &&...args)
     {
-        auto c = SharedPtr<T>::template create<ControlDeleter<T>>(std::forward<Args>(args)...);
+        auto c = createShared<T, ControlDeleter<T>>(std::forward<Args>(args)...);
         c->onCreated();
         return c;
     }
@@ -63,10 +63,10 @@ public:
 
     Gui *getGui() const;
 
-    SharedPtr<Control> getParent() const;
-    void setParent(const SharedPtr<Control> &parent);
+    s_ptr<Control> getParent() const;
+    void setParent(const s_ptr<Control> &parent);
 
-    const std::vector<SharedPtr<Control>> &getChildren() const;
+    const std::vector<s_ptr<Control>> &getChildren() const;
 
     int32_t getState() const;
     void setState(int32_t state);
@@ -85,14 +85,14 @@ public:
 
     const mat4 &getTransform() const;
 
-    SharedPtr<Control> findContolAtPos(const vec2 &pos, vec2 *control_global_position = nullptr);
+    s_ptr<Control> findContolAtPos(const vec2 &pos, vec2 *control_global_position = nullptr);
     bool contains(const vec2 &pos) const;
 
     float getFontPixelSize() const;
     void setFontPixelSize(float pixel_size);
 
-    const SharedPtr<Font> &getFont() const;
-    void setFont(const SharedPtr<Font> &font);
+    const s_ptr<Font> &getFont() const;
+    void setFont(const s_ptr<Font> &font);
 
     void repaint();
     virtual void draw(Shader *shader, const mat4 &transform = mat4{1.0f}) const;
@@ -124,7 +124,7 @@ private:
 private:
     Gui *m_gui;
 
-    std::vector<SharedPtr<Control>> m_children;
+    std::vector<s_ptr<Control>> m_children;
     WeakPtr<Control> m_parent;
 
     int32_t m_state;
@@ -138,7 +138,7 @@ private:
     mutable bool m_transform_dirty;
 
     float m_font_pixel_size;
-    SharedPtr<Font> m_font;
+    s_ptr<Font> m_font;
 
     mutable Batch2D m_batch_2d;
     mutable bool m_draw_dirty;

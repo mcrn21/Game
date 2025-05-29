@@ -20,11 +20,12 @@ public:
         std::function<void()> callback;
     };
 
-    MainMenu();
+    MainMenu(bool gameplay = false);
     ~MainMenu() = default;
 
-    void setMainMenuButtons(bool gameplay = false);
+    void back();
 
+    void onCreated();
     void onSizeChanged(const vec2 &);
 
 public:
@@ -45,20 +46,22 @@ private:
     void createExitGameDialog();
     void createExitToMainMenuDialog();
 
-    void setActiveFrame(const SharedPtr<gui::Control> &active_frame);
+    void setActiveFrame(const s_ptr<gui::Control> &active_frame);
 
-    SharedPtr<gui::Control> createSettingsFrame();
+    s_ptr<gui::Control> createSettingsFrame();
 
 private:
+    bool m_gameplay;
+
     std::vector<std::pair<String, std::function<void()>>> m_all_buttons;
     std::vector<int32_t> m_main_menu_button_nums;
     std::vector<int32_t> m_gameplay_button_nums;
 
-    std::vector<SharedPtr<MainMenuButton>> m_main_menu_buttons;
-    SharedPtr<Dialog> m_exit_game_dialog;
-    SharedPtr<Dialog> m_exit_main_menu_dialog;
+    std::vector<s_ptr<MainMenuButton>> m_main_menu_buttons;
+    s_ptr<Dialog> m_exit_game_dialog;
+    s_ptr<Dialog> m_exit_main_menu_dialog;
 
-    SharedPtr<gui::Control> m_active_frame;
+    s_ptr<gui::Control> m_active_frame;
 };
 
 #endif // MAIN_MENU_H

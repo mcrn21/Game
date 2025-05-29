@@ -10,19 +10,19 @@ Pose::Pose()
     , m_dirty{false}
 {}
 
-Pose::Pose(const SharedPtr<Skeleton> &skeleton)
+Pose::Pose(const s_ptr<Skeleton> &skeleton)
     : m_skeleton{skeleton}
     , m_dirty{true}
 {
     setSkeleton(skeleton);
 }
 
-const SharedPtr<Skeleton> &Pose::getSkeleton() const
+const s_ptr<Skeleton> &Pose::getSkeleton() const
 {
     return m_skeleton;
 }
 
-void Pose::setSkeleton(const SharedPtr<Skeleton> &skeleton)
+void Pose::setSkeleton(const s_ptr<Skeleton> &skeleton)
 {
     m_skeleton = nullptr;
     m_bone_states.clear();

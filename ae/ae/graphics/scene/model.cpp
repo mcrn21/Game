@@ -3,22 +3,22 @@
 
 namespace ae {
 
-const std::vector<SharedPtr<Mesh>> &MeshNode::getMeshes() const
+const std::vector<s_ptr<Mesh>> &MeshNode::getMeshes() const
 {
     return m_meshes;
 }
 
-void MeshNode::setMeshes(const std::vector<SharedPtr<Mesh>> &meshes)
+void MeshNode::setMeshes(const std::vector<s_ptr<Mesh>> &meshes)
 {
     m_meshes = meshes;
 }
 
-const std::vector<SharedPtr<MeshNode>> &MeshNode::getChildren() const
+const std::vector<s_ptr<MeshNode>> &MeshNode::getChildren() const
 {
     return m_children;
 }
 
-void MeshNode::setChildren(const std::vector<SharedPtr<MeshNode>> &child_nodes)
+void MeshNode::setChildren(const std::vector<s_ptr<MeshNode>> &child_nodes)
 {
     m_children = child_nodes;
 }
@@ -46,12 +46,12 @@ bool Model::loadFromFile(const std::filesystem::path &path)
     return true;
 }
 
-const SharedPtr<MeshNode> &Model::getRootNode() const
+const s_ptr<MeshNode> &Model::getRootNode() const
 {
     return m_root_node;
 }
 
-void Model::setRootNode(const SharedPtr<MeshNode> &node)
+void Model::setRootNode(const s_ptr<MeshNode> &node)
 {
     m_root_node = node;
     m_aabb = AABB{};
@@ -73,29 +73,29 @@ bool Model::isTransparent() const
     return m_transparent;
 }
 
-const SharedPtr<Skeleton> &Model::getSkeleton() const
+const s_ptr<Skeleton> &Model::getSkeleton() const
 {
     return m_skeleton;
 }
 
-void Model::setSkeleton(const SharedPtr<Skeleton> &skeleton)
+void Model::setSkeleton(const s_ptr<Skeleton> &skeleton)
 {
     m_skeleton = skeleton;
 }
 
-SharedPtr<PoseAnimation> Model::getAnimation(const std::string &name) const
+s_ptr<PoseAnimation> Model::getAnimation(const std::string &name) const
 {
     if (!m_name_animation_to_index.contains(name))
         return nullptr;
     return m_animations.at(m_name_animation_to_index.at(name));
 }
 
-std::vector<SharedPtr<PoseAnimation>> &Model::getAnimations()
+std::vector<s_ptr<PoseAnimation>> &Model::getAnimations()
 {
     return m_animations;
 }
 
-void Model::setAnimations(const std::vector<SharedPtr<PoseAnimation>> &animations)
+void Model::setAnimations(const std::vector<s_ptr<PoseAnimation>> &animations)
 {
     m_animations = animations;
     m_name_animation_to_index.clear();
@@ -103,7 +103,7 @@ void Model::setAnimations(const std::vector<SharedPtr<PoseAnimation>> &animation
         m_name_animation_to_index[animations[i]->getName()] = i;
 }
 
-AABB Model::makeRecursiveAABB(const SharedPtr<MeshNode> &node) const
+AABB Model::makeRecursiveAABB(const s_ptr<MeshNode> &node) const
 {
     AABB aabb{vec3{std::numeric_limits<float>::max()}, vec3{std::numeric_limits<float>::lowest()}};
 
@@ -116,7 +116,7 @@ AABB Model::makeRecursiveAABB(const SharedPtr<MeshNode> &node) const
     return aabb;
 }
 
-bool Model::makeRecursiveTransparent(const SharedPtr<MeshNode> &node) const
+bool Model::makeRecursiveTransparent(const s_ptr<MeshNode> &node) const
 {
     for (const auto &mesh : node->getMeshes()) {
         if (mesh->isTransparent())

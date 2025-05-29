@@ -1,6 +1,8 @@
 #ifndef AE_MULTI_COMPONENT_WATCHER_H
 #define AE_MULTI_COMPONENT_WATCHER_H
 
+#include "../system/memory.h"
+
 #include <entt/entt.hpp>
 
 namespace ae {
@@ -39,7 +41,7 @@ private:
 
     struct Storage
     {
-        std::unordered_map<entt::id_type, std::unique_ptr<reactive_storage>> storages;
+        std::unordered_map<entt::id_type, u_ptr<reactive_storage>> storages;
         std::unordered_set<entt::entity> entities;
         Callback callback;
     };
@@ -58,12 +60,12 @@ public:
             return *this;
         }
 
-        m_created_storage = std::make_unique<Storage>();
+        m_created_storage = createUnique<Storage>();
         m_created_storage->callback = callback;
 
         (m_created_storage->storages.emplace(entt::type_hash<Components>::value(),
                                              [&] {
-                                                 auto rs = std::make_unique<reactive_storage>();
+                                                 auto rs = createUnique<reactive_storage>();
                                                  rs->bind(*getRegistry());
                                                  rs->template on_construct<Components>();
                                                  return rs;
@@ -83,12 +85,12 @@ public:
             return *this;
         }
 
-        m_updated_storage = std::make_unique<Storage>();
+        m_updated_storage = createUnique<Storage>();
         m_updated_storage->callback = std::move(callback);
 
         (m_updated_storage->storages.emplace(entt::type_hash<Components>::value(),
                                              [&] {
-                                                 auto rs = std::make_unique<reactive_storage>();
+                                                 auto rs = createUnique<reactive_storage>();
                                                  rs->bind(*getRegistry());
                                                  rs->template on_update<Components>();
                                                  return rs;
@@ -108,12 +110,12 @@ public:
             return *this;
         }
 
-        m_destroyed_storage = std::make_unique<Storage>();
+        m_destroyed_storage = createUnique<Storage>();
         m_destroyed_storage->callback = std::move(callback);
 
         (m_destroyed_storage->storages.emplace(entt::type_hash<Components>::value(),
                                                [&] {
-                                                   auto rs = std::make_unique<reactive_storage>();
+                                                   auto rs = createUnique<reactive_storage>();
                                                    rs->bind(*getRegistry());
                                                    rs->template on_destroy<Components>();
                                                    return rs;
@@ -128,7 +130,7 @@ public:
         if (!getRegistry())
             return;
 
-        auto freeze_storage = [&](std::unique_ptr<Storage> &storage) {
+        auto freeze_storage = [&](u_ptr<Storage> &storage) {
             if (!storage)
                 return;
             for (auto &[id, rs] : storage->storages) {
@@ -149,7 +151,7 @@ public:
         if (!getRegistry())
             return;
 
-        auto process_storage = [&](std::unique_ptr<Storage> &storage) {
+        auto process_storage = [&](u_ptr<Storage> &storage) {
             if (!storage || !storage->callback)
                 return;
             for (auto entity : storage->entities)
@@ -163,9 +165,9 @@ public:
     }
 
 private:
-    std::unique_ptr<Storage> m_created_storage;
-    std::unique_ptr<Storage> m_updated_storage;
-    std::unique_ptr<Storage> m_destroyed_storage;
+    u_ptr<Storage> m_created_storage;
+    u_ptr<Storage> m_updated_storage;
+    u_ptr<Storage> m_destroyed_storage;
 };
 
 class ComponentWatcher
@@ -194,7 +196,7 @@ public:
         if (m_watchers.contains(hash))
             return *static_cast<Watcher *>(m_watchers[hash].get());
 
-        m_watchers.emplace(hash, std::make_unique<Watcher>());
+        m_watchers.insert(std::pair{hash, std::move(createUnique<Watcher>())});
         auto watcher = static_cast<Watcher *>(m_watchers[hash].get());
         watcher->bind(*m_registry);
         return *watcher;
@@ -224,7 +226,7 @@ private:
 
 private:
     entt::registry *m_registry;
-    std::unordered_map<uint64_t, std::unique_ptr<MultiComponentWatcherBase>> m_watchers;
+    std::unordered_map<uint64_t, u_ptr<MultiComponentWatcherBase>> m_watchers;
 };
 
 } // namespace ae

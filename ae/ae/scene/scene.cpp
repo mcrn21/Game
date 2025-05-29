@@ -16,11 +16,11 @@ namespace ae {
 Scene::Scene()
     : SceneContext{&m_data}
 {
-    m_data.player_s = std::make_unique<Player_S>(this);
-    m_data.lights_s = std::make_unique<Lights_S>(this);
-    m_data.collisions_s = std::make_unique<Collisions_S>(this);
-    m_data.movement_s = std::make_unique<Movement_S>(this);
-    m_data.draw_s = std::make_unique<Draw_S>(this);
+    m_data.player_s = createUnique<Player_S>(this);
+    m_data.lights_s = createUnique<Lights_S>(this);
+    m_data.collisions_s = createUnique<Collisions_S>(this);
+    m_data.movement_s = createUnique<Movement_S>(this);
+    m_data.draw_s = createUnique<Draw_S>(this);
 
     // Camera
     m_data.registry.on_update<Camera_C>().connect<&Scene::onCameraUpdated>(this);
@@ -50,7 +50,7 @@ Scene::Scene()
                                     5.0f,
                                     std::sin(angle) * 10.0f - 30.f};
 
-        auto sp = SharedPtr<Shape>::create();
+        auto sp = createShared<Shape>();
         sp->createSphere(0.2f);
         auto e = createDrawableEntity(sp);
         m_data.registry.get<Transform_C>(e).position = transform_c.position;
@@ -90,7 +90,7 @@ void Scene::draw() const
     m_data.render_texture.display();
 }
 
-void Scene::createPlayer(const SharedPtr<Model> &model,
+void Scene::createPlayer(const s_ptr<Model> &model,
                          const mat4 &player_transform,
                          const mat4 &model_transform)
 {
@@ -137,7 +137,7 @@ void Scene::createPlayer(const SharedPtr<Model> &model,
     addChild(player_entity, player_c.model_entity);
 
     auto &animator_c = m_data.registry.emplace<Animator_C>(player_c.model_entity);
-    animator_c.animator = SharedPtr<PoseAnimator>::create();
+    animator_c.animator = createShared<PoseAnimator>();
     animator_c.animator->setAnimation(model->getAnimation("Animation"));
 
     auto mi = staticPointerCast<ModelInstance>(
@@ -149,7 +149,7 @@ void Scene::createPlayer(const SharedPtr<Model> &model,
 
     auto &collider_c = m_data.registry.emplace<Collider_C>(player_entity);
     // collider_c = std::make_shared<SphereCollider>(vec3{0.0f}, 1.0f);
-    collider_c = SharedPtr<BoxCollider>::create(AABB{vec3{-1.0f}, vec3{1.0f}});
+    collider_c = createShared<BoxCollider>(AABB{vec3{-1.0f}, vec3{1.0f}});
 
     m_data.player_s->setPlayerEntity(player_entity);
 
@@ -165,7 +165,7 @@ void Scene::createPlayer(const SharedPtr<Model> &model,
 
     addChild(player_c.camera_center, player_c.light_entity);
 
-    auto sp = SharedPtr<Shape>::create();
+    auto sp = createShared<Shape>();
     sp->createSphere(1.0f);
     sp->getMaterial()->color.setAlpha(0.2f);
     auto e = createDrawableEntity(sp);

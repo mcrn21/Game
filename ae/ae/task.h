@@ -50,11 +50,11 @@ public:
     TaskChain() = default;
     ~TaskChain() = default;
 
-    void addTask(const SharedPtr<Task> &task);
+    void addTask(const s_ptr<Task> &task);
     bool update(const Time &dt);
 
 private:
-    std::queue<SharedPtr<Task>> m_tasks;
+    std::queue<s_ptr<Task>> m_tasks;
 };
 
 } // namespace ae

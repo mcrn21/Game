@@ -24,11 +24,11 @@ Color GuiTheme::Palette::dialog_border_3 = Color::fromInt(213, 53, 43, 255);
 
 // Metrics
 // Main menu button
-float GuiTheme::Metrics::main_menu_button_font_pixel_size = 28.0f;
-float GuiTheme::Metrics::main_menu_button_height = 36.0f;
+float GuiTheme::Metrics::main_menu_button_font_pixel_size = 36.0f;
+float GuiTheme::Metrics::main_menu_button_height = 48.0f;
 float GuiTheme::Metrics::main_menu_button_border_thickness = 10.0f;
 float GuiTheme::Metrics::main_menu_buttons_corner_offset = 64.0f;
-float GuiTheme::Metrics::main_menu_buttons_spacing = 20.0f;
+float GuiTheme::Metrics::main_menu_buttons_spacing = 30.0f;
 
 // Buttons
 float GuiTheme::Metrics::button_font_pixel_size = 28.0f;

@@ -25,7 +25,7 @@ public:
 
     sigslot::signal<> tickUpdated;
 
-    void createPlayer(const SharedPtr<Model> &model,
+    void createPlayer(const s_ptr<Model> &model,
                       const mat4 &player_transform = mat4{1.0f},
                       const mat4 &model_transform = mat4{1.0f});
 

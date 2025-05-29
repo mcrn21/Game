@@ -16,19 +16,19 @@ public:
     Mesh();
     Mesh(const std::vector<Vertex> &vertices,
          const std::vector<uint32_t> &indices,
-         const SharedPtr<Material> &material);
+         const s_ptr<Material> &material);
     ~Mesh() = default;
 
     const std::vector<Vertex> &getVertices() const;
     const std::vector<uint32_t> &getIndices() const;
     const std::vector<Triangle> &getTriangles() const;
 
-    SharedPtr<Material> getMaterial() const;
-    void setMaterial(const SharedPtr<Material> &material, const ivec4 &texture_rect = ivec4{0});
+    s_ptr<Material> getMaterial() const;
+    void setMaterial(const s_ptr<Material> &material, const ivec4 &texture_rect = ivec4{0});
 
     void create(const std::vector<Vertex> &vertices,
                 const std::vector<uint32_t> &indices,
-                const SharedPtr<Material> &material);
+                const s_ptr<Material> &material);
     bool isValid() const;
     void destroy();
 
@@ -40,7 +40,7 @@ private:
     std::vector<Vertex> m_vertices;
     std::vector<uint32_t> m_indices;
     std::vector<Triangle> m_triangles;
-    SharedPtr<Material> m_material;
+    s_ptr<Material> m_material;
     VertexArray m_vertex_array;
     AABB m_aabb;
 };

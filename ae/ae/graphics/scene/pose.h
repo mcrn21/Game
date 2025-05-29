@@ -10,11 +10,11 @@ class Pose
 {
 public:
     Pose();
-    Pose(const SharedPtr<Skeleton> &skeleton);
+    Pose(const s_ptr<Skeleton> &skeleton);
     ~Pose() = default;
 
-    const SharedPtr<Skeleton> &getSkeleton() const;
-    void setSkeleton(const SharedPtr<Skeleton> &skeleton);
+    const s_ptr<Skeleton> &getSkeleton() const;
+    void setSkeleton(const s_ptr<Skeleton> &skeleton);
 
     vec3 getPosition(const std::string &bone_name) const;
     void setPosition(const std::string &bone_name, const vec3 &position);
@@ -46,7 +46,7 @@ private:
         bool dirty = true;
     };
 
-    SharedPtr<Skeleton> m_skeleton;
+    s_ptr<Skeleton> m_skeleton;
 
     std::vector<BoneState> m_bone_states;
     std::vector<mat4> m_final_transforms;
