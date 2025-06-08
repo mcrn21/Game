@@ -3,6 +3,7 @@
 
 #include "controls/fake_terminal.h"
 
+#include <ae/graphics/core/texture.h>
 #include <ae/gui/control.h>
 #include <ae/gui/label.h>
 #include <ae/system/signal.h>
@@ -51,6 +52,7 @@ private:
 private:
     bool m_gameplay;
     ButtonsList m_all_buttons;
+    s_ptr<Texture> m_splash_texture;
     s_ptr<FakeTerminal> m_fake_terminal;
 };
 

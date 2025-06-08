@@ -22,7 +22,6 @@ public:
 
 private:
     s_ptr<LoadLevelGui> createGui();
-    void updateProgress();
     void updateOutput(const String &string);
     void loadTestScene();
 

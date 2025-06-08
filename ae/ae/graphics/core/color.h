@@ -36,6 +36,8 @@ public:
     Color darker(float factor = 0.7f) const;
     Color lighter(float factor = 1.3f) const;
 
+    static Color lerp(const Color &a, const Color &b, float t);
+
     static Color fromInt(int32_t red, int32_t green, int32_t blue, int32_t alpha);
 
 private:

@@ -50,6 +50,9 @@ void MainMenuGui::back()
 
 void MainMenuGui::onCreated()
 {
+    auto &ctx = getEngineContext();
+    m_splash_texture = ctx.getAssets()->get<Texture>("splash");
+
     m_fake_terminal = gui::Control::create<FakeTerminal>(getEngineContext());
     m_fake_terminal->setParent(sharedFromThis());
     m_fake_terminal->setPosition(vec2{Style::Metrics::main_fake_terminal_offset});
@@ -68,7 +71,13 @@ void MainMenuGui::onSizeChanged(const vec2 &size)
 
 void MainMenuGui::drawControl(Batch2D &batch_2d)
 {
-    batch_2d.drawRect(vec2{0.0f}, vec2{getSize()}, Style::Palette::main_menu_bg);
+    if (m_splash_texture && !m_gameplay)
+        batch_2d
+            .drawTexture(vec4{0.0f, 0.0f, getSize().x, getSize().y},
+                         ivec4{0, 0, m_splash_texture->getSize().x, m_splash_texture->getSize().y},
+                         m_splash_texture);
+    else
+        batch_2d.drawRect(vec2{0.0f}, vec2{getSize()}, Style::Palette::main_menu_bg);
 }
 
 void MainMenuGui::createMainMenu()
@@ -77,17 +86,15 @@ void MainMenuGui::createMainMenu()
     m_fake_terminal->push("main_menu",
                           "Welcom to test_fps_game. Version 1.0.\nPlease select:",
                           nullptr,
+                          false,
                           indexed_view(m_all_buttons, button_nums));
 }
 
 void MainMenuGui::createGameplayMenu()
 {
     std::vector<size_t> button_nums = {3, 1, 2, 0, 4, 5, 6};
-    m_fake_terminal->push("pause",
-                          "Please select:",
-                          nullptr,
-
-                          indexed_view(m_all_buttons, button_nums));
+    m_fake_terminal
+        ->push("pause", "Please select:", nullptr, false, indexed_view(m_all_buttons, button_nums));
 }
 
 void MainMenuGui::createExitToMainMenuDialog()
@@ -96,6 +103,7 @@ void MainMenuGui::createExitToMainMenuDialog()
     m_fake_terminal->push("exit_to_main_menu",
                           "Are you sure want to exit to main menu?",
                           nullptr,
+                          false,
                           indexed_view(m_all_buttons, button_nums));
 }
 
@@ -105,6 +113,7 @@ void MainMenuGui::createExitGameDialog()
     m_fake_terminal->push("exit",
                           "Are you sure want to exit the game?",
                           nullptr,
+                          false,
                           indexed_view(m_all_buttons, button_nums));
 }
 
@@ -116,7 +125,11 @@ void MainMenuGui::createSettingsDialog()
     auto settings_frame = gui::Control::create<SettingsDialog>(ctx);
     settings_frame->setSize(vec2{600.0f, 450.0f});
 
-    m_fake_terminal->push("settings", {}, settings_frame, indexed_view(m_all_buttons, button_nums));
+    m_fake_terminal->push("settings",
+                          {},
+                          settings_frame,
+                          false,
+                          indexed_view(m_all_buttons, button_nums));
 }
 
 // void MainMenuGui::createExitGameDialog()

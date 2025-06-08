@@ -14,6 +14,7 @@ public:
 
     const String &getString() const;
     void setString(const String &string);
+    void appendString(const String &string);
 
     float getLineSpacing() const;
     void setLineSpacing(float line_spacing);

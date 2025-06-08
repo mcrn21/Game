@@ -16,7 +16,7 @@ namespace ae {
 struct Batch2DVertex2
 {
     vec3 position{0.0f};
-    vec4 color{0.0f};
+    vec4 color{1.0f};
     vec2 tex_coords{0.0f};
 };
 

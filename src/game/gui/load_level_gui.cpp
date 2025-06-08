@@ -13,13 +13,7 @@ void LoadLevelGui::setProgress(float progress)
 
 void LoadLevelGui::addString(const String &string)
 {
-    auto cmd_output_string = m_fake_terminal->getTopCmdOutputString();
-    if (cmd_output_string.isEmpty())
-        cmd_output_string += string;
-    else
-        cmd_output_string += "\n" + string;
-
-    m_fake_terminal->setTopCmdOutputString(cmd_output_string);
+    m_fake_terminal->appendStringToTopCmdOutput(string);
 }
 
 void LoadLevelGui::onCreated()
@@ -34,9 +28,10 @@ void LoadLevelGui::onCreated()
 
     m_progress_bar = gui::Control::create<ProgressBar>(getEngineContext());
     m_progress_bar->setProgress(0.0f);
-    m_progress_bar->setSize(vec2{400.0f, 40.0f});
+    m_progress_bar->setColor(Style::Palette::secondary);
+    m_progress_bar->setSize(vec2{400.0f, 18.f});
 
-    m_fake_terminal->push("load_level", String{}, m_progress_bar);
+    m_fake_terminal->push("load_level", String{}, m_progress_bar, true);
 }
 
 void LoadLevelGui::onSizeChanged(const vec2 &size)

@@ -20,6 +20,13 @@ void Label::setString(const String &string)
     repaint();
 }
 
+void Label::appendString(const String &string)
+{
+    m_string += string;
+    updateImplicitSize();
+    repaint();
+}
+
 float Label::getLineSpacing() const
 {
     return m_line_spacing;

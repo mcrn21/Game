@@ -65,13 +65,6 @@ s_ptr<LoadLevelGui> LoadLevelState::createGui()
     return root;
 }
 
-void LoadLevelState::updateProgress()
-{
-    ++m_current_task;
-    float progress = static_cast<float>(m_current_task) / m_total_tasks;
-    m_load_level_gui->setProgress(progress);
-}
-
 void LoadLevelState::updateOutput(const String &string)
 {
     m_load_level_gui->addString(string);
@@ -104,7 +97,6 @@ void LoadLevelState::loadTestScene()
             l_debug("Load texture: {}, {}", texture.name, texture.path);
             updateOutput(fmt::format("Load texture: {}, {}", texture.name, texture.path));
             ctx.getAssets()->loadFromFile<Texture>(texture.name, texture.path, texture.type);
-            updateProgress();
         }));
     }
 
@@ -125,7 +117,6 @@ void LoadLevelState::loadTestScene()
             l_debug("Load model: {}, {}", model.name, model.path);
             updateOutput(fmt::format("Load model: {}, {}", model.name, model.path));
             ctx.getAssets()->loadFromFile<Model>(model.name, model.path);
-            updateProgress();
         }));
     }
 
@@ -159,12 +150,9 @@ void LoadLevelState::loadTestScene()
         skybox->create(skybox_texture);
         auto skybox_entity = ctx.getScene()->createSkybox(skybox);
         ctx.getScene()->setActiveSkybox(skybox_entity);
-
-        // Update progress
-        updateProgress();
     });
 
-    auto final_task_chain = createShared<TaskChain>();
+    auto final_task_chain = createShared<NotifyTaskChain>();
     final_task_chain->addTask(
         createShared<CallbackTask>([&]() { updateOutput("\n### Load textures ###"); }));
     final_task_chain->addTask(load_textures_task_chain);
@@ -175,13 +163,13 @@ void LoadLevelState::loadTestScene()
     final_task_chain->addTask(createShared<DelayTask>(seconds(0.2f)));
 
     final_task_chain->addTask(createShared<CallbackTask>([&]() {
-        auto gameplay_state = createShared<GameplayState>(ctx);
-        ctx.getGameStateStack()->replace(gameplay_state);
+        ctx.runLater([&]() { ctx.getGameStateStack()->replace(createShared<GameplayState>(ctx)); });
     }));
 
-    // Update progress
-    m_total_tasks = textures.size() + models.size() + 2;
-    updateProgress();
+    final_task_chain->taskFinished.connect([this](int32_t finished_task, int32_t total_task) {
+        float progress = static_cast<float>(finished_task + 1) / total_task;
+        m_load_level_gui->setProgress(progress);
+    });
 
     ctx.getTaskManager()->run(final_task_chain);
 }

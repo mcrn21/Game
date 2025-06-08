@@ -113,6 +113,16 @@ Color Color::lighter(float factor) const
     return Color(r, g, b, m_color.a);
 }
 
+Color Color::lerp(const Color &a, const Color &b, float t)
+{
+    return Color{
+        a.m_color.r + (b.m_color.r - a.m_color.r) * t,
+        a.m_color.g + (b.m_color.g - a.m_color.g) * t,
+        a.m_color.b + (b.m_color.b - a.m_color.b) * t,
+        a.m_color.a + (b.m_color.a - a.m_color.a) * t,
+    };
+}
+
 Color Color::fromInt(int32_t red, int32_t green, int32_t blue, int32_t alpha)
 {
     return Color{static_cast<float>(red) / 255.0f,

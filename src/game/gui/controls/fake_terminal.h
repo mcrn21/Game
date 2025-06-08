@@ -4,10 +4,11 @@
 #include "../style.h"
 #include "fake_terminal_button.h"
 
-#include <ae/engine.h>
 #include <ae/assets/assets.h>
+#include <ae/engine.h>
 #include <ae/gui/control.h>
 #include <ae/gui/label.h>
+#include <ae/system/log.h>
 #include <ae/system/string.h>
 
 #include <ranges>
@@ -27,12 +28,18 @@ public:
     void push(const String &cmd,
               const String &cmd_output,
               const s_ptr<gui::Control> &control,
+              bool control_fill_width,
               const Range &buttons);
     void push(const String &cmd,
               const String &cmd_output = {},
-              const s_ptr<gui::Control> &control = nullptr)
+              const s_ptr<gui::Control> &control = nullptr,
+              bool control_fill_width = false)
     {
-        push(cmd, cmd_output, control, std::views::empty<std::pair<String, std::function<void()>>>);
+        push(cmd,
+             cmd_output,
+             control,
+             control_fill_width,
+             std::views::empty<std::pair<String, std::function<void()>>>);
     }
     void pop();
 
@@ -40,6 +47,7 @@ public:
 
     String getTopCmdOutputString() const;
     void setTopCmdOutputString(const String &string);
+    void appendStringToTopCmdOutput(const String &string);
 
     void onSizeChanged(const vec2 &);
 
@@ -47,7 +55,9 @@ private:
     struct Page
     {
         s_ptr<gui::Control> page_control;
+        s_ptr<gui::Control> control;
         s_ptr<gui::Label> cmd_output_label;
+        bool control_fill_width = false;
     };
 
     template<std::ranges::range Range>
@@ -65,6 +75,7 @@ template<std::ranges::range Range>
 inline void FakeTerminal::push(const String &cmd,
                                const String &cmd_output,
                                const s_ptr<Control> &control,
+                               bool control_fill_width,
                                const Range &buttons)
 {
     if (cmd.isEmpty())
@@ -83,7 +94,7 @@ inline void FakeTerminal::push(const String &cmd,
     cmd_label->setColor(Style::Palette::getInverseOn(m_color));
     cmd_label->setFont(getFont());
     cmd_label->setFontPixelHeight(getFontPixelHeight());
-    cmd_label->setString("$: ./" + cmd);
+    cmd_label->setString("> " + cmd);
     cmd_label->setSize(cmd_label->getImplicitSize());
 
     auto cmd_output_label = gui::Control::create<gui::Label>(ctx);
@@ -96,8 +107,17 @@ inline void FakeTerminal::push(const String &cmd,
     cmd_output_label->setString(cmd_output);
     cmd_output_label->setSize(cmd_output_label->getImplicitSize());
 
-    if (control)
+    if (control) {
         control->setParent(page_control);
+        page.control = control;
+        page.control_fill_width = control_fill_width;
+
+        if (control_fill_width) {
+            auto control_size = control->getSize();
+            control_size.x = getSize().x;
+            control->setSize(control_size);
+        }
+    }
 
     if (!buttons.empty()) {
         auto buttons_container = createButtonsContainer(buttons);

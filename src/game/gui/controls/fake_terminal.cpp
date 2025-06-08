@@ -37,17 +37,41 @@ void FakeTerminal::setTopCmdOutputString(const String &string)
 {
     if (m_pages_stack.empty())
         return;
-    m_pages_stack.back().cmd_output_label->setString(string);
-    m_pages_stack.back().cmd_output_label->setSize(
-        m_pages_stack.back().cmd_output_label->getImplicitSize());
-    updatePageSize(m_pages_stack.back());
-    updatePagePosition(m_pages_stack.back());
+
+    auto &page = m_pages_stack.back();
+
+    page.cmd_output_label->setString(string);
+
+    page.cmd_output_label->setSize(page.cmd_output_label->getImplicitSize());
+
+    updatePageSize(page);
+    updatePagePosition(page);
+}
+
+void FakeTerminal::appendStringToTopCmdOutput(const String &string)
+{
+    if (m_pages_stack.empty())
+        return;
+
+    auto &page = m_pages_stack.back();
+
+    if (!page.cmd_output_label->getString().isEmpty())
+        page.cmd_output_label->appendString("\n");
+    page.cmd_output_label->appendString(string);
+
+    page.cmd_output_label->setSize(page.cmd_output_label->getImplicitSize());
+
+    updatePageSize(page);
+    updatePagePosition(page);
 }
 
 void FakeTerminal::onSizeChanged(const vec2 &)
 {
-    for (auto &page : m_pages_stack)
+    for (auto &page : m_pages_stack) {
+        if (page.control_fill_width)
+            updatePageSize(page);
         updatePagePosition(page);
+    }
 }
 
 void FakeTerminal::updatePageSize(Page &page)
@@ -69,6 +93,12 @@ void FakeTerminal::updatePageSize(Page &page)
         if (control == page.cmd_output_label && page.cmd_output_label
             && page.cmd_output_label->getString().isEmpty())
             continue;
+
+        if (control == page.control) {
+            auto control_size = control->getSize();
+            control_size.x = getSize().x;
+            control->setSize(control_size);
+        }
 
         control->setPosition({0.0f, size.y});
 

@@ -46,6 +46,15 @@ struct Style
                                 float corner_thickness,
                                 float corner_width,
                                 Batch2D &batch_2d);
+
+    static void drawProgressBarBg(const vec2 &pos,
+                                  const vec2 &size,
+                                  const Color &bg_color,
+                                  const Color &corner_color,
+                                  float corner_thickness,
+                                  float corner_width,
+                                  float fill,
+                                  Batch2D &batch_2d);
 };
 
 #endif // STYLE_H

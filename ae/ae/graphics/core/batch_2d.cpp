@@ -1,6 +1,8 @@
 #include "batch_2d.h"
 #include "../common/utils.h"
 
+#include <algorithm>
+
 namespace ae {
 
 Batch2D::Batch2D()
