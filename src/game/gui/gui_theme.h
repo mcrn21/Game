@@ -8,6 +8,7 @@
 using namespace glm;
 using namespace ae;
 
+
 struct GuiTheme
 {
     static struct Palette
@@ -33,16 +34,17 @@ struct GuiTheme
         static Color dialog_border_2;
         static Color dialog_border_3;
 
+        // Progress bar
+        static Color progress_bar_bg;
+        static Color progress_bar_border;
+
     } palette;
 
     static struct Metrics
     {
-        // Main menu button
-        static float main_menu_button_font_pixel_size;
-        static float main_menu_button_height;
-        static float main_menu_button_border_thickness;
-        static float main_menu_buttons_corner_offset;
-        static float main_menu_buttons_spacing;
+        // Load level
+        static vec2 load_level_progress_bar_size;
+        static float load_level_progress_bar_bottom_offset;
 
         // Button
         static float button_font_pixel_size;
@@ -73,6 +75,13 @@ struct GuiTheme
                              const Color &bg_color,
                              const Color &border_color,
                              Batch2D &batch_2d);
+
+    static void drawProgressBarBg(const vec2 &pos,
+                                  const vec2 &size,
+                                  const Color &bg_color,
+                                  const Color &border_color,
+                                  float fill,
+                                  Batch2D &batch_2d);
 };
 
 #endif // GUI_THEME_H

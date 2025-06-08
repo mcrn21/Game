@@ -1,27 +1,27 @@
 #include "player_s.h"
-#include "../app.h"
-#include "../common/spdlog_utils.h"
+#include "../engine.h"
 #include "../graphics/scene/model_instance.h"
+#include "../system/log.h"
+#include "../window/input.h"
+#include "../window/window.h"
 #include "components.h"
 #include "scene.h"
-
-#include <spdlog/spdlog.h>
 
 namespace ae {
 
 Player_S::Player_S(Scene *scene)
     : System{scene}
 {
-    auto &app = App::getInstance();
-    app.getInput()->cursorMoved.connect(&Player_S::onMouseMoved, this);
-    app.getInput()->scrolled.connect(&Player_S::onScrolled, this);
+    auto &ctx = getEngineContext();
+    ctx.getInput()->cursorMoved.connect(&Player_S::onMouseMoved, this);
+    ctx.getInput()->scrolled.connect(&Player_S::onScrolled, this);
 }
 
 Player_S::~Player_S()
 {
-    auto &app = App::getInstance();
-    app.getInput()->cursorMoved.disconnect(this);
-    app.getInput()->scrolled.disconnect(this);
+    auto &ctx = getEngineContext();
+    ctx.getInput()->cursorMoved.disconnect(this);
+    ctx.getInput()->scrolled.disconnect(this);
 }
 
 entt::entity Player_S::getPlayerEntity() const
@@ -39,7 +39,8 @@ void Player_S::update()
     if (!isValid(m_player_entity))
         return;
 
-    auto *input = App::getInstance().getInput();
+    auto &ctx = getEngineContext();
+    auto *input = ctx.getInput();
 
     const auto &camera_c = get<Camera_C>(getScene()->getActiveCamera());
     const auto &player_c = get<Player_C>(m_player_entity);
@@ -89,20 +90,19 @@ void Player_S::update()
     patch<Movement_C>(m_player_entity);
 
     // Camera rotate
-    float delta_x = input->getCursorDeltaX();
-    float delta_y = input->getCursorDeltaY();
+    const auto &delta = input->getCursorDelta();
 
-    auto *window = App::getInstance().getWindow();
+    auto *window = ctx.getWindow();
 
     auto &camera_center_transform_c = get<Transform_C>(player_c.camera_center);
 
     float dir_y = camera_center_transform_c.rotation.x;
     float dir_x = camera_center_transform_c.rotation.y;
 
-    dir_y -= (-static_cast<float>(delta_y) / window->getSize().y * 1.5f);
+    dir_y -= (-static_cast<float>(delta.y) / window->getSize().y * 1.5f);
     dir_y = std::clamp(dir_y, glm::radians(-89.0f), glm::radians(89.0f)); // ограничение по вертикали
 
-    dir_x += -static_cast<float>(delta_x) / window->getSize().x * 1.5f;
+    dir_x += -static_cast<float>(delta.x) / window->getSize().x * 1.5f;
 
     camera_center_transform_c.rotation.x = dir_y;
     camera_center_transform_c.rotation.y = dir_x;
@@ -173,10 +173,9 @@ void Player_S::updateCameraPosition(const Time &elapsed_time)
     // mi->getPose().rotateBone("Spine_02_10", vec3{0.1f, 0.0f, 0.0f});
 
     // auto &camera_transform_c = get<>
-    // spdlog::debug("Camera position: {}", getGlobalPosition(player_c.camera));
 }
 
-void Player_S::onMouseMoved(int32_t x, int32_t y, int32_t delta_x, int32_t delta_y)
+void Player_S::onMouseMoved(const ivec2 &, const ivec2 &)
 {
     // if (!isValid(m_player_entity))
     //     return;
@@ -212,14 +211,14 @@ void Player_S::onMouseMoved(int32_t x, int32_t y, int32_t delta_x, int32_t delta
     //                             [&](auto &transform_c) { transform_c.rotation.y = dir_x; });
 }
 
-void Player_S::onScrolled(float xoffset, float yoffset)
+void Player_S::onScrolled(const vec2 &scroll)
 {
     auto &player_c = get<Player_C>(m_player_entity);
 
-    if (yoffset < 0.0f && player_c.camera_offset > player_c.camera_max_offset)
+    if (scroll.y < 0.0f && player_c.camera_offset > player_c.camera_max_offset)
         player_c.camera_offset -= 1.0f;
 
-    if (yoffset > 0.0f && player_c.camera_offset < 0.0f)
+    if (scroll.y > 0.0f && player_c.camera_offset < 0.0f)
         player_c.camera_offset += 1.0f;
 
     patch<Transform_C>(player_c.camera,

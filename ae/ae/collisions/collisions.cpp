@@ -1,10 +1,9 @@
 #include "collisions.h"
-#include "../common/spdlog_utils.h"
 #include "../geometry/geometry_utils.h"
+#include "../system/log.h"
 
 #include <glm/gtx/compatibility.hpp>
 #include <glm/gtx/norm.hpp>
-#include <spdlog/spdlog.h>
 
 #include <execution>
 
@@ -282,10 +281,6 @@ void Collisions::sweptAABBVsTriangle(const AABB &aabb,
 
             return true;
         }
-
-        // spdlog::debug("v: {}", v);
-        // spdlog::debug("proj_aabb: min: {}, max: {}", proj_aabb.min, proj_aabb.max);
-        // spdlog::debug("proj_tri: min: {}, max: {}", proj_tri.min, proj_tri.max);
 
         // Вычисляем время входа и выхода вдоль оси
         float t0 = (proj_tri.min - proj_aabb.max) / v;

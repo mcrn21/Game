@@ -21,7 +21,10 @@ public:
     ~Lights_S() = default;
 
     void update();
+
     void draw(RenderState &render_state) const;
+
+    void clear();
 
 private:
     struct GpuLight

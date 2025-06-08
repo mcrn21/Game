@@ -3,11 +3,13 @@
 
 #include "../../3rd/sigslot/signal.hpp"
 
+#include <glm/glm.hpp>
+
 #include <cstdint>
 #include <string.h>
 #include <vector>
 
-struct GLFWwindow;
+using namespace glm;
 
 namespace ae {
 
@@ -169,28 +171,26 @@ public:
     bool isKeyDown(KeyCode keycode) const;
     bool isKeyJustDown(KeyCode keycode) const;
     bool isKeyJustUp(KeyCode keycode) const;
+    void setKeyPressed(KeyCode keycode, int32_t pressed);
 
     // Mouse
     bool isButtonDown(ButtonCode button) const;
     bool isButtonJustDown(ButtonCode button) const;
     bool isButtonJustUp(ButtonCode button) const;
+    void setButtonPressed(ButtonCode button, int32_t pressed);
 
     // Modifiers
     KeyModifier getModifiers() const;
+    void setModifiers(KeyModifier modifiers);
 
     // Cursor
-    int32_t getCursorX() const;
-    int32_t getCursorY() const;
-
-    int32_t getCursorDeltaX() const;
-    int32_t getCursorDeltaY() const;
+    const ivec2 &getCursorPosition() const;
+    const ivec2 &getCursorDelta() const;
+    void setCursorPosition(const ivec2 &cursor_position);
 
     // Scroll
-    float getScrollX() const;
-    void setScrollX(float xoffset);
-
-    float getScrollY() const;
-    void setScrollY(float yoffset);
+    const vec2 &getScroll() const;
+    void setScroll(const vec2 &scroll);
 
     // Codepoint
     uint32_t getCodepoint() const;
@@ -199,34 +199,23 @@ public:
 private:
     void update();
 
-    void setKeyPressed(KeyCode keycode, int32_t pressed);
-    void setButtonPressed(ButtonCode button, int32_t pressed);
-    void setModifiers(KeyModifier modifiers);
-    void setCursorPosition(int32_t x, int32_t y);
-
 public:
     sigslot::signal<KeyCode> keyJustDown;
     sigslot::signal<KeyCode> keyJustUp;
     sigslot::signal<KeyCode> keyDown;
     sigslot::signal<ButtonCode> buttonJustDown;
     sigslot::signal<ButtonCode> buttonJustUp;
-    sigslot::signal<int32_t, int32_t, int32_t, int32_t> cursorMoved;
-    sigslot::signal<float, float> scrolled;
+    sigslot::signal<const ivec2 &, const ivec2 &> cursorMoved;
+    sigslot::signal<const ivec2 &> scrolled;
     sigslot::signal<uint32_t> codepointInputed;
 
 private:
     std::vector<std::pair<bool, int32_t>> m_states;
     KeyModifier m_modifiers;
-
-    int32_t m_cursor_x;
-    int32_t m_cursor_y;
-    int32_t m_cursor_delta_x;
-    int32_t m_cursor_delta_y;
+    ivec2 m_cursor_position;
+    ivec2 m_cursor_delta;
     bool m_cursor_dragged;
-
-    float m_scroll_x;
-    float m_scroll_y;
-
+    vec2 m_scroll;
     uint32_t m_codepoint;
 
     uint32_t m_update_counter;

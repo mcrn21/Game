@@ -8,7 +8,7 @@ namespace ae::gui {
 class Image : public Control
 {
 public:
-    Image();
+    Image(EngineContext &engine_context);
     ~Image() = default;
 
     void onStateChanged(int32_t state);

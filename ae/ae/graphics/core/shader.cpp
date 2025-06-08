@@ -1,11 +1,11 @@
 #include "shader.h"
 #include "../../system/files.h"
+#include "../../system/log.h"
 #include "../common/utils.h"
 #include "default_shaders.h"
 
 #include <GL/glew.h>
 #include <glm/gtc/type_ptr.hpp>
-#include <spdlog/spdlog.h>
 
 #include <regex>
 
@@ -67,7 +67,7 @@ bool Shader::loadFromFile(const std::filesystem::path &path, ShaderType type)
         return loadFromMemory(shader, type);
 
     } catch (const std::exception &e) {
-        spdlog::error("Shader loading error: {}", e.what());
+        l_error("Shader loading error: {}", e.what());
         return false;
     }
 }
@@ -81,7 +81,7 @@ bool Shader::loadFromFile(const std::filesystem::path &vertex_path,
         return loadFromMemory(vertex_shader, fragment_shader);
 
     } catch (const std::exception &e) {
-        spdlog::error("Shader loading error: {}", e.what());
+        l_error("Shader loading error: {}", e.what());
         return false;
     }
 }
@@ -97,7 +97,7 @@ bool Shader::loadFromFile(const std::filesystem::path &vertex_path,
         return loadFromMemory(vertex_shader, geometry_shader, fragment_shader);
 
     } catch (const std::exception &e) {
-        spdlog::error("Shader loading error: {}", e.what());
+        l_error("Shader loading error: {}", e.what());
         return false;
     }
 }
@@ -107,7 +107,7 @@ bool Shader::loadFromMemory(const std::string &shader, ShaderType type)
     destroy();
 
     if (shader.empty()) {
-        spdlog::error("Shader loading error: shader is empty");
+        l_error("Shader loading error: shader is empty");
         return false;
     }
 
@@ -125,7 +125,7 @@ bool Shader::loadFromMemory(const std::string &vertex_shader, const std::string 
     destroy();
 
     if (vertex_shader.empty() || fragment_shader.empty()) {
-        spdlog::error("Shader loading error: shader is empty");
+        l_error("Shader loading error: shader is empty");
         return false;
     }
 
@@ -147,7 +147,7 @@ bool Shader::loadFromMemory(const std::string &vertex_shader,
     destroy();
 
     if (vertex_shader.empty() || geometry_shader.empty() || fragment_shader.empty()) {
-        spdlog::error("Shader loading error: shader is empty");
+        l_error("Shader loading error: shader is empty");
         return false;
     }
 
@@ -273,7 +273,7 @@ uint32_t Shader::createShader(const std::string &shader, ShaderType type) const
 
     if (!success) {
         glGetShaderInfoLog(shader_id, 512, nullptr, info_log);
-        spdlog::error("Shader compilation error: {}", info_log);
+        l_error("Shader compilation error: {}", info_log);
         glDeleteShader(shader_id);
         return 0;
     }
@@ -305,7 +305,7 @@ uint32_t Shader::createProgramm(const std::vector<uint32_t> &shaders) const
 
     if (!success) {
         glGetProgramInfoLog(programm_id, 512, nullptr, info_log);
-        spdlog::error("Shader programm linking error: {}", info_log);
+        l_error("Shader programm linking error: {}", info_log);
         glDeleteProgram(programm_id);
         return 0;
     }

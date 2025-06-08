@@ -93,7 +93,6 @@ public:
     Animation(const Time &duration, const std::function<float(float)> &easing = Easing::linear);
     virtual ~Animation() = default;
 
-    void start();
     void pause();
     void resume();
     void stop();

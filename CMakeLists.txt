@@ -26,14 +26,24 @@ add_executable(Game src/main.cpp
     src/game/gameplay_state.h src/game/gameplay_state.cpp
     src/game/main_menu_state.h src/game/main_menu_state.cpp
     src/game/first_state.h src/game/first_state.cpp
-    src/game/gui/main_menu_button.h src/game/gui/main_menu_button.cpp
+
     src/game/gui/gui_theme.h src/game/gui/gui_theme.cpp
-    src/game/gui/main_menu.h src/game/gui/main_menu.cpp
-    src/game/gui/frame.h src/game/gui/frame.cpp
-    src/game/gui/dialog.h src/game/gui/dialog.cpp
-    src/game/gui/button.h src/game/gui/button.cpp
-    src/game/gui/input_text.h src/game/gui/input_text.cpp
-    src/game/gui/settings_frame.h src/game/gui/settings_frame.cpp
+    src/game/gui/main_menu_gui.h src/game/gui/main_menu_gui.cpp
+    src/game/gui/controls/frame.h src/game/gui/controls/frame.cpp
+    src/game/gui/controls/dialog.h src/game/gui/controls/dialog.cpp
+    src/game/gui/controls/button.h src/game/gui/controls/button.cpp
+    src/game/gui/controls/input_text.h src/game/gui/controls/input_text.cpp
+    src/game/gui/settings_dialog.h src/game/gui/settings_dialog.cpp
+    src/game/load_level_state.h src/game/load_level_state.cpp
+    src/game/gui/controls/progress_bar.h src/game/gui/controls/progress_bar.cpp
+    src/game/gui/load_level_gui.h src/game/gui/load_level_gui.cpp
+    src/game/gui/first_state_gui.h src/game/gui/first_state_gui.cpp
+    src/game/gui/controls/tab_button.h src/game/gui/controls/tab_button.cpp
+    src/game/gui/controls/fake_terminal.h src/game/gui/controls/fake_terminal.cpp
+    src/game/gui/controls/fake_terminal_button.h src/game/gui/controls/fake_terminal_button.cpp
+    src/game/gui/controls/tabs_container.h src/game/gui/controls/tabs_container.cpp
+    src/game/gui/style.h src/game/gui/style.cpp
+
 
 )
 

@@ -1,5 +1,7 @@
 #include "string.h"
 
+#include <cstring>
+
 namespace ae {
 
 String::String() {}
@@ -9,9 +11,9 @@ String::String(const std::string &ansi)
     decodeUtf8(ansi.c_str(), ansi.size());
 }
 
-String::String(const char *ansi, int32_t size)
+String::String(const char *ansi)
 {
-    decodeUtf8(ansi, size);
+    decodeUtf8(ansi, std::strlen(ansi));
 }
 
 String::String(const String &other)
@@ -90,6 +92,18 @@ String &String::operator+=(uint32_t codepoint)
     return *this;
 }
 
+String &String::operator+=(const std::string &ansi)
+{
+    decodeUtf8(ansi.data(), ansi.size());
+    return *this;
+}
+
+String &String::operator+=(const char *ansi)
+{
+    decodeUtf8(ansi, std::strlen(ansi));
+    return *this;
+}
+
 void String::clear()
 {
     m_string.clear();
@@ -122,6 +136,58 @@ void String::decodeUtf8(const char *ansi, int32_t size)
 
         m_string.insert(m_string.end(), cp);
     }
+}
+
+String operator+(const String &left, const String &right)
+{
+    String result = left;
+    result += right;
+    return result;
+}
+
+String operator+(const String &left, uint32_t codepoint)
+{
+    String result = left;
+    result += codepoint;
+    return result;
+}
+
+String operator+(uint32_t codepoint, const String &right)
+{
+    String result;
+    result += codepoint;
+    result += right;
+    return result;
+}
+
+String operator+(const String &left, const std::string &right)
+{
+    String result = left;
+    result += right;
+    return result;
+}
+
+String operator+(const std::string &left, const String &right)
+{
+    String result;
+    result += left;
+    result += right;
+    return result;
+}
+
+String operator+(const String &left, const char *right)
+{
+    String result = left;
+    result += right;
+    return result;
+}
+
+String operator+(const char *left, const String &right)
+{
+    String result;
+    result += left;
+    result += right;
+    return result;
 }
 
 } // namespace ae

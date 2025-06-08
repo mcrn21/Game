@@ -15,7 +15,7 @@ public:
 
     String();
     String(const std::string &ansi);
-    String(const char *ansi, int32_t size);
+    String(const char *ansi);
     String(const String &other);
     String(String &&other);
     ~String() = default;
@@ -37,6 +37,8 @@ public:
     String &operator=(const String &right);
     String &operator+=(const String &right);
     String &operator+=(uint32_t codepoint);
+    String &operator+=(const std::string &ansi);
+    String &operator+=(const char *ansi);
 
     void erase(int32_t pos, int32_t npos = -1);
     void clear();
@@ -53,6 +55,14 @@ private:
 private:
     std::basic_string<uint32_t> m_string;
 };
+
+String operator+(const String &left, const String &right);
+String operator+(const String &left, uint32_t codepoint);
+String operator+(uint32_t codepoint, const String &right);
+String operator+(const String &left, const std::string &right);
+String operator+(const std::string &left, const String &right);
+String operator+(const String &left, const char *right);
+String operator+(const char *left, const String &right);
 
 } // namespace ae
 

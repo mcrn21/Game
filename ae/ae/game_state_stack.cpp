@@ -53,10 +53,10 @@ void GameStateStack::update(const Time &dt)
     }
 }
 
-void GameStateStack::draw() const
+void GameStateStack::draw(const Time &dt) const
 {
     for (auto it = m_states.begin(); it != m_states.end(); ++it) {
-        (*it)->draw();
+        (*it)->draw(dt);
         if (!(*it)->isTransparent())
             break; // нижние состояния не рисовать
     }

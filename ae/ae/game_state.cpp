@@ -2,7 +2,9 @@
 
 namespace ae {
 
-GameState::GameState() {}
+GameState::GameState(EngineContext &engine_context)
+    : EngineContextObject{engine_context}
+{}
 
 void GameState::onEnter() {}
 
@@ -14,6 +16,6 @@ void GameState::onResume() {}
 
 void GameState::update(const Time &dt) {}
 
-void GameState::draw() const {}
+void GameState::draw(const Time &dt) const {}
 
 } // namespace ae

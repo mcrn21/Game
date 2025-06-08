@@ -1,5 +1,6 @@
 #include "gui_theme.h"
 
+
 // Palette
 // Main menu
 Color GuiTheme::Palette::main_menu_bg = Color::fromInt(0, 0, 0, 180);
@@ -22,13 +23,14 @@ Color GuiTheme::Palette::dialog_border = Color::fromInt(243, 181, 98, 255);
 Color GuiTheme::Palette::dialog_border_2 = Color::fromInt(173, 111, 28, 255);
 Color GuiTheme::Palette::dialog_border_3 = Color::fromInt(213, 53, 43, 255);
 
+// Progress bar
+Color GuiTheme::Palette::progress_bar_bg = Color::fromInt(243, 181, 98, 255);
+Color GuiTheme::Palette::progress_bar_border = Color::fromInt(213, 53, 43, 255);
+
 // Metrics
-// Main menu button
-float GuiTheme::Metrics::main_menu_button_font_pixel_size = 36.0f;
-float GuiTheme::Metrics::main_menu_button_height = 48.0f;
-float GuiTheme::Metrics::main_menu_button_border_thickness = 10.0f;
-float GuiTheme::Metrics::main_menu_buttons_corner_offset = 64.0f;
-float GuiTheme::Metrics::main_menu_buttons_spacing = 30.0f;
+// Load level
+vec2 GuiTheme::Metrics::load_level_progress_bar_size = vec2{0.7f, 0.024f};
+float GuiTheme::Metrics::load_level_progress_bar_bottom_offset = 0.1f;
 
 // Buttons
 float GuiTheme::Metrics::button_font_pixel_size = 28.0f;
@@ -52,11 +54,10 @@ void GuiTheme::drawMainMenuButtonBg(const vec2 &pos,
                                     float fill,
                                     Batch2D &batch_2d)
 {
-    batch_2d.drawRect(pos, vec2{metrics.main_menu_button_border_thickness, size.y}, border_color);
+    batch_2d.drawRect(pos, vec2{2.0f, size.y}, border_color);
 
-    batch_2d.drawRect(vec2{pos.x + metrics.main_menu_button_border_thickness * 1.4f, pos.y},
-                      vec2{(size.x - metrics.main_menu_button_border_thickness * 1.4f) * fill,
-                           size.y},
+    batch_2d.drawRect(vec2{pos.x + 2.0f * 1.4f, pos.y},
+                      vec2{(size.x - 2.0f * 1.4f) * fill, size.y},
                       bg_color);
 }
 
@@ -117,9 +118,45 @@ void GuiTheme::drawButtonBg(const vec2 &pos,
     float bg_offset = 1.0f;
     float border_thickness = std::min(6.0f, min_size * 0.05f);
     float border_width = min_size * 0.2f;
-    vec4 corners{min_size * 0.12f, min_size * 0.06f, min_size * 0.06f, min_size * 0.06f};
 
     batch_2d.drawRect(pos + bg_offset, size - bg_offset * 2.0f, bg_color);
+
+    std::vector<vec2> points;
+    points = {vec2{pos.x, pos.y + border_width},
+              vec2{pos.x, pos.y},
+              vec2{pos.x + border_width, pos.y}};
+    batch_2d.drawPath(points, border_thickness, border_color);
+
+    points = {vec2{pos.x + size.x - border_width, pos.y},
+              vec2{pos.x + size.x, pos.y},
+              vec2{pos.x + size.x, pos.y + border_width}};
+    batch_2d.drawPath(points, border_thickness, border_color);
+
+    points = {vec2{pos.x + size.x, pos.y + size.y - border_width},
+              vec2{pos.x + size.x, pos.y + size.y},
+              vec2{pos.x + size.x - border_width, pos.y + size.y}};
+    batch_2d.drawPath(points, border_thickness, border_color);
+
+    points = {vec2{pos.x + border_width, pos.y + size.y},
+              vec2{pos.x, pos.y + size.y},
+              vec2{pos.x, pos.y + size.y - border_width}};
+    batch_2d.drawPath(points, border_thickness, border_color);
+}
+
+void GuiTheme::drawProgressBarBg(const vec2 &pos,
+                                 const vec2 &size,
+                                 const Color &bg_color,
+                                 const Color &border_color,
+                                 float fill,
+                                 Batch2D &batch_2d)
+{
+    float min_size = std::min(size.x, size.y);
+    float border_thickness = std::min(6.0f, min_size * 0.08f);
+    float border_width = min_size * 0.2f;
+    float bg_offset = border_thickness * 2.0f;
+    vec2 bar_size = size - bg_offset * 2.0f;
+
+    batch_2d.drawRect(pos + bg_offset, vec2{bar_size.x * fill, bar_size.y}, bg_color);
 
     std::vector<vec2> points;
     points = {vec2{pos.x, pos.y + border_width},

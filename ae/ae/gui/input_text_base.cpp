@@ -2,7 +2,9 @@
 
 namespace ae::gui {
 
-InputTextBase::InputTextBase() {}
+InputTextBase::InputTextBase(EngineContext &engine_context)
+    : Control{engine_context}
+{}
 
 const String &InputTextBase::getString() const
 {

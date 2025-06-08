@@ -238,6 +238,25 @@ void Batch2D::drawTextureFrameRect(const vec2 &pos,
     addDrawCommand(texture, start, m_vertices.size() - start);
 }
 
+void Batch2D::drawTexture(const vec4 &rect, const ivec4 &texture_rect, const s_ptr<Texture> &texture)
+{
+    if (!texture)
+        return;
+
+    auto new_rect = fitRectInside(rect, texture_rect);
+    auto uv_rect = texture->getUVRect(new_rect);
+
+    int32_t start = m_vertices.size();
+
+    drawQuad({rect.x, rect.y},
+             {rect.z, rect.w},
+             {uv_rect.x, uv_rect.y},
+             {uv_rect.z, uv_rect.w},
+             Color::white);
+
+    addDrawCommand(texture, start, m_vertices.size() - start);
+}
+
 void Batch2D::drawText(const String &text,
                        const vec2 &pos,
                        const Color &fill_color,
@@ -413,6 +432,29 @@ void Batch2D::drawChamferedQuad(const vec2 &left_bottom,
     triangle(p6, p7, p0);
     triangle(p0, p7, p1);
     triangle(p7, p2, p1);
+}
+
+vec4 Batch2D::fitRectInside(const vec4 &inner, const vec4 &outer)
+{
+    float inner_ratio = inner.z / inner.w;
+    float outer_ratio = outer.z / outer.w;
+
+    float new_width, new_height;
+
+    if (inner_ratio > outer_ratio) {
+        // Вписываем по ширине
+        new_width = outer.z;
+        new_height = new_width / inner_ratio;
+    } else {
+        // Вписываем по высоте
+        new_height = outer.w;
+        new_width = new_height * inner_ratio;
+    }
+
+    float offset_x = outer.x + (outer.z - new_width) * 0.5f;
+    float offset_y = outer.y + (outer.w - new_height) * 0.5f;
+
+    return vec4{offset_x, offset_y, new_width, new_height};
 }
 
 } // namespace ae

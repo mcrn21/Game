@@ -15,7 +15,7 @@ class Scene : public SceneContext
     friend class System;
 
 public:
-    Scene();
+    Scene(EngineContext &engine_context);
     ~Scene();
 
     entt::registry &getRegistry();

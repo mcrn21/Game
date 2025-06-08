@@ -3,14 +3,18 @@
 #include "../common/glm_utils.h"
 #include "../graphics/scene/model_instance.h"
 #include "components.h"
+#include "draw_s.h"
+#include "lights_s.h"
+#include "movement_s.h"
 
 #include <glm/gtx/euler_angles.hpp>
 #include <glm/gtx/matrix_decompose.hpp>
 
 namespace ae {
 
-SceneContext::SceneContext(SceneData *data)
-    : m_data{data}
+SceneContext::SceneContext(EngineContext &engine_context, SceneData *data)
+    : EngineContextObject{engine_context}
+    , m_data{data}
 {}
 
 const RenderTexture &SceneContext::getRenderTexture() const
@@ -552,14 +556,23 @@ bool SceneContext::isSceneDirty() const
     return m_data->scene_dirty;
 }
 
-BVH<entt::entity, entt::null> &SceneContext::getStaticCollidersTree()
+void SceneContext::clear()
 {
-    return m_data->m_static_colliders_tree;
-}
+    m_data->registry.clear();
 
-BVH<entt::entity, entt::null> &SceneContext::getDynamicCollidersTree()
-{
-    return m_data->m_dynamic_colliders_tree;
+    // Reset camera
+    setActiveCamera(createCamera());
+    // Reset direct light
+    setActiveDirectLight(createDirectLight());
+
+    // Clear movements
+    m_data->movement_s->clear();
+
+    // Clear lights
+    m_data->lights_s->clear();
+
+    // Clear draw
+    m_data->draw_s->clear();
 }
 
 void SceneContext::updateCameraTransforms(entt::entity entity)

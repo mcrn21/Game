@@ -1,6 +1,7 @@
 #ifndef AE_SCENE_CONTEXT_H
 #define AE_SCENE_CONTEXT_H
 
+#include "../engine_context_object.h"
 #include "../geometry/frustum.h"
 #include "../geometry/primitives.h"
 #include "../graphics/scene/drawable.h"
@@ -14,10 +15,10 @@ using namespace glm;
 
 namespace ae {
 
-class SceneContext
+class SceneContext : public EngineContextObject
 {
 public:
-    SceneContext(SceneData *data);
+    SceneContext(EngineContext &engine_context, SceneData *data);
     virtual ~SceneContext() = default;
 
     // Render texture
@@ -97,9 +98,7 @@ public:
     bool isCameraDirty() const;
     bool isSceneDirty() const;
 
-    // Collisions tree
-    BVH<entt::entity, entt::null> &getStaticCollidersTree();
-    BVH<entt::entity, entt::null> &getDynamicCollidersTree();
+    void clear();
 
     // Entity components
     template<typename... Component>

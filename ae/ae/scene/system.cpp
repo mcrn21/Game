@@ -4,7 +4,7 @@
 namespace ae {
 
 System::System(Scene *scene)
-    : SceneContext{&scene->m_data}
+    : SceneContext{scene->getEngineContext(), &scene->m_data}
     , m_scene{scene}
 {}
 

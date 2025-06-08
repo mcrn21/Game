@@ -9,7 +9,7 @@ using namespace ae;
 class GameplayState : public GameState
 {
 public:
-    GameplayState();
+    GameplayState(EngineContext &engine_context);
     ~GameplayState() = default;
 
     void onEnter();
@@ -20,7 +20,7 @@ public:
     bool isTranslucent() const;
 
     void update(const Time &dt);
-    void draw() const;
+    void draw(const Time &dt) const;
 
 private:
     bool m_paused;

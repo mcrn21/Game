@@ -61,6 +61,8 @@ public:
                               const vec4 &borders,
                               const s_ptr<Texture> &texture);
 
+    void drawTexture(const vec4 &rect, const ivec4 &texture_rect, const s_ptr<Texture> &texture);
+
     void drawText(const String &text,
                   const vec2 &pos,
                   const Color &fill_color,
@@ -87,6 +89,8 @@ private:
                            const vec2 &uv0,
                            const vec2 &uv1,
                            const Color &color);
+
+    vec4 fitRectInside(const vec4 &inner, const vec4 &outer);
 
 private:
     struct DrawCommand

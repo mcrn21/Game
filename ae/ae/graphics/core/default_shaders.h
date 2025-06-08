@@ -14,6 +14,7 @@ struct DefaultShaders
     static s_ptr<Shader> getSkybox();
     static s_ptr<Shader> getMain();
     static s_ptr<Shader> getScreenQuad();
+    static s_ptr<Shader> getOldTerminalScreenQuad();
     static s_ptr<Shader> getGui();
 };
 

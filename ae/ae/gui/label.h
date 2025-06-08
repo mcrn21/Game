@@ -4,29 +4,31 @@
 #include "../system/string.h"
 #include "control.h"
 
-#include "../../3rd/sigslot/signal.hpp"
-
 namespace ae::gui {
 
 class Label : public Control
 {
 public:
-    Label();
+    Label(EngineContext &engine_context);
     ~Label() = default;
 
     const String &getString() const;
     void setString(const String &string);
 
-    void onButtonPressed(ButtonCode button);
+    float getLineSpacing() const;
+    void setLineSpacing(float line_spacing);
 
-public:
-    sigslot::signal<> clicked;
+    const Color &getColor() const;
+    void setColor(const Color &color);
 
 protected:
     void drawControl(Batch2D &batch_2d);
+    void updateImplicitSize();
 
 private:
     String m_string;
+    float m_line_spacing;
+    Color m_color;
 };
 
 } // namespace ae::gui

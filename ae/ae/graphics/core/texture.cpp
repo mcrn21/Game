@@ -165,10 +165,10 @@ vec4 Texture::getUVRect(const ivec4 &rect) const
 
     vec4 uv{0.0f};
 
-    uv.x = static_cast<float>(rect.x) / m_size.x;
-    uv.y = static_cast<float>(rect.y) / m_size.y;
-    uv.z = static_cast<float>(rect.x + rect.z) / m_size.x;
-    uv.w = static_cast<float>(rect.y + rect.w) / m_size.y;
+    uv.x = std::max(static_cast<float>(rect.x), 0.0f) / m_size.x;
+    uv.y = std::max(static_cast<float>(rect.y), 0.0f) / m_size.y;
+    uv.z = std::min(static_cast<float>(rect.x + rect.z), static_cast<float>(m_size.x)) / m_size.x;
+    uv.w = std::min(static_cast<float>(rect.y + rect.w), static_cast<float>(m_size.y)) / m_size.y;
 
     return uv;
 }

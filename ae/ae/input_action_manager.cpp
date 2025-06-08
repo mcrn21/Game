@@ -1,7 +1,6 @@
 #include "input_action_manager.h"
 #include "common/utils.h"
-
-#include <spdlog/spdlog.h>
+#include "system/log.h"
 
 #include <algorithm>
 #include <ranges>
@@ -59,7 +58,7 @@ void InputActionManager::bindKey(const std::string &action_name, const std::stri
 
         if (value != -1) {
             if (key_binding.value != -1) {
-                spdlog::error("Bind key error: multiple input codes: {}", binding);
+                l_error("Bind key error: multiple input codes: {}", binding);
                 return;
             }
 
@@ -194,13 +193,13 @@ bool InputActionManager::isBindingActive(const KeyBinding &binding, const Input 
     case KeyBinding::SCROLL:
         switch (binding.value) {
         case static_cast<int32_t>(ScrollDirection::SCROLL_UP): // Up
-            return input.getScrollY() > 0.0f;
+            return input.getScroll().y > 0.0f;
         case static_cast<int32_t>(ScrollDirection::SCROLL_DOWN): // Down
-            return input.getScrollY() < 0.0f;
+            return input.getScroll().y < 0.0f;
         case static_cast<int32_t>(ScrollDirection::SCROLL_LEFT): // Left
-            return input.getScrollX() < 0.0f;
+            return input.getScroll().x < 0.0f;
         case static_cast<int32_t>(ScrollDirection::SCROLL_RIGHT): // Right
-            return input.getScrollX() > 0.0f;
+            return input.getScroll().x > 0.0f;
         default:
             return false;
         }

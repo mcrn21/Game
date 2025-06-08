@@ -1,6 +1,7 @@
 #ifndef AE_TASK_H
 #define AE_TASK_H
 
+#include "engine_context_object.h"
 #include "system/memory.h"
 #include "system/time.h"
 
@@ -14,8 +15,6 @@ class Task : public EnableSharedFromThis<Task>
 public:
     Task() = default;
     virtual ~Task() = default;
-
-    void run();
 
     virtual bool update(const Time &dt) = 0; // true = завершена
 };

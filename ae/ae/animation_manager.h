@@ -13,7 +13,7 @@ public:
     AnimationManager();
     ~AnimationManager() = default;
 
-    void add(const s_ptr<Animation> &animation);
+    void run(const s_ptr<Animation> &animation);
     void update(const Time &dt);
 
 private:

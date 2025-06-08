@@ -31,7 +31,17 @@ public:
     void setColor(float red, float green, float blue, float alpha = 1.0f);
     void setColor(const vec4 &color);
 
+    float getLuminance() const;
+
+    Color darker(float factor = 0.7f) const;
+    Color lighter(float factor = 1.3f) const;
+
     static Color fromInt(int32_t red, int32_t green, int32_t blue, int32_t alpha);
+
+private:
+    static void rgbToHsl(float r, float g, float b, float &h, float &s, float &l);
+    static void hslToRgb(float h, float s, float l, float &r, float &g, float &b);
+    static float hueToRgb(float p, float q, float t);
 
 public:
     static Color transparent;

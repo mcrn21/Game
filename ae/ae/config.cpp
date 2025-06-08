@@ -1,6 +1,6 @@
 #include "config.h"
+#include "system/log.h"
 
-#include <spdlog/spdlog.h>
 #include <toml++/toml.h>
 
 namespace ae {
@@ -24,7 +24,7 @@ std::optional<Config> Config::loadFromFile(const std::filesystem::path &path)
 
         return config;
     } catch (const std::exception &e) {
-        spdlog::error("Error: {}", e.what());
+        l_error("Error: {}", e.what());
         return {};
     }
 }

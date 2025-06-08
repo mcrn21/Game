@@ -30,10 +30,14 @@ void Quad::destroy()
     m_vertex_array.destroy();
 }
 
-void Quad::draw(const Texture &texture) const
+void Quad::draw(const Texture &texture, float dt, Shader *shader) const
 {
-    Shader::use(*DefaultShaders::getScreenQuad());
+    if (!shader)
+        shader = DefaultShaders::getScreenQuad().get();
+
+    Shader::use(*shader);
     glDisable(GL_DEPTH_TEST);
+    shader->uniformFloat("u_time", dt);
     Texture::bind(texture);
     m_vertex_array.draw();
     Texture::unbind();

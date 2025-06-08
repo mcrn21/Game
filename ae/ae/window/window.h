@@ -5,23 +5,46 @@
 #include "../system/memory.h"
 #include "input.h"
 
-struct GLFWwindow;
+#include <glm/glm.hpp>
+
+using namespace glm;
 
 namespace ae {
 
-struct GLFWWindowDeleter
+class Window;
+
+namespace priv {
+
+struct WindowImpl
 {
-    void operator()(GLFWwindow *window);
+    virtual ~WindowImpl() = default;
+
+    virtual bool create(Window *window,
+                        const ivec2 &size,
+                        const std::string &title,
+                        int32_t msaa = 0)
+        = 0;
+
+    virtual bool isShouldClose() const = 0;
+    virtual void setShouldClose(bool flag) = 0;
+
+    virtual bool isMouseEnabled() const = 0;
+    virtual void setMouseEnabled(bool enable) = 0;
+
+    virtual void pollEvents() = 0;
+    virtual void display() const = 0;
 };
+
+} // namespace priv
 
 class Window : public RenderTarget
 {
 public:
     Window();
-    Window(int32_t width, int32_t height, const std::string &title, int32_t msaa = 0);
+    Window(const ivec2 &size, const std::string &title, int32_t msaa = 0);
     ~Window() = default;
 
-    bool create(int32_t width, int32_t height, const std::string &title, int32_t msaa = 0);
+    bool create(const ivec2 &size, const std::string &title, int32_t msaa = 0);
     bool isValid() const;
     void destroy();
 
@@ -34,25 +57,11 @@ public:
     void setMouseEnabled(bool enable);
 
     void pollEvents();
-
     void display() const;
 
 private:
-    static void keyCallback(
-        GLFWwindow *glfw_window, int32_t keycode, int32_t scancode, int32_t action, int32_t mode);
-    static void mouseButtonCallback(GLFWwindow *glfw_window,
-                                    int32_t button,
-                                    int32_t action,
-                                    int32_t mode);
-    static void cursorPosCallback(GLFWwindow *glfw_window, double x, double y);
-    static void scrollCallback(GLFWwindow *glfw_window, double xoffset, double yoffset);
-    static void sizeCallback(GLFWwindow *glfw_window, int32_t width, int32_t height);
-    static void setCharCallback(GLFWwindow *glfw_window, uint32_t codepoint);
-
-private:
-    u_ptr<GLFWwindow, GLFWWindowDeleter> m_window;
+    u_ptr<priv::WindowImpl> m_window;
     Input m_input;
-    bool m_mouse_enabled;
 };
 
 } // namespace ae

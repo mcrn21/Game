@@ -1,8 +1,6 @@
 #include "lights_s.h"
 #include "scene.h"
 
-#include <spdlog/spdlog.h>
-
 namespace ae {
 
 Lights_S::Lights_S(Scene *scene)
@@ -69,6 +67,16 @@ void Lights_S::draw(RenderState &render_state) const
 
     render_state.shader->uniformInt("u_lightsCount", m_visible_lights_count);
     Buffer::bindBase(m_visible_lights_ssbo, 1);
+}
+
+void Lights_S::clear()
+{
+    m_static_lights_tree.clear();
+    m_dynamic_lights_tree.clear();
+    m_visible_lights.clear();
+    m_gpu_lights.clear();
+    m_visible_lights_count = 0;
+    m_lights_dirty = true;
 }
 
 float Lights_S::calculateLightRadius(entt::entity entity)

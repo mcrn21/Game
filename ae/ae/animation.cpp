@@ -1,7 +1,4 @@
 #include "animation.h"
-#include "app.h"
-
-#include <spdlog/spdlog.h>
 
 namespace ae {
 
@@ -10,14 +7,9 @@ Animation::Animation(const Time &duration, const std::function<float(float)> &ea
     , m_duration{duration}
     , m_finished{false}
     , m_paused{false}
-    , m_stopped{false}
+    , m_stopped{true}
     , m_easing{easing}
 {}
-
-void Animation::start()
-{
-    App::getInstance().getAnimationManager()->add(sharedFromThis());
-}
 
 void Animation::pause()
 {
@@ -45,8 +37,6 @@ bool Animation::update(const Time &dt)
         return true;
     if (m_paused)
         return false;
-
-    // spdlog::debug("m_elapsed: {}", m_elapsed.asSeconds());
 
     m_elapsed += dt;
     float t = std::clamp(m_elapsed / m_duration, 0.0f, 1.0f);

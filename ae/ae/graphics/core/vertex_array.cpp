@@ -1,8 +1,6 @@
 #include "vertex_array.h"
 #include "../common/utils.h"
 
-#include <spdlog/spdlog.h>
-
 #include <GL/glew.h>
 
 namespace ae {

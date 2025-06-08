@@ -1,8 +1,6 @@
 #ifndef AE_MEMORY_H
 #define AE_MEMORY_H
 
-#include <spdlog/spdlog.h>
-
 #include <atomic>
 
 namespace ae {
@@ -316,11 +314,11 @@ private:
 
     void release() noexcept
     {
-        if (m_control_block) {
+        if (m_control_block)
             m_control_block->releaseShared();
-            m_control_block = nullptr;
-            m_raw = nullptr;
-        }
+
+        m_control_block = nullptr;
+        m_raw = nullptr;
     }
 
 private:

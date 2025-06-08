@@ -1,9 +1,7 @@
 #include "movement_s.h"
-#include "../common/spdlog_utils.h"
+#include "../system/log.h"
 #include "components.h"
 #include "scene.h"
-
-#include <spdlog/spdlog.h>
 
 namespace ae {
 
@@ -55,13 +53,19 @@ void Movement_S::update(const Time &elapsed_time)
     }
 }
 
+void Movement_S::clear()
+{
+    m_static_colliders_tree.clear();
+    m_dynamic_colliders_tree.clear();
+}
+
 void Movement_S::updateTree(entt::entity entity)
 {
     if (isValid(entity) && get<Collider_C>(entity)) {
         auto &collider_c = get<Collider_C>(entity);
         collider_c->applyTransform(getGlobalTransform(entity));
-        has<Dynamic_C>(entity) ? getDynamicCollidersTree().update(entity, collider_c->aabb)
-                               : getStaticCollidersTree().update(entity, collider_c->aabb);
+        has<Dynamic_C>(entity) ? m_dynamic_colliders_tree.update(entity, collider_c->aabb)
+                               : m_static_colliders_tree.update(entity, collider_c->aabb);
     } else {
         removeTree(entity);
     }
@@ -69,8 +73,8 @@ void Movement_S::updateTree(entt::entity entity)
 
 void Movement_S::removeTree(entt::entity entity)
 {
-    getStaticCollidersTree().remove(entity);
-    getDynamicCollidersTree().remove(entity);
+    m_dynamic_colliders_tree.remove(entity);
+    m_static_colliders_tree.remove(entity);
 }
 
 void Movement_S::applyForces(entt::entity entity,
@@ -187,7 +191,7 @@ void Movement_S::moveEntityWithCollisions(entt::entity entity,
         if (std::abs(delta2 - last_query_delta2) > 0.0001f) {
             moved_aabb = collider->aabb.move(pos);
             swept_aabb = moved_aabb.swept(delta);
-            getStaticCollidersTree().query(swept_aabb, m_temp_maybe_collided);
+            m_static_colliders_tree.query(swept_aabb, m_temp_maybe_collided);
             last_query_delta2 = delta2;
         }
 
@@ -274,7 +278,7 @@ bool Movement_S::tryStepUp(entt::entity entity,
     m_temp_maybe_collided.clear();
     AABB top_pos_aabb = collider->aabb.move(original_pos + vec3{0.0f, max_step_height, 0.0f});
     AABB swept = top_pos_aabb.swept(delta);
-    getStaticCollidersTree().query(swept, m_temp_maybe_collided);
+    m_static_colliders_tree.query(swept, m_temp_maybe_collided);
 
     for (int32_t i = 1; i <= step_divisions; ++i) {
         float step_height = i * step_increment;
@@ -327,7 +331,7 @@ bool Movement_S::raycastGroundCheck(const AABB &aabb,
 
     bool hit = false;
     std::vector<entt::entity> candidates;
-    getStaticCollidersTree().query(cast_aabb.extend({0.0f, max_distance, 0.0f}), candidates);
+    m_static_colliders_tree.query(cast_aabb.extend({0.0f, max_distance, 0.0f}), candidates);
 
     for (auto entity : candidates) {
         const auto &other_collider = get<Collider_C>(entity);

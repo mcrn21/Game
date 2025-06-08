@@ -21,7 +21,7 @@ public:
     void clear();
 
     void update(const Time &dt);
-    void draw() const;
+    void draw(const Time &dt) const;
 
 private:
     std::vector<s_ptr<GameState>> m_states;

@@ -1,6 +1,7 @@
 #ifndef AE_GUI_CONTROL_H
 #define AE_GUI_CONTROL_H
 
+#include "../engine_context_object.h"
 #include "../graphics/core/batch_2d.h"
 #include "../graphics/core/shader.h"
 #include "../system/memory.h"
@@ -8,6 +9,7 @@
 
 #include <glm/glm.hpp>
 
+#include <algorithm>
 #include <vector>
 
 using namespace glm;
@@ -18,7 +20,7 @@ class Gui;
 
 namespace ae::gui {
 
-class Control : public EnableSharedFromThis<Control>
+class Control : public EngineContextObject, public EnableSharedFromThis<Control>
 {
     friend class ::ae::Gui;
 
@@ -58,7 +60,7 @@ public:
         return c;
     }
 
-    Control();
+    Control(EngineContext &engine_context);
     virtual ~Control();
 
     Gui *getGui() const;
@@ -77,6 +79,12 @@ public:
     bool isVisible() const;
     void setVisible(bool visible);
 
+    const vec4 &getPadding() const;
+    void setPadding(const vec4 &padding);
+
+    const vec2 &getImplicitSize() const;
+    void setImplicitSize(const vec2 &implicit_size);
+
     const vec2 &getSize() const;
     void setSize(const vec2 &size);
 
@@ -88,8 +96,8 @@ public:
     s_ptr<Control> findContolAtPos(const vec2 &pos, vec2 *control_global_position = nullptr);
     bool contains(const vec2 &pos) const;
 
-    float getFontPixelSize() const;
-    void setFontPixelSize(float pixel_size);
+    float getFontPixelHeight() const;
+    void setFontPixelHeight(float pixel_size);
 
     const s_ptr<Font> &getFont() const;
     void setFont(const s_ptr<Font> &font);
@@ -117,6 +125,7 @@ public:
 
 protected:
     virtual void drawControl(Batch2D &batch_2d);
+    virtual void updateImplicitSize();
 
 private:
     void updateGui(Gui *gui);
@@ -132,12 +141,15 @@ private:
     bool m_enable;
     bool m_visible;
 
+    // left, top, right, bottom
+    vec4 m_padding;
+    vec2 m_implicit_size;
     vec2 m_size;
     vec2 m_position;
     mutable mat4 m_transform;
     mutable bool m_transform_dirty;
 
-    float m_font_pixel_size;
+    float m_font_pixel_height;
     s_ptr<Font> m_font;
 
     mutable Batch2D m_batch_2d;

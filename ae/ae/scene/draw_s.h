@@ -20,6 +20,8 @@ public:
     void update();
     void drawEntities(RenderState &render_state) const;
 
+    void clear();
+
 private:
     void drawEntities(const entt::registry &registry,
                       const std::vector<std::pair<float, entt::entity>> &entities,
@@ -51,9 +53,11 @@ private:
     void removeTree(entt::entity entity);
 
 private:
+    ComponentWatcher m_component_watcher;
+
     BVH<entt::entity, entt::null> m_static_draw_tree;
     BVH<entt::entity, entt::null> m_dynamic_draw_tree;
-    ComponentWatcher m_component_watcher;
+
     std::vector<std::pair<float, entt::entity>> m_visible_entities;
     std::vector<std::pair<float, entt::entity>> m_visible_transparent_entities;
     bool m_draw_dirty;

@@ -9,7 +9,7 @@ namespace ae::gui {
 class InputTextBase : public Control
 {
 public:
-    InputTextBase();
+    InputTextBase(EngineContext &engine_context);
     ~InputTextBase() = default;
 
     const String &getString() const;

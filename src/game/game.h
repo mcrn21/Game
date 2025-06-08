@@ -1,9 +1,9 @@
 #ifndef GAME_H
 #define GAME_H
 
-#include <ae/app.h>
+#include <ae/engine.h>
 
-class Game : public ae::App
+class Game : public ae::Engine
 {
 public:
     Game(int32_t width, int32_t height, const std::string &title);

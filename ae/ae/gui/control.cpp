@@ -2,33 +2,32 @@
 #include "gui.h"
 
 #include <glm/gtc/matrix_transform.hpp>
-#include <spdlog/spdlog.h>
 
 #include <algorithm>
 #include <ranges>
 
 namespace ae::gui {
 
-Control::Control()
-    : m_gui{nullptr}
+Control::Control(EngineContext &engine_context)
+    : EngineContextObject{engine_context}
+    , m_gui{nullptr}
     , m_state{DEFAULT}
     , m_enable{true}
     , m_visible{true}
+    , m_padding{0.0f}
+    , m_implicit_size{32.0f}
     , m_size{32.0f}
     , m_position{0.0f}
     , m_transform{1.0f}
     , m_transform_dirty{true}
-    , m_font_pixel_size{28.0f}
+    , m_font_pixel_height{28.0f}
     , m_draw_dirty{true}
     , m_destroyed{false}
 {
     m_font = Gui::getDefaultFont();
 }
 
-Control::~Control()
-{
-    // spdlog::debug("Control::~Control");
-}
+Control::~Control() {}
 
 Gui *Control::getGui() const
 {
@@ -73,6 +72,7 @@ int32_t Control::getState() const
 void Control::setState(int32_t state)
 {
     m_state = state;
+    repaint();
     onStateChanged(state);
 }
 
@@ -96,6 +96,26 @@ void Control::setVisible(bool visible)
     m_visible = true;
 }
 
+const vec4 &Control::getPadding() const
+{
+    return m_padding;
+}
+
+void Control::setPadding(const vec4 &padding)
+{
+    m_padding = padding;
+}
+
+const vec2 &Control::getImplicitSize() const
+{
+    return m_implicit_size;
+}
+
+void Control::setImplicitSize(const vec2 &implicit_size)
+{
+    m_implicit_size = implicit_size;
+}
+
 const vec2 &Control::getSize() const
 {
     return m_size;
@@ -104,6 +124,7 @@ const vec2 &Control::getSize() const
 void Control::setSize(const vec2 &size)
 {
     m_size = size;
+    repaint();
     onSizeChanged(size);
 }
 
@@ -149,14 +170,16 @@ bool Control::contains(const vec2 &pos) const
            && pos.y < (m_position.y + m_size.y);
 }
 
-float Control::getFontPixelSize() const
+float Control::getFontPixelHeight() const
 {
-    return m_font_pixel_size;
+    return m_font_pixel_height;
 }
 
-void Control::setFontPixelSize(float pixel_size)
+void Control::setFontPixelHeight(float pixel_size)
 {
-    m_font_pixel_size = pixel_size;
+    m_font_pixel_height = pixel_size;
+    repaint();
+    updateImplicitSize();
 }
 
 const s_ptr<Font> &Control::getFont() const
@@ -167,6 +190,8 @@ const s_ptr<Font> &Control::getFont() const
 void Control::setFont(const s_ptr<Font> &font)
 {
     m_font = font;
+    repaint();
+    updateImplicitSize();
 }
 
 void Control::repaint()
@@ -220,6 +245,8 @@ void Control::onKeyReleased(KeyCode code) {}
 void Control::onCodepointInputed(uint32_t codepoint) {}
 
 void Control::drawControl(Batch2D &batch_2d) {}
+
+void Control::updateImplicitSize() {}
 
 void Control::updateGui(Gui *gui)
 {

@@ -1,5 +1,6 @@
 #include "assimp_helper.h"
 #include "../../assets/assets.h"
+#include "../../system/log.h"
 
 #include <glm/gtc/type_ptr.hpp>
 
@@ -18,7 +19,7 @@ bool AssimpHelper::load(Model *model)
                                  /*| aiProcess_PreTransformVertices*/);
 
     if (!ai_scene || ai_scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !ai_scene->mRootNode) {
-        spdlog::error("Assimp: {}", importer.GetErrorString());
+        l_error("Assimp: {}", importer.GetErrorString());
         return false;
     }
 

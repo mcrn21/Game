@@ -18,10 +18,8 @@ public:
     void update(const Time &dt);
 
 private:
-    // Используется двойной буффер задач, который
-    // переключается на кажлм апдейте
-    int32_t m_current_buffer;
-    std::vector<s_ptr<Task>> m_tasks[2];
+    std::vector<s_ptr<Task>> m_pending_tasks;
+    std::vector<s_ptr<Task>> m_tasks;
 };
 
 } // namespace ae

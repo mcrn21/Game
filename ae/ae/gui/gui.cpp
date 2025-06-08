@@ -1,19 +1,21 @@
 #include "gui.h"
-#include "../app.h"
+#include "../engine.h"
 #include "../graphics/core/default_shaders.h"
 #include "../graphics/core/shader.h"
 
 #include "battery/embed.hpp"
 
 #include <glm/gtc/matrix_transform.hpp>
-#include <spdlog/spdlog.h>
 
 namespace ae {
 
-Gui::Gui()
+s_ptr<Font> Gui::m_default_font;
+
+Gui::Gui(EngineContext &engine_context)
+    : EngineContextObject{engine_context}
 {
     m_render_texture.setClearColor(Color::transparent);
-    m_fps_label = gui::Control::create<Label>();
+    m_fps_label = gui::Control::create<Label>(engine_context);
     m_fps_label->m_gui = this;
     m_fps_label->setString(String("FPS: "));
 }
@@ -79,7 +81,7 @@ void Gui::draw() const
         control->draw(DefaultShaders::getGui().get(), mat4{1.0f});
 
     // Fps label
-    m_fps_label->setString(String("FPS: " + std::to_string(App::getInstance().getFps())));
+    m_fps_label->setString(String("FPS: " + std::to_string(getEngineContext().getFps())));
     m_fps_label->draw(DefaultShaders::getGui().get(), mat4{1.0f});
 
     Shader::unuse();
@@ -120,10 +122,10 @@ void Gui::onButtonReleased(ButtonCode button)
     }
 }
 
-void Gui::onCursorMoved(int32_t x, int32_t y, int32_t delta_x, int32_t delta_y)
+void Gui::onCursorMoved(const ivec2 &cursor_position, const ivec2 &)
 {
     vec2 control_global_position{0.0f};
-    auto c = getHoveredContol(vec2{x, y}, &control_global_position);
+    auto c = getHoveredContol(vec2{cursor_position}, &control_global_position);
 
     auto hovered_control = m_hovered_control.lock();
 
@@ -141,7 +143,7 @@ void Gui::onCursorMoved(int32_t x, int32_t y, int32_t delta_x, int32_t delta_y)
 
     hovered_control = m_hovered_control.lock();
     if (hovered_control)
-        hovered_control->onCursorMoved(vec2{x, y} - control_global_position);
+        hovered_control->onCursorMoved(vec2{cursor_position} - control_global_position);
 }
 
 void Gui::onKeyPressed(KeyCode code)
@@ -174,16 +176,19 @@ void Gui::onCodepointInputed(uint32_t codepoint)
 
 const s_ptr<Font> &Gui::getDefaultFont()
 {
-    static s_ptr<Font> default_font;
-
-    if (!default_font) {
-        default_font = createShared<Font>();
-        default_font->loadFromMemory(reinterpret_cast<const uint8_t *>(
-                                         b::embed<"fonts/default.ttf">().data()),
-                                     b::embed<"fonts/default.ttf">().size());
+    if (!m_default_font) {
+        m_default_font = createShared<Font>();
+        m_default_font->loadFromMemory(reinterpret_cast<const uint8_t *>(
+                                           b::embed<"fonts/default.ttf">().data()),
+                                       b::embed<"fonts/default.ttf">().size());
     }
 
-    return default_font;
+    return m_default_font;
+}
+
+void Gui::setDefaultFont(const s_ptr<Font> &font)
+{
+    m_default_font = font;
 }
 
 s_ptr<Control> Gui::getHoveredContol(const vec2 &pos, vec2 *control_global_position) const

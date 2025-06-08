@@ -15,6 +15,8 @@ const std::unordered_map<std::string, std::string> &DefaultShaders::getShaderSou
            {"shaders/skybox.frag", b::embed<"shaders/skybox.frag">().str()},
            {"shaders/screen_quad.vert", b::embed<"shaders/screen_quad.vert">().str()},
            {"shaders/screen_quad.frag", b::embed<"shaders/screen_quad.frag">().str()},
+           {"shaders/old_terminal_screen_quad.frag",
+            b::embed<"shaders/old_terminal_screen_quad.frag">().str()},
            {"shaders/gui.vert", b::embed<"shaders/gui.vert">().str()},
            {"shaders/gui.frag", b::embed<"shaders/gui.frag">().str()}};
     return sources;
@@ -44,6 +46,14 @@ s_ptr<Shader> DefaultShaders::getScreenQuad()
 {
     static auto shader = createShared<Shader>(getShaderSource("shaders/screen_quad.vert"),
                                               getShaderSource("shaders/screen_quad.frag"));
+    return shader;
+}
+
+s_ptr<Shader> DefaultShaders::getOldTerminalScreenQuad()
+{
+    static auto shader = createShared<Shader>(getShaderSource("shaders/screen_quad.vert"),
+                                              getShaderSource(
+                                                  "shaders/old_terminal_screen_quad.frag"));
     return shader;
 }
 

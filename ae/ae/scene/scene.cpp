@@ -2,23 +2,21 @@
 #include "../graphics/core/default_shaders.h"
 #include "../graphics/scene/model_instance.h"
 #include "../graphics/scene/shape.h"
-#include "collisions_s.h"
+#include "../system/log.h"
 #include "draw_s.h"
 #include "lights_s.h"
 #include "movement_s.h"
 #include "player_s.h"
 
 #include <glm/gtx/matrix_decompose.hpp>
-#include <spdlog/spdlog.h>
 
 namespace ae {
 
-Scene::Scene()
-    : SceneContext{&m_data}
+Scene::Scene(EngineContext &engine_context)
+    : SceneContext{engine_context, &m_data}
 {
     m_data.player_s = createUnique<Player_S>(this);
     m_data.lights_s = createUnique<Lights_S>(this);
-    m_data.collisions_s = createUnique<Collisions_S>(this);
     m_data.movement_s = createUnique<Movement_S>(this);
     m_data.draw_s = createUnique<Draw_S>(this);
 
@@ -70,7 +68,6 @@ entt::registry &Scene::getRegistry()
 void Scene::tickUpdate(const Time &elapsed_time)
 {
     m_data.player_s->update();
-    // m_data.collisions_s->update(elapsed_time);
     m_data.movement_s->update(elapsed_time);
     m_data.player_s->updateCameraPosition(elapsed_time);
     m_data.lights_s->update();
@@ -133,6 +130,10 @@ void Scene::createPlayer(const s_ptr<Model> &model,
     // player_c.model_entity = createEntity(model->getRootNode(), entt::null, model_transform);
 
     player_c.model_entity = createModelEntity(model, model_transform);
+
+    if (!isValid(player_c.model_entity))
+        l_debug("Invalid entity");
+
     m_data.registry.emplace<Dynamic_C>(player_c.model_entity);
     addChild(player_entity, player_c.model_entity);
 
@@ -171,7 +172,7 @@ void Scene::createPlayer(const s_ptr<Model> &model,
     auto e = createDrawableEntity(sp);
     addChild(player_entity, e);
 
-    spdlog::debug("Player: {}", static_cast<uint32_t>(player_c.model_entity));
+    l_debug("Player: {}", static_cast<uint32_t>(player_c.model_entity));
 }
 
 void Scene::drawSkybox() const

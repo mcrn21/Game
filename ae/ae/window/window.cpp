@@ -1,79 +1,204 @@
 #include "window.h"
+#include "../system/log.h"
 
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
-#include <spdlog/spdlog.h>
 
 namespace ae {
 
-void GLFWWindowDeleter::operator()(GLFWwindow *window)
+namespace priv {
+
+class GLFWManager
 {
-    if (window)
-        glfwDestroyWindow(window);
-}
-
-Window::Window()
-    : m_mouse_enabled{true}
-{}
-
-Window::Window(int32_t width, int32_t height, const std::string &title, int32_t msaa)
-    : m_mouse_enabled{true}
-{
-    create(width, height, title);
-}
-
-bool Window::create(int32_t width, int32_t height, const std::string &title, int32_t msaa)
-{
-    if (m_window)
-        return false;
-
-    if (width == 0 || height == 0)
-        return false;
-
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
-    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-    glfwWindowHint(GLFW_RESIZABLE, GL_TRUE);
-
-    glfwWindowHint(GLFW_SAMPLES, msaa);
-
-    m_window = u_ptr<GLFWwindow, GLFWWindowDeleter>(
-        glfwCreateWindow(width, height, title.c_str(), nullptr, nullptr));
-
-    if (!m_window)
-        return false;
-
-    glfwSetWindowUserPointer(m_window.get(), this);
-
-    glfwSetMouseButtonCallback(m_window.get(), &Window::mouseButtonCallback);
-    glfwSetCursorPosCallback(m_window.get(), &Window::cursorPosCallback);
-    glfwSetKeyCallback(m_window.get(), &Window::keyCallback);
-    glfwSetScrollCallback(m_window.get(), &Window::scrollCallback);
-    glfwSetWindowSizeCallback(m_window.get(), &Window::sizeCallback);
-    glfwSetCharCallback(m_window.get(), &Window::setCharCallback);
-
-    glfwMakeContextCurrent(m_window.get());
-
-    glewExperimental = GL_TRUE;
-    if (glewInit() != GLEW_OK) {
-        destroy();
-        return false;
+public:
+    GLFWManager()
+    {
+        if (!glfwInit())
+            throw std::runtime_error("Failed to initialize GLFW");
     }
 
-    glEnable(GL_MULTISAMPLE);
+    ~GLFWManager() { glfwTerminate(); }
+};
 
-    int32_t samples = 0;
-    glGetIntegerv(GL_SAMPLES, &samples);
-    spdlog::info("MSAA: {}", samples);
+struct GLFWWindowDeleter
+{
+    void operator()(GLFWwindow *glfw_window)
+    {
+        if (glfw_window)
+            glfwDestroyWindow(glfw_window);
+    }
+};
 
-    glEnable(GL_DEPTH_TEST);
-    glEnable(GL_CULL_FACE);
-    glEnable(GL_BLEND);
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+struct GLFWWindowImpl : public WindowImpl
+{
+    bool create(Window *window, const ivec2 &size, const std::string &title, int32_t msaa = 0)
+    {
+        if (size.x == 0 || size.y == 0)
+            return false;
 
-    setViewport({0, 0, width, height});
-    setSize({width, height});
+        glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+        glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+        glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+        glfwWindowHint(GLFW_RESIZABLE, GL_TRUE);
+        glfwWindowHint(GLFW_SAMPLES, msaa);
 
+        glfw_window = u_ptr<GLFWwindow, GLFWWindowDeleter>(
+            glfwCreateWindow(size.x, size.y, title.c_str(), nullptr, nullptr));
+
+        if (!glfw_window)
+            return false;
+
+        glfwSetWindowUserPointer(glfw_window.get(), window);
+
+        glfwSetMouseButtonCallback(glfw_window.get(), &GLFWWindowImpl::mouseButtonCallback);
+        glfwSetCursorPosCallback(glfw_window.get(), &GLFWWindowImpl::cursorPosCallback);
+        glfwSetKeyCallback(glfw_window.get(), &GLFWWindowImpl::keyCallback);
+        glfwSetScrollCallback(glfw_window.get(), &GLFWWindowImpl::scrollCallback);
+        glfwSetWindowSizeCallback(glfw_window.get(), &GLFWWindowImpl::sizeCallback);
+        glfwSetCharCallback(glfw_window.get(), &GLFWWindowImpl::setCharCallback);
+
+        glfwMakeContextCurrent(glfw_window.get());
+
+        glewExperimental = GL_TRUE;
+        if (glewInit() != GLEW_OK) {
+            glfw_window.reset();
+            return false;
+        }
+
+        glEnable(GL_MULTISAMPLE);
+
+        int32_t samples = 0;
+        glGetIntegerv(GL_SAMPLES, &samples);
+        l_info("MSAA: {}", samples);
+
+        glEnable(GL_DEPTH_TEST);
+        glEnable(GL_CULL_FACE);
+        glEnable(GL_BLEND);
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+        return true;
+    }
+
+    bool isShouldClose() const
+    {
+        if (!glfw_window)
+            return false;
+        return glfwWindowShouldClose(glfw_window.get());
+    }
+
+    void setShouldClose(bool flag)
+    {
+        if (glfw_window)
+            glfwSetWindowShouldClose(glfw_window.get(), flag);
+    }
+
+    bool isMouseEnabled() const { return mouse_enabled; }
+
+    void setMouseEnabled(bool enable)
+    {
+        if (glfw_window) {
+            mouse_enabled = enable;
+            glfwSetInputMode(glfw_window.get(),
+                             GLFW_CURSOR,
+                             mouse_enabled ? GLFW_CURSOR_NORMAL : GLFW_CURSOR_DISABLED);
+        }
+    }
+
+    void pollEvents()
+    {
+        if (glfw_window)
+            glfwPollEvents();
+    }
+
+    void display() const
+    {
+        if (glfw_window)
+            glfwSwapBuffers(glfw_window.get());
+    }
+
+    static void keyCallback(
+        GLFWwindow *glfw_window, int32_t keycode, int32_t scancode, int32_t action, int32_t mode)
+    {
+        Window *window = static_cast<Window *>(glfwGetWindowUserPointer(glfw_window));
+        bool pressed = (action == GLFW_PRESS || action == GLFW_REPEAT);
+
+        KeyModifier modifiers = KeyModifier::NONE;
+        if (mode & GLFW_MOD_SHIFT)
+            modifiers = modifiers | KeyModifier::SHIFT;
+        if (mode & GLFW_MOD_CONTROL)
+            modifiers = modifiers | KeyModifier::CTRL;
+        if (mode & GLFW_MOD_ALT)
+            modifiers = modifiers | KeyModifier::ALT;
+        if (mode & GLFW_MOD_SUPER)
+            modifiers = modifiers | KeyModifier::SUPER;
+
+        window->getInput().setModifiers(modifiers);
+        window->getInput().setKeyPressed(static_cast<KeyCode>(keycode), pressed);
+    }
+
+    static void mouseButtonCallback(GLFWwindow *glfw_window,
+                                    int32_t button,
+                                    int32_t action,
+                                    int32_t mode)
+    {
+        Window *window = static_cast<Window *>(glfwGetWindowUserPointer(glfw_window));
+        bool pressed = (action == GLFW_PRESS || action == GLFW_REPEAT);
+        window->getInput().setButtonPressed(static_cast<ButtonCode>(button), pressed);
+    }
+
+    static void cursorPosCallback(GLFWwindow *glfw_window, double x, double y)
+    {
+        Window *window = static_cast<Window *>(glfwGetWindowUserPointer(glfw_window));
+        window->getInput().setCursorPosition(
+            ivec2{static_cast<int32_t>(x), static_cast<int32_t>(y)});
+    }
+
+    static void scrollCallback(GLFWwindow *glfw_window, double x_offset, double y_offset)
+    {
+        Window *window = static_cast<Window *>(glfwGetWindowUserPointer(glfw_window));
+        window->getInput().setScroll(
+            vec2{static_cast<float>(x_offset), static_cast<float>(y_offset)});
+    }
+
+    static void sizeCallback(GLFWwindow *glfw_window, int32_t width, int32_t height)
+    {
+        Window *window = static_cast<Window *>(glfwGetWindowUserPointer(glfw_window));
+        window->setViewport({0, 0, width, height});
+        window->setSize({width, height});
+    }
+
+    static void setCharCallback(GLFWwindow *glfw_window, uint32_t codepoint)
+    {
+        Window *window = static_cast<Window *>(glfwGetWindowUserPointer(glfw_window));
+        window->getInput().setCodepoint(codepoint);
+    }
+
+    static GLFWManager glfw_manager;
+
+    u_ptr<GLFWwindow, GLFWWindowDeleter> glfw_window;
+    bool mouse_enabled = true;
+};
+
+GLFWManager GLFWWindowImpl::glfw_manager;
+
+} // namespace priv
+
+Window::Window() {}
+
+Window::Window(const ivec2 &size, const std::string &title, int32_t msaa)
+{
+    create(size, title, msaa);
+}
+
+bool Window::create(const ivec2 &size, const std::string &title, int32_t msaa)
+{
+    destroy();
+    auto window = createUnique<priv::GLFWWindowImpl>();
+    if (!window->create(this, size, title, msaa))
+        return false;
+    m_window = std::move(window);
+    setSize(size);
+    setViewport({1, 1, size.x, size.y});
     return true;
 }
 
@@ -100,99 +225,39 @@ bool Window::isShouldClose() const
 {
     if (!m_window)
         return false;
-    return glfwWindowShouldClose(m_window.get());
+    return m_window->isShouldClose();
 }
 
 void Window::setShouldClose(bool flag)
 {
     if (m_window)
-        glfwSetWindowShouldClose(m_window.get(), flag);
+        m_window->setShouldClose(flag);
 }
 
 bool Window::isMouseEnabled() const
 {
     if (!m_window)
         return false;
-    return m_mouse_enabled;
+    return m_window->isMouseEnabled();
 }
 
 void Window::setMouseEnabled(bool enable)
 {
-    if (m_window) {
-        m_mouse_enabled = enable;
-        glfwSetInputMode(m_window.get(),
-                         GLFW_CURSOR,
-                         m_mouse_enabled ? GLFW_CURSOR_NORMAL : GLFW_CURSOR_DISABLED);
-    }
+    if (m_window)
+        m_window->setMouseEnabled(enable);
 }
 
 void Window::pollEvents()
 {
     m_input.update();
-    glfwPollEvents();
+    if (m_window)
+        m_window->pollEvents();
 }
 
 void Window::display() const
 {
     if (m_window)
-        glfwSwapBuffers(m_window.get());
-}
-
-void Window::keyCallback(
-    GLFWwindow *glfw_window, int32_t keycode, int32_t scancode, int32_t action, int32_t mode)
-{
-    Window *window = static_cast<Window *>(glfwGetWindowUserPointer(glfw_window));
-    bool pressed = (action == GLFW_PRESS || action == GLFW_REPEAT);
-
-    KeyModifier modifiers = KeyModifier::NONE;
-    if (mode & GLFW_MOD_SHIFT)
-        modifiers = modifiers | KeyModifier::SHIFT;
-    if (mode & GLFW_MOD_CONTROL)
-        modifiers = modifiers | KeyModifier::CTRL;
-    if (mode & GLFW_MOD_ALT)
-        modifiers = modifiers | KeyModifier::ALT;
-    if (mode & GLFW_MOD_SUPER)
-        modifiers = modifiers | KeyModifier::SUPER;
-
-    window->getInput().setModifiers(modifiers);
-    window->getInput().setKeyPressed(static_cast<KeyCode>(keycode), pressed);
-}
-
-void Window::mouseButtonCallback(GLFWwindow *glfw_window,
-                                 int32_t button,
-                                 int32_t action,
-                                 int32_t mode)
-{
-    Window *window = static_cast<Window *>(glfwGetWindowUserPointer(glfw_window));
-    bool pressed = (action == GLFW_PRESS || action == GLFW_REPEAT);
-    window->getInput().setButtonPressed(static_cast<ButtonCode>(button), pressed);
-}
-
-void Window::cursorPosCallback(GLFWwindow *glfw_window, double x, double y)
-{
-    Window *window = static_cast<Window *>(glfwGetWindowUserPointer(glfw_window));
-    window->getInput().setCursorPosition(static_cast<int32_t>(x), static_cast<int32_t>(y));
-}
-
-void Window::scrollCallback(GLFWwindow *glfw_window, double xoffset, double yoffset)
-{
-    Window *window = static_cast<Window *>(glfwGetWindowUserPointer(glfw_window));
-    window->getInput().setScrollX(xoffset);
-    window->getInput().setScrollY(yoffset);
-}
-
-void Window::sizeCallback(GLFWwindow *glfw_window, int32_t width, int32_t height)
-{
-    Window *window = static_cast<Window *>(glfwGetWindowUserPointer(glfw_window));
-
-    window->setViewport({0, 0, width, height});
-    window->setSize({width, height});
-}
-
-void Window::setCharCallback(GLFWwindow *glfw_window, uint32_t codepoint)
-{
-    Window *window = static_cast<Window *>(glfwGetWindowUserPointer(glfw_window));
-    window->getInput().setCodepoint(codepoint);
+        m_window->display();
 }
 
 } // namespace ae

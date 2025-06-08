@@ -1,5 +1,5 @@
-#ifndef AE_ENUMS_H
-#define AE_ENUMS_H
+#ifndef AE_FRAPHICS_ENUMS_H
+#define AE_FRAPHICS_ENUMS_H
 
 namespace ae {
 
@@ -14,4 +14,4 @@ enum class RenderTextureType { COLOR, DEPTH };
 
 } // namespace ae
 
-#endif // AE_ENUMS_H
+#endif // AE_FRAPHICS_ENUMS_H

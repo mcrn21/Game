@@ -29,6 +29,8 @@ public:
     template<typename T>
     bool has(const std::string &asset_name);
 
+    void clear();
+
     template<typename T, typename... Args>
     s_ptr<T> loadFromFile(const std::string &asset_name, Args &&...args);
 
@@ -86,6 +88,11 @@ inline bool Assets::has(const std::string &asset_name)
         return false;
 
     return true;
+}
+
+inline void Assets::clear()
+{
+    m_assets.clear();
 }
 
 template<typename T, typename... Args>

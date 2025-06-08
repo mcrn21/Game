@@ -21,8 +21,8 @@ public:
     void updateCameraPosition(const Time &elapsed_time);
 
 private:
-    void onMouseMoved(int32_t x, int32_t y, int32_t delta_x, int32_t delta_y);
-    void onScrolled(float xoffset, float yoffset);
+    void onMouseMoved(const ivec2 &, const ivec2 &);
+    void onScrolled(const vec2 &scroll);
 
 private:
     entt::entity m_player_entity;

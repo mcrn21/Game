@@ -1,8 +1,6 @@
 #include "draw_s.h"
-#include "../app.h"
+#include "../engine.h"
 #include "scene.h"
-
-#include <spdlog/spdlog.h>
 
 #include <execution>
 
@@ -59,6 +57,17 @@ void Draw_S::drawEntities(RenderState &render_state) const
 
     drawEntities(registry, m_visible_entities, render_state);
     drawEntities(registry, m_visible_transparent_entities, render_state);
+}
+
+void Draw_S::clear()
+{
+    m_static_draw_tree.clear();
+    m_dynamic_draw_tree.clear();
+
+    m_visible_entities.clear();
+    m_visible_transparent_entities.clear();
+
+    m_draw_dirty = true;
 }
 
 void Draw_S::drawEntities(const entt::registry &registry,
@@ -276,8 +285,8 @@ void Draw_S::updateTree(entt::entity entity)
 void Draw_S::removeTree(entt::entity entity)
 {
     m_draw_dirty = true;
-    m_dynamic_draw_tree.remove(entity);
     m_static_draw_tree.remove(entity);
+    m_dynamic_draw_tree.remove(entity);
 }
 
 } // namespace ae

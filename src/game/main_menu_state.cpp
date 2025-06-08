@@ -1,101 +1,105 @@
 #include "main_menu_state.h"
-#include "gameplay_state.h"
+#include "load_level_state.h"
 
-#include <ae/app.h>
+#include <ae/engine_context.h>
+#include <ae/game_state_stack.h>
+#include <ae/graphics/core/default_shaders.h>
+#include <ae/gui/gui.h>
 #include <ae/gui/label.h>
+#include <ae/input_action_manager.h>
+#include <ae/system/log.h>
 
-#include <spdlog/spdlog.h>
-
-MainMenuState::MainMenuState(bool in_gameplay)
-    : m_gameplay{in_gameplay}
+MainMenuState::MainMenuState(EngineContext &engine_context, bool in_gameplay)
+    : GameState{engine_context}
+    , m_gameplay{in_gameplay}
 {
     m_render_quad.create();
 }
 
 void MainMenuState::onEnter()
 {
-    spdlog::debug("MainMenuState::onEnter");
+    l_debug("MainMenuState::onEnter");
 
     setupKeyBindings();
 
-    auto &app = App::getInstance();
-    app.runLater([&]() {
-        m_main_menu = createGui();
-        app.getGui()->push(m_main_menu);
+    auto &ctx = getEngineContext();
+    ctx.runLater([&]() {
+        m_main_menu_gui = createGui();
+        ctx.getGui()->push(m_main_menu_gui);
     });
 }
 
 void MainMenuState::onExit()
 {
-    spdlog::debug("MainMenuState::onExit");
-
-    auto &app = App::getInstance();
-
-    app.getGui()->pop();
+    l_debug("MainMenuState::onExit");
+    auto &ctx = getEngineContext();
+    ctx.getGui()->pop();
 }
 
 void MainMenuState::update(const Time &dt)
 {
-    auto &app = App::getInstance();
+    auto &ctx = getEngineContext();
 
-    if (m_main_menu) {
-        auto *input_actions = app.getInputActionManager();
+    if (m_main_menu_gui) {
+        auto *input_actions = ctx.getInputActionManager();
         // При нажатии Escape закрываются диалоги
         if (input_actions->isActionJustActivated("back"))
-            m_main_menu->back();
+            m_main_menu_gui->back();
     }
 
     // Обновляем сцену и интерфейс
-    app.getGui()->update(dt);
+    ctx.getGui()->update(dt);
 }
 
-void MainMenuState::draw() const
+void MainMenuState::draw(const Time &dt) const
 {
-    auto &app = App::getInstance();
+    auto &ctx = getEngineContext();
 
     // Сцена и интерфейс рендерятся в текстуры
-    app.getGui()->draw();
+    ctx.getGui()->draw();
 
     // Рендерем текстуры
     glDisable(GL_DEPTH_TEST);
-    m_render_quad.draw(app.getGui()->getRenderTexture().getSampledTexture());
+    m_render_quad.draw(ctx.getGui()->getRenderTexture().getSampledTexture(),
+                       dt.asSeconds(),
+                       DefaultShaders::getOldTerminalScreenQuad().get());
     glEnable(GL_DEPTH_TEST);
 }
 
-s_ptr<MainMenu> MainMenuState::createGui()
+s_ptr<MainMenuGui> MainMenuState::createGui()
 {
-    auto &app = App::getInstance();
-    auto root = gui::Control::create<MainMenu>(m_gameplay);
+    auto &ctx = getEngineContext();
+    auto root = gui::Control::create<MainMenuGui>(ctx, m_gameplay);
 
     root->new_game.connect([&]() {
-        app.runLater([&]() {
-            auto gameplay_state = createShared<GameplayState>();
-            app.getGameStateStack()->replace(gameplay_state);
+        ctx.runLater([&]() {
+            auto loading_level_state = createShared<LoadLevelState>(ctx);
+            ctx.getGameStateStack()->replace(loading_level_state);
         });
     });
 
-    root->resume.connect([&]() { app.runLater([&]() { app.getGameStateStack()->pop(); }); });
+    root->resume.connect([&]() { ctx.runLater([&]() { ctx.getGameStateStack()->pop(); }); });
 
     root->exit_to_main_menu.connect([&]() {
-        app.runLater([&]() {
-            app.getGameStateStack()->pop();
-            app.getGameStateStack()->pop();
+        ctx.runLater([&]() {
+            ctx.getGameStateStack()->pop();
+            ctx.getGameStateStack()->pop();
 
-            auto main_menu_state = createShared<MainMenuState>();
-            app.getGameStateStack()->push(main_menu_state);
+            auto main_menu_state = createShared<MainMenuState>(ctx);
+            ctx.getGameStateStack()->push(main_menu_state);
         });
     });
 
-    root->exit.connect([&]() { app.exit(); });
+    root->exit.connect([&]() { ctx.exit(); });
 
     return root;
 }
 
 void MainMenuState::setupKeyBindings()
 {
-    auto &app = App::getInstance();
+    auto &ctx = getEngineContext();
 
-    auto *input_actions = app.getInputActionManager();
+    auto *input_actions = ctx.getInputActionManager();
     input_actions->clear();
 
     input_actions->bindKeys({{"back", std::vector<std::string>{"Escape"}}});

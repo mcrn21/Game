@@ -4,7 +4,7 @@ namespace ae {
 
 AnimationManager::AnimationManager() {}
 
-void AnimationManager::add(const s_ptr<Animation> &animation)
+void AnimationManager::run(const s_ptr<Animation> &animation)
 {
     if (!animation || animation->m_animation_manager != nullptr)
         return;

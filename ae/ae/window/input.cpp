@@ -1,6 +1,5 @@
 #include "input.h"
-
-#include <spdlog/spdlog.h>
+#include "../system/log.h"
 
 #include <unordered_map>
 
@@ -293,13 +292,10 @@ ScrollDirection scrollDirectionFromString(const std::string &string)
 Input::Input()
     : m_states(KEYS_COUNT + BUTTONS_COUNT, {false, 0})
     , m_modifiers{KeyModifier::NONE}
-    , m_cursor_x{0}
-    , m_cursor_y{0}
-    , m_cursor_delta_x{0}
-    , m_cursor_delta_y{0}
+    , m_cursor_position{0}
+    , m_cursor_delta{0}
     , m_cursor_dragged{false}
-    , m_scroll_x{0.0f}
-    , m_scroll_y{0.0f}
+    , m_scroll{0.0f}
     , m_codepoint{0}
     , m_update_counter{0}
 {}
@@ -321,91 +317,6 @@ bool Input::isKeyJustUp(KeyCode keycode) const
            && m_states[static_cast<int32_t>(keycode)].second == m_update_counter;
 }
 
-bool Input::isButtonDown(ButtonCode button) const
-{
-    return m_states[KEYS_COUNT + static_cast<int32_t>(button)].first;
-}
-
-bool Input::isButtonJustDown(ButtonCode button) const
-{
-    return m_states[KEYS_COUNT + static_cast<int32_t>(button)].first
-           && m_states[KEYS_COUNT + static_cast<int32_t>(button)].second == m_update_counter;
-}
-
-bool Input::isButtonJustUp(ButtonCode button) const
-{
-    return !m_states[KEYS_COUNT + static_cast<int32_t>(button)].first
-           && m_states[KEYS_COUNT + static_cast<int32_t>(button)].second == m_update_counter;
-}
-
-KeyModifier Input::getModifiers() const
-{
-    return m_modifiers;
-}
-
-int32_t Input::getCursorX() const
-{
-    return m_cursor_x;
-}
-
-int32_t Input::getCursorY() const
-{
-    return m_cursor_y;
-}
-
-int32_t Input::getCursorDeltaX() const
-{
-    return m_cursor_delta_x;
-}
-
-int32_t Input::getCursorDeltaY() const
-{
-    return m_cursor_delta_y;
-}
-
-float Input::getScrollX() const
-{
-    return m_scroll_x;
-}
-
-void Input::setScrollX(float xoffset)
-{
-    m_scroll_x = xoffset;
-    scrolled(m_scroll_x, m_scroll_y);
-}
-
-float Input::getScrollY() const
-{
-    return m_scroll_y;
-}
-
-void Input::setScrollY(float yoffset)
-{
-    m_scroll_y = yoffset;
-    scrolled(m_scroll_x, m_scroll_y);
-}
-
-uint32_t Input::getCodepoint() const
-{
-    return m_codepoint;
-}
-
-void Input::setCodepoint(uint32_t codepoint)
-{
-    m_codepoint = codepoint;
-    codepointInputed(codepoint);
-}
-
-void Input::update()
-{
-    ++m_update_counter;
-    m_cursor_delta_x = 0;
-    m_cursor_delta_y = 0;
-    m_scroll_x = 0.0f;
-    m_scroll_y = 0.0f;
-    m_codepoint = 0;
-}
-
 void Input::setKeyPressed(KeyCode keycode, int32_t pressed)
 {
     if (pressed && !m_states[static_cast<int32_t>(keycode)].first) {
@@ -423,6 +334,23 @@ void Input::setKeyPressed(KeyCode keycode, int32_t pressed)
     }
 }
 
+bool Input::isButtonDown(ButtonCode button) const
+{
+    return m_states[KEYS_COUNT + static_cast<int32_t>(button)].first;
+}
+
+bool Input::isButtonJustDown(ButtonCode button) const
+{
+    return m_states[KEYS_COUNT + static_cast<int32_t>(button)].first
+           && m_states[KEYS_COUNT + static_cast<int32_t>(button)].second == m_update_counter;
+}
+
+bool Input::isButtonJustUp(ButtonCode button) const
+{
+    return !m_states[KEYS_COUNT + static_cast<int32_t>(button)].first
+           && m_states[KEYS_COUNT + static_cast<int32_t>(button)].second == m_update_counter;
+}
+
 void Input::setButtonPressed(ButtonCode button, int32_t pressed)
 {
     if (pressed && !m_states[KEYS_COUNT + static_cast<int32_t>(button)].first) {
@@ -437,24 +365,67 @@ void Input::setButtonPressed(ButtonCode button, int32_t pressed)
     }
 }
 
+KeyModifier Input::getModifiers() const
+{
+    return m_modifiers;
+}
+
 void Input::setModifiers(KeyModifier modifiers)
 {
     m_modifiers = modifiers;
 }
 
-void Input::setCursorPosition(int32_t x, int32_t y)
+const ivec2 &Input::getCursorPosition() const
 {
-    if (m_cursor_dragged) {
-        m_cursor_delta_x = x - m_cursor_x;
-        m_cursor_delta_y = y - m_cursor_y;
+    return m_cursor_position;
+}
 
-    } else
+const ivec2 &Input::getCursorDelta() const
+{
+    return m_cursor_delta;
+}
+
+void Input::setCursorPosition(const ivec2 &cursor_position)
+{
+    if (m_cursor_dragged)
+        m_cursor_delta = cursor_position - m_cursor_position;
+    else
         m_cursor_dragged = true;
 
-    m_cursor_x = x;
-    m_cursor_y = y;
+    // l_debug("delta: {}", m_cursor_delta);
 
-    cursorMoved(m_cursor_x, m_cursor_y, m_cursor_delta_x, m_cursor_delta_y);
+    m_cursor_position = cursor_position;
+    cursorMoved(cursor_position, m_cursor_delta);
+}
+
+const vec2 &Input::getScroll() const
+{
+    return m_scroll;
+}
+
+void Input::setScroll(const vec2 &scroll)
+{
+    m_scroll = scroll;
+    scrolled(scroll);
+}
+
+uint32_t Input::getCodepoint() const
+{
+    return m_codepoint;
+}
+
+void Input::setCodepoint(uint32_t codepoint)
+{
+    m_codepoint = codepoint;
+    codepointInputed(codepoint);
+}
+
+void Input::update()
+{
+    ++m_update_counter;
+    m_cursor_delta = ivec2{0};
+    m_scroll = vec2{0.0f};
+    m_codepoint = 0;
 }
 
 } // namespace ae

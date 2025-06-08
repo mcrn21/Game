@@ -21,6 +21,8 @@ public:
 
     void update(const Time &elapsed_time);
 
+    void clear();
+
 private:
     void updateTree(entt::entity entity);
     void removeTree(entt::entity entity);
@@ -54,6 +56,9 @@ private:
 
 private:
     ComponentWatcher m_component_watcher;
+
+    BVH<entt::entity, entt::null> m_static_colliders_tree;
+    BVH<entt::entity, entt::null> m_dynamic_colliders_tree;
 
     // Временные переменные для поиска коллизий
     CollisionResult m_temp_result;

@@ -1,12 +1,7 @@
 #include "task.h"
-#include "app.h"
+#include "task_manager.h"
 
 namespace ae {
-
-void Task::run()
-{
-    App::getInstance().getTaskManager()->run(sharedFromThis());
-}
 
 DelayTask::DelayTask(const Time &delay)
     : m_remaining{delay}
@@ -41,13 +36,11 @@ void TaskChain::addTask(const s_ptr<Task> &task)
 
 bool TaskChain::update(const Time &dt)
 {
-    while (!m_tasks.empty()) {
-        if (m_tasks.front()->update(dt)) {
+    if (!m_tasks.empty()) {
+        if (m_tasks.front()->update(dt))
             m_tasks.pop();
-        } else
-            return false;
     }
-    return true;
+    return m_tasks.empty() ? true : false;
 }
 
 } // namespace ae
