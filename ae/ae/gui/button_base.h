@@ -1,10 +1,9 @@
 #ifndef AE_GUI_BUTTON_H
 #define AE_GUI_BUTTON_H
 
+#include "../system/signal.h"
 #include "../system/string.h"
 #include "control.h"
-
-#include "../../3rd/sigslot/signal.hpp"
 
 namespace ae::gui {
 
@@ -32,8 +31,8 @@ protected:
     void updateImplicitSize();
 
 public:
-    sigslot::signal<> clicked;
-    sigslot::signal<bool> toggled;
+    Signal<> clicked;
+    Signal<bool> toggled;
 
 private:
     bool m_checkable;

@@ -27,10 +27,7 @@ Window *EngineContext::getWindow() const
 
 Input *EngineContext::getInput() const
 {
-    if (!m_data.window)
-        return nullptr;
-
-    return &m_data.window->getInput();
+    return m_data.input.get();
 }
 
 Assets *EngineContext::getAssets() const
@@ -107,7 +104,10 @@ bool EngineContext::init(const Config &config)
 {
     m_data.tick_time = seconds(1.0f / static_cast<float>(config.game_frame_rate));
 
-    m_data.window = createUnique<Window>();
+    // Input
+    m_data.input = createUnique<Input>();
+
+    m_data.window = createUnique<Window>(*this);
     if (!m_data.window->create(ivec2{config.window_width, config.window_height},
                                config.window_title,
                                config.msaa))
@@ -132,19 +132,19 @@ bool EngineContext::init(const Config &config)
     m_data.gui->setRenderTextureSize(ivec2{config.window_width, config.window_height});
     m_data.window->sizeChanged.connect(&Gui::setRenderTextureSize, m_data.gui.get());
 
-    m_data.window->getInput().buttonJustDown.connect(&Gui::onButtonPressed, m_data.gui.get());
-    m_data.window->getInput().buttonJustUp.connect(&Gui::onButtonReleased, m_data.gui.get());
-    m_data.window->getInput().cursorMoved.connect(&Gui::onCursorMoved, m_data.gui.get());
-    m_data.window->getInput().keyJustDown.connect(&Gui::onKeyPressed, m_data.gui.get());
-    m_data.window->getInput().keyDown.connect(&Gui::onKeyHeld, m_data.gui.get());
-    m_data.window->getInput().keyJustUp.connect(&Gui::onKeyReleased, m_data.gui.get());
-    m_data.window->getInput().codepointInputed.connect(&Gui::onCodepointInputed, m_data.gui.get());
+    m_data.input->buttonJustDown.connect(&Gui::onButtonPressed, m_data.gui.get());
+    m_data.input->buttonJustUp.connect(&Gui::onButtonReleased, m_data.gui.get());
+    m_data.input->cursorMoved.connect(&Gui::onCursorMoved, m_data.gui.get());
+    m_data.input->keyJustDown.connect(&Gui::onKeyPressed, m_data.gui.get());
+    m_data.input->keyDown.connect(&Gui::onKeyHeld, m_data.gui.get());
+    m_data.input->keyJustUp.connect(&Gui::onKeyReleased, m_data.gui.get());
+    m_data.input->codepointInputed.connect(&Gui::onCodepointInputed, m_data.gui.get());
 
     // Game state stack
     m_data.game_state_stack = createUnique<GameStateStack>();
 
     // Game input action manager
-    m_data.input_action_manager = createUnique<InputActionManager>();
+    m_data.input_action_manager = createUnique<InputActionManager>(*this);
 
     return true;
 }

@@ -322,15 +322,15 @@ void Input::setKeyPressed(KeyCode keycode, int32_t pressed)
     if (pressed && !m_states[static_cast<int32_t>(keycode)].first) {
         m_states[static_cast<int32_t>(keycode)].first = true;
         m_states[static_cast<int32_t>(keycode)].second = m_update_counter;
-        keyJustDown(keycode);
+        keyJustDown.emit(keycode);
 
     } else if (pressed && m_states[static_cast<int32_t>(keycode)].first) {
-        keyDown(keycode);
+        keyDown.emit(keycode);
 
     } else if (!pressed && m_states[static_cast<int32_t>(keycode)].first) {
         m_states[static_cast<int32_t>(keycode)].first = false;
         m_states[static_cast<int32_t>(keycode)].second = m_update_counter;
-        keyJustUp(keycode);
+        keyJustUp.emit(keycode);
     }
 }
 
@@ -356,12 +356,12 @@ void Input::setButtonPressed(ButtonCode button, int32_t pressed)
     if (pressed && !m_states[KEYS_COUNT + static_cast<int32_t>(button)].first) {
         m_states[KEYS_COUNT + static_cast<int32_t>(button)].first = true;
         m_states[KEYS_COUNT + static_cast<int32_t>(button)].second = m_update_counter;
-        buttonJustDown(button);
+        buttonJustDown.emit(button);
 
     } else if (!pressed && m_states[KEYS_COUNT + static_cast<int32_t>(button)].first) {
         m_states[KEYS_COUNT + static_cast<int32_t>(button)].first = false;
         m_states[KEYS_COUNT + static_cast<int32_t>(button)].second = m_update_counter;
-        buttonJustUp(button);
+        buttonJustUp.emit(button);
     }
 }
 
@@ -395,7 +395,7 @@ void Input::setCursorPosition(const ivec2 &cursor_position)
     // l_debug("delta: {}", m_cursor_delta);
 
     m_cursor_position = cursor_position;
-    cursorMoved(cursor_position, m_cursor_delta);
+    cursorMoved.emit(cursor_position, m_cursor_delta);
 }
 
 const vec2 &Input::getScroll() const
@@ -406,7 +406,7 @@ const vec2 &Input::getScroll() const
 void Input::setScroll(const vec2 &scroll)
 {
     m_scroll = scroll;
-    scrolled(scroll);
+    scrolled.emit(scroll);
 }
 
 uint32_t Input::getCodepoint() const
@@ -417,7 +417,7 @@ uint32_t Input::getCodepoint() const
 void Input::setCodepoint(uint32_t codepoint)
 {
     m_codepoint = codepoint;
-    codepointInputed(codepoint);
+    codepointInputed.emit(codepoint);
 }
 
 void Input::update()

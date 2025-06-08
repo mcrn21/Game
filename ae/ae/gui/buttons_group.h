@@ -23,7 +23,7 @@ public:
 
 public:
     // current, prev
-    sigslot::signal<int32_t, int32_t> checked;
+    Signal<int32_t, int32_t> checked;
 
 private:
     std::vector<s_ptr<ButtonBase>> m_buttons;

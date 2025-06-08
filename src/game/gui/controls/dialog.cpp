@@ -43,11 +43,11 @@ void Dialog::onCreated()
 {
     m_accept_button = gui::Control::create<Button>(getEngineContext());
     m_accept_button->setParent(sharedFromThis());
-    m_accept_button->clicked.connect([this]() { accepted(); });
+    m_accept_button->clicked.connect([this]() { accepted.emit(); });
 
     m_cancel_button = gui::Control::create<Button>(getEngineContext());
     m_cancel_button->setParent(sharedFromThis());
-    m_cancel_button->clicked.connect([this]() { canceled(); });
+    m_cancel_button->clicked.connect([this]() { canceled.emit(); });
 }
 
 void Dialog::drawControl(Batch2D &batch_2d)

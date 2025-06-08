@@ -30,8 +30,8 @@ private:
     void updateGeometry();
 
 public:
-    sigslot::signal<> accepted;
-    sigslot::signal<> canceled;
+    Signal<> accepted;
+    Signal<> canceled;
 
 private:
     vec2 m_center;

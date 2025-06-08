@@ -5,7 +5,7 @@ TabsContainer::TabsContainer(EngineContext &engine_context)
     , m_color{Color::white}
 {
     m_buttons_group.checked.connect(
-        [this](int32_t current, int32_t prev) { tabActivated(current); });
+        [this](int32_t current, int32_t) { tabActivated.emit(current); });
 }
 
 void TabsContainer::setColor(const Color &color)

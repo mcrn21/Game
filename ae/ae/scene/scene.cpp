@@ -73,7 +73,7 @@ void Scene::tickUpdate(const Time &elapsed_time)
     m_data.lights_s->update();
     m_data.draw_s->update();
 
-    tickUpdated();
+    tickUpdated.emit();
 
     m_data.camera_dirty = false;
     m_data.scene_dirty = false;

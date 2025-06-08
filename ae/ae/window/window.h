@@ -1,6 +1,7 @@
 #ifndef AE_WINDOW_H
 #define AE_WINDOW_H
 
+#include "../engine_context_object.h"
 #include "../graphics/core/render_target.h"
 #include "../system/memory.h"
 #include "input.h"
@@ -37,18 +38,19 @@ struct WindowImpl
 
 } // namespace priv
 
-class Window : public RenderTarget
+class Window : public EngineContextObject, public RenderTarget
 {
 public:
-    Window();
-    Window(const ivec2 &size, const std::string &title, int32_t msaa = 0);
+    Window(EngineContext &engine_context);
+    Window(EngineContext &engine_context,
+           const ivec2 &size,
+           const std::string &title,
+           int32_t msaa = 0);
     ~Window() = default;
 
     bool create(const ivec2 &size, const std::string &title, int32_t msaa = 0);
     bool isValid() const;
     void destroy();
-
-    Input &getInput();
 
     bool isShouldClose() const;
     void setShouldClose(bool flag);
@@ -61,7 +63,6 @@ public:
 
 private:
     u_ptr<priv::WindowImpl> m_window;
-    Input m_input;
 };
 
 } // namespace ae

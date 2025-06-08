@@ -21,6 +21,7 @@ class Input;
 struct EngineData
 {
     u_ptr<Window> window;
+    u_ptr<Input> input;
     u_ptr<Assets> assets;
     u_ptr<Scene> scene;
     u_ptr<Gui> gui;

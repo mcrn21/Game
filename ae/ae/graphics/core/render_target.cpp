@@ -18,7 +18,7 @@ const ivec2 &RenderTarget::getSize() const
 void RenderTarget::setSize(const ivec2 &size)
 {
     m_size = size;
-    sizeChanged(size);
+    sizeChanged.emit(size);
 }
 
 const ivec4 &RenderTarget::getViewport() const

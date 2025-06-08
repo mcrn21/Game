@@ -1,14 +1,17 @@
 #include "input_action_manager.h"
 #include "common/utils.h"
+#include "engine_context.h"
 #include "system/log.h"
+#include "window/input.h"
 
 #include <algorithm>
 #include <ranges>
 
 namespace ae {
 
-InputActionManager::InputActionManager()
-    : m_update_counter{0}
+InputActionManager::InputActionManager(EngineContext &engine_context)
+    : EngineContextObject{engine_context}
+    , m_update_counter{0}
 {}
 
 void InputActionManager::bindKey(const std::string &action_name, const std::string &binding)
@@ -161,13 +164,13 @@ bool InputActionManager::isActionJustDeactivated(const std::string &action_name)
                : false;
 }
 
-void InputActionManager::update(const Input &input)
+void InputActionManager::update()
 {
     ++m_update_counter;
 
     for (auto &[name, action] : m_actions) {
         for (const auto &binding : action.bindings) {
-            bool is_active = isBindingActive(binding, input);
+            bool is_active = isBindingActive(binding);
             if (is_active && !action.active) {
                 action.active = true;
                 action.last_update = m_update_counter;
@@ -180,26 +183,28 @@ void InputActionManager::update(const Input &input)
     }
 }
 
-bool InputActionManager::isBindingActive(const KeyBinding &binding, const Input &input) const
+bool InputActionManager::isBindingActive(const KeyBinding &binding) const
 {
+    auto *input = getEngineContext().getInput();
+
     switch (binding.type) {
     case KeyBinding::KEYBOARD:
-        return input.isKeyJustDown(static_cast<KeyCode>(binding.value))
-               && input.getModifiers() == binding.modifiers;
+        return input->isKeyJustDown(static_cast<KeyCode>(binding.value))
+               && input->getModifiers() == binding.modifiers;
 
     case KeyBinding::MOUSE:
-        return input.isButtonJustDown(static_cast<ButtonCode>(binding.value));
+        return input->isButtonJustDown(static_cast<ButtonCode>(binding.value));
 
     case KeyBinding::SCROLL:
         switch (binding.value) {
         case static_cast<int32_t>(ScrollDirection::SCROLL_UP): // Up
-            return input.getScroll().y > 0.0f;
+            return input->getScroll().y > 0.0f;
         case static_cast<int32_t>(ScrollDirection::SCROLL_DOWN): // Down
-            return input.getScroll().y < 0.0f;
+            return input->getScroll().y < 0.0f;
         case static_cast<int32_t>(ScrollDirection::SCROLL_LEFT): // Left
-            return input.getScroll().x < 0.0f;
+            return input->getScroll().x < 0.0f;
         case static_cast<int32_t>(ScrollDirection::SCROLL_RIGHT): // Right
-            return input.getScroll().x > 0.0f;
+            return input->getScroll().x > 0.0f;
         default:
             return false;
         }

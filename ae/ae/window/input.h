@@ -1,12 +1,12 @@
 #ifndef AE_INPUT_H
 #define AE_INPUT_H
 
-#include "../../3rd/sigslot/signal.hpp"
+#include "../system/signal.h"
 
 #include <glm/glm.hpp>
 
 #include <cstdint>
-#include <string.h>
+#include <string>
 #include <vector>
 
 using namespace glm;
@@ -161,8 +161,6 @@ bool hasModifier(KeyModifier modifiers, KeyModifier flag);
 
 class Input
 {
-    friend class Window;
-
 public:        
     Input();
     ~Input() = default;
@@ -196,18 +194,17 @@ public:
     uint32_t getCodepoint() const;
     void setCodepoint(uint32_t codepoint);
 
-private:
     void update();
 
 public:
-    sigslot::signal<KeyCode> keyJustDown;
-    sigslot::signal<KeyCode> keyJustUp;
-    sigslot::signal<KeyCode> keyDown;
-    sigslot::signal<ButtonCode> buttonJustDown;
-    sigslot::signal<ButtonCode> buttonJustUp;
-    sigslot::signal<const ivec2 &, const ivec2 &> cursorMoved;
-    sigslot::signal<const ivec2 &> scrolled;
-    sigslot::signal<uint32_t> codepointInputed;
+    Signal<KeyCode> keyJustDown;
+    Signal<KeyCode> keyJustUp;
+    Signal<KeyCode> keyDown;
+    Signal<ButtonCode> buttonJustDown;
+    Signal<ButtonCode> buttonJustUp;
+    Signal<const ivec2 &, const ivec2 &> cursorMoved;
+    Signal<const vec2 &> scrolled;
+    Signal<uint32_t> codepointInputed;
 
 private:
     std::vector<std::pair<bool, int32_t>> m_states;

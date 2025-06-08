@@ -6,8 +6,6 @@
 
 #include "system/clock.h"
 
-#include "../3rd/sigslot/signal.hpp"
-
 namespace ae {
 
 class Engine : public EngineContext
@@ -22,9 +20,6 @@ public:
 
     int32_t exec();
     void exit();
-
-public:
-    sigslot::signal<> created;
 
 private:
     Config m_config;

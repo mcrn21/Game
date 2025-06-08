@@ -1,5 +1,7 @@
 #include "window.h"
+#include "../engine_context.h"
 #include "../system/log.h"
+#include "input.h"
 
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
@@ -120,6 +122,8 @@ struct GLFWWindowImpl : public WindowImpl
         GLFWwindow *glfw_window, int32_t keycode, int32_t scancode, int32_t action, int32_t mode)
     {
         Window *window = static_cast<Window *>(glfwGetWindowUserPointer(glfw_window));
+        Input *input = window->getEngineContext().getInput();
+
         bool pressed = (action == GLFW_PRESS || action == GLFW_REPEAT);
 
         KeyModifier modifiers = KeyModifier::NONE;
@@ -132,8 +136,8 @@ struct GLFWWindowImpl : public WindowImpl
         if (mode & GLFW_MOD_SUPER)
             modifiers = modifiers | KeyModifier::SUPER;
 
-        window->getInput().setModifiers(modifiers);
-        window->getInput().setKeyPressed(static_cast<KeyCode>(keycode), pressed);
+        input->setModifiers(modifiers);
+        input->setKeyPressed(static_cast<KeyCode>(keycode), pressed);
     }
 
     static void mouseButtonCallback(GLFWwindow *glfw_window,
@@ -142,22 +146,23 @@ struct GLFWWindowImpl : public WindowImpl
                                     int32_t mode)
     {
         Window *window = static_cast<Window *>(glfwGetWindowUserPointer(glfw_window));
+        Input *input = window->getEngineContext().getInput();
         bool pressed = (action == GLFW_PRESS || action == GLFW_REPEAT);
-        window->getInput().setButtonPressed(static_cast<ButtonCode>(button), pressed);
+        input->setButtonPressed(static_cast<ButtonCode>(button), pressed);
     }
 
     static void cursorPosCallback(GLFWwindow *glfw_window, double x, double y)
     {
         Window *window = static_cast<Window *>(glfwGetWindowUserPointer(glfw_window));
-        window->getInput().setCursorPosition(
-            ivec2{static_cast<int32_t>(x), static_cast<int32_t>(y)});
+        Input *input = window->getEngineContext().getInput();
+        input->setCursorPosition(ivec2{static_cast<int32_t>(x), static_cast<int32_t>(y)});
     }
 
     static void scrollCallback(GLFWwindow *glfw_window, double x_offset, double y_offset)
     {
         Window *window = static_cast<Window *>(glfwGetWindowUserPointer(glfw_window));
-        window->getInput().setScroll(
-            vec2{static_cast<float>(x_offset), static_cast<float>(y_offset)});
+        Input *input = window->getEngineContext().getInput();
+        input->setScroll(vec2{static_cast<float>(x_offset), static_cast<float>(y_offset)});
     }
 
     static void sizeCallback(GLFWwindow *glfw_window, int32_t width, int32_t height)
@@ -170,7 +175,8 @@ struct GLFWWindowImpl : public WindowImpl
     static void setCharCallback(GLFWwindow *glfw_window, uint32_t codepoint)
     {
         Window *window = static_cast<Window *>(glfwGetWindowUserPointer(glfw_window));
-        window->getInput().setCodepoint(codepoint);
+        Input *input = window->getEngineContext().getInput();
+        input->setCodepoint(codepoint);
     }
 
     static GLFWManager glfw_manager;
@@ -183,9 +189,15 @@ GLFWManager GLFWWindowImpl::glfw_manager;
 
 } // namespace priv
 
-Window::Window() {}
+Window::Window(EngineContext &engine_context)
+    : EngineContextObject{engine_context}
+{}
 
-Window::Window(const ivec2 &size, const std::string &title, int32_t msaa)
+Window::Window(EngineContext &engine_context,
+               const ivec2 &size,
+               const std::string &title,
+               int32_t msaa)
+    : EngineContextObject{engine_context}
 {
     create(size, title, msaa);
 }
@@ -216,11 +228,6 @@ void Window::destroy()
     }
 }
 
-Input &Window::getInput()
-{
-    return m_input;
-}
-
 bool Window::isShouldClose() const
 {
     if (!m_window)
@@ -249,7 +256,6 @@ void Window::setMouseEnabled(bool enable)
 
 void Window::pollEvents()
 {
-    m_input.update();
     if (m_window)
         m_window->pollEvents();
 }

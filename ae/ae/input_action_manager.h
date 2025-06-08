@@ -1,6 +1,7 @@
 #ifndef AE_INPUT_ACTION_MANAGER_H
 #define AE_INPUT_ACTION_MANAGER_H
 
+#include "engine_context_object.h"
 #include "window/input.h"
 
 #include <stdint.h>
@@ -30,10 +31,10 @@ struct KeyBinding
     KeyModifier modifiers = KeyModifier::NONE;
 };
 
-class InputActionManager
+class InputActionManager : public EngineContextObject
 {
 public:
-    InputActionManager();
+    InputActionManager(EngineContext &engine_context);
     ~InputActionManager() = default;
 
     void bindKey(const std::string &action_name, const std::string &binding);
@@ -59,12 +60,12 @@ public:
     bool isActionActive(const std::string &action_name) const;
     bool isActionJustDeactivated(const std::string &action_name) const;
 
-    void update(const Input &input);
+    void update();
 
     uint32_t getUpdateCounter() const { return m_update_counter; }
 
 private:
-    bool isBindingActive(const KeyBinding &binding, const Input &input) const;
+    bool isBindingActive(const KeyBinding &binding) const;
 
 private:
     struct InputAction

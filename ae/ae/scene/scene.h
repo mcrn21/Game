@@ -23,7 +23,7 @@ public:
     void tickUpdate(const Time &elapsed_time);
     void draw() const;
 
-    sigslot::signal<> tickUpdated;
+    Signal<> tickUpdated;
 
     void createPlayer(const s_ptr<Model> &model,
                       const mat4 &player_transform = mat4{1.0f},

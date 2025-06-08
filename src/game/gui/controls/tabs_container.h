@@ -27,7 +27,7 @@ private:
     void updateGeometry();
 
 public:
-    sigslot::signal<int32_t> tabActivated;
+    Signal<int32_t> tabActivated;
 
 private:
     Color m_color;

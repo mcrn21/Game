@@ -19,7 +19,7 @@ find_package(OpenAL REQUIRED)
 add_subdirectory(3rd/embed)
 
 add_library(ae SHARED
-    3rd/sigslot/signal.hpp
+
     3rd/stb/stb_image.h
     3rd/stb/stb_image_write.h
     3rd/stb/stb_vorbis.c
@@ -131,6 +131,7 @@ add_library(ae SHARED
     shaders/screen_quad.vert
     shaders/skybox.frag
     shaders/skybox.vert
+    ae/system/signal.h
 )
 
 target_link_libraries(ae PRIVATE

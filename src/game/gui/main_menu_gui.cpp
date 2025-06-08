@@ -12,22 +12,22 @@ MainMenuGui::MainMenuGui(EngineContext &engine_context, bool gameplay)
     auto &ctx = getEngineContext();
 
     m_all_buttons = {
-        {"New game", [&]() { new_game(); }}, // 0
-        {"Save game", [&]() {}},             // 1
-        {"Load game", [&]() {}},             // 2
-        {"Resume", [&]() { resume(); }},     // 3
-        {"Settings",                         // 4
+        {"New game", [&]() { new_game.emit(); }}, // 0
+        {"Save game", [&]() {}},                  // 1
+        {"Load game", [&]() {}},                  // 2
+        {"Resume", [&]() { resume.emit(); }},     // 3
+        {"Settings",                              // 4
          [&]() { ctx.runLater([&]() { createSettingsDialog(); }); }},
         {"Exit to main menu", // 5
          [&]() { ctx.runLater([&]() { createExitToMainMenuDialog(); }); }},
         {"Exit", [&]() { ctx.runLater([&]() { createExitGameDialog(); }); }}, // 6
 
         // Exit game buttons
-        {"Accept", [&]() { exit(); }},                                          // 7
+        {"Accept", [&]() { exit.emit(); }},                                     // 7
         {"Cancel", [&]() { ctx.runLater([&]() { m_fake_terminal->pop(); }); }}, // 8
 
         // Exit to main menu
-        {"Accept", [&]() { exit_to_main_menu(); }}, // 9
+        {"Accept", [&]() { exit_to_main_menu.emit(); }}, // 9
 
         {"Back", [&]() { ctx.runLater([&]() { m_fake_terminal->pop(); }); }} // 10
     };
@@ -43,7 +43,7 @@ void MainMenuGui::back()
     }
 
     if (m_gameplay)
-        resume();
+        resume.emit();
     else
         ctx.runLater([&]() { createExitGameDialog(); });
 }

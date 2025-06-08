@@ -23,12 +23,12 @@ void ButtonsGroup::addButton(const s_ptr<ButtonBase> &button)
         m_prev = m_current;
         m_current = i;
 
-        checked(m_current, m_prev);
+        checked.emit(m_current, m_prev);
     });
 
     if (m_buttons.empty()) {
         button->setChecked(true);
-        button->clicked();
+        button->clicked.emit();
     }
 
     m_buttons.push_back(button);
@@ -48,7 +48,7 @@ void ButtonsGroup::removeButton(const s_ptr<ButtonBase> &button)
         if (m_current != -1)
             m_buttons[m_current]->setChecked(true);
 
-        checked(m_current, m_prev);
+        checked.emit(m_current, m_prev);
     }
 
     m_buttons.erase(found);

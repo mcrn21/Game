@@ -1,7 +1,7 @@
 #ifndef AE_RENDER_TARGET_H
 #define AE_RENDER_TARGET_H
 
-#include "../../../3rd/sigslot/signal.hpp"
+#include "../../system/signal.h"
 #include "color.h"
 
 #include <glm/glm.hpp>
@@ -29,7 +29,7 @@ public:
     virtual void display() const = 0;
 
 public:
-    sigslot::signal<const ivec2 &> sizeChanged;
+    Signal<const ivec2 &> sizeChanged;
 
 private:
     ivec2 m_size;

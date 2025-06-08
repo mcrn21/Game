@@ -28,7 +28,7 @@ void ButtonBase::setChecked(bool checked)
 {
     if (m_checked != checked) {
         m_checked = checked;
-        toggled(checked);
+        toggled.emit(checked);
         repaint();
     }
 }
@@ -60,10 +60,10 @@ void ButtonBase::setLineSpacing(float line_spacing)
 void ButtonBase::onButtonReleased(ButtonCode button)
 {
     if (button == ButtonCode::BUTTON_0) {
-        clicked();
+        clicked.emit();
         if (m_checkable) {
             m_checked = !m_checked;
-            toggled(m_checked);
+            toggled.emit(m_checked);
             repaint();
         }
     }

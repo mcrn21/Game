@@ -36,8 +36,6 @@ int32_t Engine::exec()
     Clock loop_clock;
     Time accumulator;
 
-    created();
-
     while (m_running) {
         m_data.elapsed_time = loop_clock.getElapsedTime();
         accumulator += m_data.elapsed_time;
@@ -46,8 +44,9 @@ int32_t Engine::exec()
         m_data.fps = m_data.fps * (1.0f - m_data.fps_alpha)
                      + (1.0f / m_data.elapsed_time.asSeconds()) * m_data.fps_alpha;
 
+        m_data.input->update();
         m_data.window->pollEvents();
-        m_data.input_action_manager->update(*getInput());
+        m_data.input_action_manager->update();
 
         while (accumulator >= m_data.tick_time) {
             m_data.animation_manager->update(m_data.tick_time);

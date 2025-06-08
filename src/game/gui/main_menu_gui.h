@@ -5,6 +5,7 @@
 
 #include <ae/gui/control.h>
 #include <ae/gui/label.h>
+#include <ae/system/signal.h>
 #include <ae/system/string.h>
 
 #include <functional>
@@ -26,10 +27,10 @@ public:
     void onSizeChanged(const vec2 &size);
 
 public:
-    sigslot::signal<> new_game;
-    sigslot::signal<> resume;
-    sigslot::signal<> exit_to_main_menu;
-    sigslot::signal<> exit;
+    Signal<> new_game;
+    Signal<> resume;
+    Signal<> exit_to_main_menu;
+    Signal<> exit;
 
 protected:
     void drawControl(Batch2D &batch_2d);
